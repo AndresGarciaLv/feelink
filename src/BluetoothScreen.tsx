@@ -62,7 +62,6 @@ export default function BluetoothScreen() {
         'abcd1234-abcd-1234-abcd-1234567890ab',
         (error, characteristic) => {
           if (error) {
-            console.error('Error al recibir datos:', error.message);
             return;
           }
 
