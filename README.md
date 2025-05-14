@@ -19,8 +19,13 @@ Este repositorio contiene la primera versión funcional de la app **Feellink**, 
 
 1. Clona este repositorio:
 
+2. Ingresa a la carpeta feelink:
 
-2. Instala las dependencias con compatibilidad Expo:
+```bash
+cd feelink
+```
+
+3. Instala las dependencias con compatibilidad Expo:
 
 ```bash
 npm install --legacy-peer-deps
@@ -28,19 +33,37 @@ npm install --legacy-peer-deps
 
 🔧 Esto evitará errores con `react-native-ble-plx`, `bluetooth-state-manager`, y otras librerías nativas que usan `peerDependencies`.
 
-3. Instala esbuild si no se instala automáticamente:
 
-```bash
-npm install --save-dev esbuild
-```
-
-> (Opcional, si usas Android Studio) Verifica que tengas **Java 17** y **Gradle actualizado**.
+> (Obligatorio tener instalado Android Studio) Verifica que tengas **Java 17**.
 
 4. Genera el archivo `debug.keystore` ejecutando este comando en la terminal:
 
 ```bash
 keytool -genkeypair -v -keystore android/app/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000
 ```
+Durante este paso, se te mostrarán una serie de preguntas en la terminal.
+Solo presiona Enter en cada una, y en la última pregunta deberás escribir `yes`.
+
+What is your first and last name?
+  [Unknown]:            ← Presiona Enter
+
+What is the name of your organizational unit?
+  [Unknown]:            ← Presiona Enter
+
+What is the name of your organization?
+  [Unknown]:            ← Presiona Enter
+
+What is the name of your City or Locality?
+  [Unknown]:            ← Presiona Enter
+
+What is the name of your State or Province?
+  [Unknown]:            ← Presiona Enter
+
+What is the two-letter country code for this unit?
+  [Unknown]:            ← Presiona Enter
+
+Is CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?
+  [no]: yes             ← Aquí debes escribir `yes`
 
 ---
 
@@ -52,21 +75,10 @@ keytool -genkeypair -v -keystore android/app/debug.keystore -storepass android -
 ```bash
 npx expo run:android
 ```
-
-3. Abre la carpeta `.android` desde **Android Studio**
-4. Genera la APK desde "Build" dentro de **Android Studio**
-5. Instala la APK generada en tu celular Android
-6. Escanea el código QR con **Expo Go**
-7. La app se abrirá y se conectará correctamente con la ESP32
-
-> ✅ Importante: Expo Go por sí solo no soporta BLE, por eso es necesario tener la APK instalada previamente.
-
----
-
 ## ❗ Si obtienes el error:
 
 ```
-INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package com.anonymous.freelinkble signatures do not match newer version
+INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package com.anonymous.feelink signatures do not match newer version
 ```
 
 Significa que ya tienes instalada una versión anterior de la app (con el mismo `applicationId`) firmada con una clave diferente.
@@ -77,10 +89,10 @@ Cuando generas un nuevo `debug.keystore`, esa clave no coincide con la que se us
 
 ### ✅ Solución:
 
-✔ **Opción recomendada:** Desinstala la versión anterior de la app ejecutando:
+✔ **Desinstala la versión anterior de la app ejecutando:** 
 
 ```bash
-adb uninstall com.anonymous.freelinkble
+adb uninstall com.anonymous.feelink
 ```
 
 Luego vuelve a correr:
@@ -91,7 +103,15 @@ npx expo run:android
 
 ✅ Esto eliminará la versión antigua y te permitirá instalar la nueva sin conflictos.
 
----
+3. Abre Android Studio
+3. Abre la carpeta `.android` del proyecto desde **Android Studio**
+4. Genera la APK desde "Build" dentro de **Android Studio**
+5. Instala la APK generada en tu celular Android
+6. Escanea el código QR con **Expo Go**
+7. La app se abrirá y se conectará correctamente con la ESP32
+
+> ✅ Importante: Expo Go por sí solo no soporta BLE, por eso es necesario tener la APK instalada previamente.
+
 
 ## 🧠 Notas técnicas
 
