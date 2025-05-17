@@ -1,3 +1,4 @@
+// src/BluetoothScreen.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
@@ -13,13 +14,31 @@ import { manager, requestPermissions } from './BluetoothManager';
 import DeviceItem from './components/DeviceItem';
 import SensorDataView from './components/SensorDataView';
 import { Buffer } from 'buffer';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from './navigation/types';
+
+const SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
+const CHARACTERISTIC_UUID = 'abcd1234-abcd-1234-abcd-1234567890ab';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Bluetooth'>;
 
 export default function BluetoothScreen() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-  const [sensorData, setSensorData] = useState('');
+  const [sensorData, setSensorData] = useState<{
+    p: number;
+    b: number;
+    m?: { x: number; y: number; z: number };
+  } | null>(null);
   const [scanning, setScanning] = useState(false);
+
   const seenDeviceIds = useRef<Set<string>>(new Set());
+  const buffer = useRef<string[]>([]);
+  const isParsing = useRef(false);
+  const parseTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
     return () => {
@@ -39,10 +58,9 @@ export default function BluetoothScreen() {
         setScanning(false);
         return;
       }
-
       if (device && !seenDeviceIds.current.has(device.id)) {
         seenDeviceIds.current.add(device.id);
-        setDevices((prev) => [...prev, device]);
+        setDevices(prev => [...prev, device]);
       }
     });
 
@@ -58,24 +76,46 @@ export default function BluetoothScreen() {
       await connected.discoverAllServicesAndCharacteristics();
 
       connected.monitorCharacteristicForService(
-        '12345678-1234-1234-1234-1234567890ab',
-        'abcd1234-abcd-1234-abcd-1234567890ab',
+        SERVICE_UUID,
+        CHARACTERISTIC_UUID,
         (error, characteristic) => {
-          if (error) {
-            return;
+          if (error || !characteristic?.value) return;
+          const fragment = Buffer.from(characteristic.value, 'base64').toString('utf-8');
+          console.log('Fragmento sensor:', fragment);
+
+          // Inicia ensamblaje de fragmentos
+          if (fragment.startsWith('#1')) {
+            buffer.current = [];
+            isParsing.current = true;
           }
+          if (!isParsing.current) return;
 
-          try {
-            const base64 = characteristic?.value ?? '';
-            let decoded = Buffer.from(base64, 'base64').toString('utf-8');
+          const match = fragment.match(/^#(\d+)/);
+          if (!match) return;
+          const index = parseInt(match[1], 10);
+          const prefix = match[0];
+          const payload = fragment.slice(prefix.length);
 
-            // Sanitizar caracteres no imprimibles
-            decoded = decoded.trim().replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+          buffer.current[index - 1] = payload;
 
-            console.log('JSON recibido:', decoded);
-            setSensorData(decoded);
-          } catch (err) {
-            console.error('Error al decodificar:', err);
+          const assembled = buffer.current.join('').trim();
+          if (assembled.startsWith('{') && assembled.endsWith('}')) {
+            try {
+              const obj = JSON.parse(assembled);
+              setSensorData(obj);
+            } catch (e) {
+              console.error('Error al parsear JSON sensor:', e, assembled);
+            }
+            isParsing.current = false;
+          } else {
+            clearTimeout(parseTimeout.current!);
+            parseTimeout.current = setTimeout(() => {
+              const assembledTimeout = buffer.current.join('').trim();
+              if (assembledTimeout.startsWith('{') && assembledTimeout.endsWith('}')) {
+                try { setSensorData(JSON.parse(assembledTimeout)); } catch {}
+              }
+              isParsing.current = false;
+            }, 1000);
           }
         }
       );
@@ -91,24 +131,39 @@ export default function BluetoothScreen() {
     if (connectedDevice) {
       await connectedDevice.cancelConnection();
       setConnectedDevice(null);
-      setSensorData('');
+      setSensorData(null);
       Alert.alert('Desconectado', 'El dispositivo ha sido desconectado.');
     }
   };
 
+  const goToWiFi = () => {
+    if (!connectedDevice) {
+      Alert.alert('Advertencia', 'Conéctate a un peluche primero.');
+      return;
+    }
+    navigation.navigate('WiFi', { device: connectedDevice });
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Buscar Peluche</Text>
-      <Button title="Buscar Peluche" onPress={startScan} disabled={scanning} />
-      {scanning && (
-        <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 10 }} />
-      )}
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>Buscar Peluche</Text>
+        <Button
+          title="Conectar a WiFi"
+          onPress={goToWiFi}
+          disabled={!connectedDevice}
+          color="#007AFF"
+        />
+      </View>
 
-      {sensorData && <SensorDataView rawData={sensorData} />}
+      <Button title="Buscar Peluche" onPress={startScan} disabled={scanning} />
+      {scanning && <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 10 }} />}
+
+      {sensorData && <SensorDataView jsonData={sensorData} />}
 
       <FlatList
         data={devices}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <DeviceItem
             device={item}
@@ -123,16 +178,14 @@ export default function BluetoothScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f4f4f4',
-  },
-  title: {
-    fontSize: 24,
-    textAlign: 'center',
+  container: { flex: 1, padding: 20, backgroundColor: '#f4f4f4' },
+  title: { fontSize: 24, fontWeight: 'bold' },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
     marginTop: 40,
-    fontWeight: 'bold',
   },
 });
+
