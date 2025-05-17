@@ -2,8 +2,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import BluetoothScreen from './src/BluetoothScreen';
-import WiFiConfigScreen from './src/WifiConfigScreen';
+import BluetoothScreen from './src/screens/BluetoothScreen';
+import WiFiConfigScreen from './src/screens/WifiConfigScreen';
 import type { RootStackParamList } from './src/navigation/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
