@@ -39,6 +39,6 @@ const styles = StyleSheet.create({
   id: {
     fontSize: 12,
     color: '#555',
-    marginBottom: 8,
+    marginBottom: 0,
   },
 });

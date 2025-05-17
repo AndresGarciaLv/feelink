@@ -1,11 +1,21 @@
+// ✅ App.tsx con navegación entre BluetoothScreen y WiFiConfigScreen
 import React from 'react';
-import { SafeAreaView } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BluetoothScreen from './src/BluetoothScreen';
+import WiFiConfigScreen from './src/WifiConfigScreen';
+import type { RootStackParamList } from './src/navigation/types';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
 
 export default function App() {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <BluetoothScreen />
-    </SafeAreaView>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Bluetooth">
+        <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ title: 'Buscar Peluche' }} />
+        <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
