@@ -10,13 +10,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Device } from 'react-native-ble-plx';
-import { manager, requestPermissions } from './BluetoothManager';
-import DeviceItem from './components/DeviceItem';
-import SensorDataView from './components/SensorDataView';
+import { manager, requestPermissions } from '../core/services/ble/BluetoothManager';
+import DeviceItem from '../shared/components/bluetooth/DeviceItem';
+import SensorDataView from '../shared/components/bluetooth/SensorDataView';
 import { Buffer } from 'buffer';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from './navigation/types';
+import type { RootStackParamList } from '../navigation/types';
 
 const SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
 const CHARACTERISTIC_UUID = 'abcd1234-abcd-1234-abcd-1234567890ab';
