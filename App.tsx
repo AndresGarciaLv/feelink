@@ -5,7 +5,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BluetoothScreen from './src/screens/BluetoothScreen';
 import WiFiConfigScreen from './src/screens/WifiConfigScreen';
 import type { RootStackParamList } from './src/navigation/types';
-
+import PatientsScreen
+ from './src/screens/PatientsScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 
@@ -15,6 +16,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Bluetooth">
         <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ title: 'Buscar Peluche' }} />
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
+        <Stack.Screen name="Patients" component={PatientsScreen} options={{ title: 'Tus Pacientes' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

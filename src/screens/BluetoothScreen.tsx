@@ -154,6 +154,10 @@ export default function BluetoothScreen() {
           disabled={!connectedDevice}
           color="#007AFF"
         />
+         <Button 
+         title="Ver Pacientes" 
+         onPress={() => navigation.navigate('Patients')} 
+         />
       </View>
 
       <Button title="Buscar Peluches" onPress={startScan} disabled={scanning} />
