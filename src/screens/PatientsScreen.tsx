@@ -19,7 +19,6 @@ export default function PatientsScreen() {
   const [newSexo, setNewSexo] = useState('');
   const [newAltura, setNewAltura] = useState('');
   const [newPeso, setNewPeso] = useState('');
-
   const [selectedPatient, setSelectedPatient] = useState<{ id: string, name: string, age: number } | null>(null);
 
   useEffect(() => {
@@ -36,19 +35,15 @@ export default function PatientsScreen() {
       setSelectedPatient(patientToEdit);
     }
   };
-
   const handleDelete = (id: string) => {
     Alert.alert(
-      'Eliminar paciente',
-      '¿Deseas eliminar este paciente de la lista?',
-
+      'Eliminar paciente','¿Deseas eliminar este paciente de la lista?',
       [
         { text: 'Cancelar', style: 'cancel' },
         { text: 'Eliminar', style: 'destructive', onPress: () => setPatients(prev => prev.filter(p => p.id !== id)) }
       ]
     );
   };
-
 
   const resetForm = () => {
     setNewName('');
@@ -85,6 +80,8 @@ export default function PatientsScreen() {
     ];
     return avatars[Math.floor(Math.random() * avatars.length)];
   };
+  const [sexoOptionsVisible, setSexoOptionsVisible] = useState(false);
+  const sexoOptions = ['Masculino', 'Femenino'];
 
   return (
     <View style={styles.container}>
@@ -114,27 +111,51 @@ export default function PatientsScreen() {
               value={newAge}
               onChangeText={setNewAge}
             />
-            <TextInput
-           style={styles.input}
-  placeholder="Sexo"
-  value={newSexo}
-  onChangeText={setNewSexo}
-/>
-<TextInput
-  style={styles.input}
-  placeholder="Altura (cm)"
-  keyboardType="numeric"
-  value={newAltura}
-  onChangeText={setNewAltura}
-/>
-<TextInput
-  style={styles.input}
-  placeholder="Peso (kg)"
-  keyboardType="numeric"
-  value={newPeso}
-  onChangeText={setNewPeso}
-/>
-
+            <TouchableOpacity
+              style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+              onPress={() => setSexoOptionsVisible(true)}
+            >
+              <Text style={{ color: newSexo ? Colors.textPrimary : '#888' }}>
+                {newSexo || 'Sexo'}
+              </Text>
+              <Text style={styles.arrow}>▼</Text>
+            </TouchableOpacity>
+           <TextInput
+             style={styles.input}
+             placeholder="Altura (cm)"
+             keyboardType="numeric"
+             value={newAltura}
+             onChangeText={setNewAltura}
+           />
+          <TextInput
+            style={styles.input}
+            placeholder="Peso (kg)"
+            keyboardType="numeric"
+            value={newPeso}
+            onChangeText={setNewPeso}
+           />
+<Modal visible={sexoOptionsVisible} transparent animationType="fade">
+  <TouchableOpacity
+    style={styles.modalOverlay}
+    onPress={() => setSexoOptionsVisible(false)}
+    activeOpacity={1}
+  >
+    <View style={styles.pickerContainer}>
+      {sexoOptions.map((option) => (
+        <TouchableOpacity
+          key={option}
+          style={styles.pickerOption}
+          onPress={() => {
+            setNewSexo(option);
+            setSexoOptionsVisible(false);
+          }}
+        >
+          <Text style={styles.pickerText}>{option}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  </TouchableOpacity>
+</Modal>
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.cancelButton, { marginRight: 10 }]}
@@ -160,7 +181,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    padding: 20,
+    paddingVertical: 20, 
   },
   addButton: {
     backgroundColor: Colors.softPurple,
@@ -169,6 +190,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignSelf: 'flex-start',
     marginBottom: 20,
+    marginLeft: 15,
   },
   addText: {
     color: Colors.white,
@@ -228,4 +250,24 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: 'bold',
   },
+  pickerContainer: {
+  backgroundColor: Colors.white,
+  marginHorizontal: 30,
+  borderRadius: 10,
+  padding: 10,
+},
+pickerOption: {
+  paddingVertical: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '#ddd',
+},
+pickerText: {
+  fontSize: 16,
+  color: Colors.textPrimary,
+},
+arrow: {
+  fontSize: 16,
+  color: '#888',
+  marginRight: 10,
+},
 });

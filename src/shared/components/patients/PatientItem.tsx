@@ -9,7 +9,6 @@ type Patient = {
   age: number;
   image?: any;
 };
-
 type Props = {
   data: Patient[];
   onEdit: (id: string) => void;
@@ -43,7 +42,7 @@ export default function PatientList({ data, onEdit, onDelete }: Props) {
           </TouchableOpacity>
         </View>
       )}
-      rightOpenValue={-150}
+      rightOpenValue={-145}
       disableRightSwipe
     />
   );
@@ -58,13 +57,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: 85,
-    // Sombra para iOS
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    // Sombra para Android
     elevation: 5,
+    marginHorizontal: 16,
   },
   image: {
     width: 48,
@@ -82,7 +80,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     color: Colors.textPrimary,
-    fontWeight: 'bold',
+    fontWeight: 'normal',
   },
   age: {
     fontSize: 14,
@@ -114,6 +112,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 6,
     borderBottomRightRadius: 6,
     height: '100%',
+    marginRight: 16,
   },
   hiddenText: {
     color: '#fff',
