@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import {View,Text,TouchableOpacity,StyleSheet,Modal,TextInput,Alert,} from 'react-native';
-import PatientList from '../shared/components/bluetooth/patients/PatientItem';
+import {View,Text,TouchableOpacity,StyleSheet,Modal,TextInput,Alert,Image} from 'react-native';
+import PatientList from '../shared/components/patients/PatientItem';
 import Colors from '../shared/components/bluetooth/constants/colors';
+import HeaderPatients from '../shared/components/HeaderPatients';
 
 const initialPatients = [
-  { id: '1', name: 'Julian Gonzalez', age: 19 },
-  { id: '2', name: 'Luis Ramirez', age: 10 },
-  { id: '3', name: 'Álvaro Díaz', age: 17 },
-  { id: '4', name: 'Astrid López', age: 5 },
+  { id: '1', name: 'Julian Gonzalez', age: 19, avatar: require('../../assets/perfil.png') },
+  { id: '2', name: 'Luis Ramirez', age: 10, avatar: require('../../assets/perfil.png')},
+  { id: '3', name: 'Álvaro Díaz', age: 17, avatar: require('../../assets/perfil.png') },
+  { id: '4', name: 'Astrid López', age: 5, avatar: require('../../assets/perfil.png') },
 ];
 
 export default function PatientsScreen() {
@@ -15,6 +16,10 @@ export default function PatientsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [newName, setNewName] = useState('');
   const [newAge, setNewAge] = useState('');
+  const [newSexo, setNewSexo] = useState('');
+  const [newAltura, setNewAltura] = useState('');
+  const [newPeso, setNewPeso] = useState('');
+
   const [selectedPatient, setSelectedPatient] = useState<{ id: string, name: string, age: number } | null>(null);
 
   useEffect(() => {
@@ -33,8 +38,17 @@ export default function PatientsScreen() {
   };
 
   const handleDelete = (id: string) => {
-    setPatients(prev => prev.filter(p => p.id !== id));
+    Alert.alert(
+      'Eliminar paciente',
+      '¿Deseas eliminar este paciente de la lista?',
+
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Eliminar', style: 'destructive', onPress: () => setPatients(prev => prev.filter(p => p.id !== id)) }
+      ]
+    );
   };
+
 
   const resetForm = () => {
     setNewName('');
@@ -48,7 +62,7 @@ export default function PatientsScreen() {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
       return;
     }
-
+    
     if (selectedPatient) {
       const updatedList = patients.map(p =>
         p.id === selectedPatient.id ? { ...p, name: newName, age: parseInt(newAge) } : p
@@ -59,21 +73,28 @@ export default function PatientsScreen() {
         id: Date.now().toString(),
         name: newName,
         age: parseInt(newAge),
+        avatar: getRandomAvatar(),
       };
       setPatients(prev => [...prev, newPatient]);
     }
-
     resetForm();
+  };
+    const getRandomAvatar = () => {
+    const avatars = [
+      require('../../assets/perfil.png'),
+    ];
+    return avatars[Math.floor(Math.random() * avatars.length)];
   };
 
   return (
     <View style={styles.container}>
+      <HeaderPatients />
+      <View style={{ height: 20 }} />
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
         <Text style={styles.addText}>Agregar paciente</Text>
       </TouchableOpacity>
-
+      <View style={{ height: 10 }} />
       <PatientList data={patients} onEdit={handleEdit} onDelete={handleDelete} />
-
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -93,12 +114,39 @@ export default function PatientsScreen() {
               value={newAge}
               onChangeText={setNewAge}
             />
+            <TextInput
+           style={styles.input}
+  placeholder="Sexo"
+  value={newSexo}
+  onChangeText={setNewSexo}
+/>
+<TextInput
+  style={styles.input}
+  placeholder="Altura (cm)"
+  keyboardType="numeric"
+  value={newAltura}
+  onChangeText={setNewAltura}
+/>
+<TextInput
+  style={styles.input}
+  placeholder="Peso (kg)"
+  keyboardType="numeric"
+  value={newPeso}
+  onChangeText={setNewPeso}
+/>
+
             <View style={styles.modalButtons}>
-              <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-                <Text style={styles.buttonText}>Guardar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={resetForm} style={styles.cancelButton}>
+              <TouchableOpacity
+                style={[styles.cancelButton, { marginRight: 10 }]}
+                onPress={resetForm}
+              >
                 <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={handleSave}
+              >
+                <Text style={styles.buttonText}>Guardar</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -125,6 +173,12 @@ const styles = StyleSheet.create({
   addText: {
     color: Colors.white,
     fontWeight: 'bold',
+  },
+   avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
   },
   modalOverlay: {
     flex: 1,
@@ -155,7 +209,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   saveButton: {
-    backgroundColor: Colors.softPurple,
+    backgroundColor: Colors.lightsteelblue,
     padding: 10,
     borderRadius: 10,
     flex: 1,
@@ -163,7 +217,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: Colors.palevioletred,
     padding: 10,
     borderRadius: 10,
     flex: 1,

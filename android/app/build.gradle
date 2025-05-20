@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.feelink'
+    namespace 'com.anonymous.FeeLink'
     defaultConfig {
-        applicationId 'com.anonymous.feelink'
+        applicationId 'com.anonymous.FeeLink'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
