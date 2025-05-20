@@ -1,4 +1,4 @@
-package com.anonymous.feelink
+package com.anonymous.FeeLink
 
 import android.app.Application
 import android.content.res.Configuration
