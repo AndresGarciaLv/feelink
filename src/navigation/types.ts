@@ -4,4 +4,5 @@ export type RootStackParamList = {
   Bluetooth: undefined;
   WiFi: { device: Device };
   Patients: undefined
+  Profile: undefined;
 };

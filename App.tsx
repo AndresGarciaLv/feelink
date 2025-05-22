@@ -6,6 +6,8 @@ import BluetoothScreen from './src/screens/BluetoothScreen';
 import WiFiConfigScreen from './src/screens/WifiConfigScreen';
 import type { RootStackParamList } from './src/navigation/types';
 import PatientsScreen from './src/screens/PatientsScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 
@@ -16,6 +18,7 @@ export default function App() {
         <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ title: 'Buscar Peluche' }} />
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
       </Stack.Navigator>
     </NavigationContainer>
   );

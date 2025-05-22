@@ -160,6 +160,11 @@ export default function BluetoothScreen() {
          />
       </View>
 
+        <Button 
+         title="Ver Perfil" 
+         onPress={() => navigation.navigate('Profile')} 
+         />
+
       <Button title="Buscar Peluches" onPress={startScan} disabled={scanning} />
       {scanning && <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 10 }} />}
 
