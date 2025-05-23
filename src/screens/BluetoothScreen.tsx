@@ -161,6 +161,10 @@ export default function BluetoothScreen() {
       </View>
 
       <Button title="Buscar Peluches" onPress={startScan} disabled={scanning} />
+               <Button 
+         title="Ir al dashboard" 
+         onPress={() => navigation.navigate('Dashboard')} 
+         />
       {scanning && <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 10 }} />}
 
       {sensorData && <SensorDataView jsonData={sensorData} />}
