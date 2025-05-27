@@ -8,7 +8,7 @@ import type { RootStackParamList } from './src/navigation/types';
 import PatientsScreen from './src/screens/PatientsScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 import AuthForm from './src/views/loginView';
-
+import TutorProfile from './src/shared/components/profiles/TutorProfile'
 
 export default function App() {
   return (
@@ -17,6 +17,7 @@ export default function App() {
         <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ title: 'Buscar Peluche' }} />
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
+        <Stack.Screen name="TutorProfile" component={TutorProfile} options={{ headerShown: false}} />
         <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
       </Stack.Navigator>
     </NavigationContainer>
