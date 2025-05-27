@@ -20,7 +20,6 @@ export default function App() {
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
         <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
-        {/* <Stack.Screen name="Patients" component={PatientsScreen} options={{ title: 'Tus Pacientes' }} /> */}
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
       </Stack.Navigator>
     </NavigationContainer>

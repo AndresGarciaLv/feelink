@@ -4,6 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import NavBar from '../shared/navigation/Navbar';
 import Navbar from '../shared/navigation/Navbar';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
 
 const PROFILE_IMAGE = null; // ya no lo necesitas
 const PATIENT_AVATAR = null; // ya no lo necesitas
@@ -34,6 +37,8 @@ const DashboardScreen: React.FC = () => {
     { month: 'Febrero', days: 20, stressLevel: 70 },
   ];
 
+const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
@@ -63,9 +68,12 @@ const DashboardScreen: React.FC = () => {
               <View style={styles.paginationDot} />
             </View>
             
-            <TouchableOpacity style={styles.viewMoreButton}>
-              <Text style={styles.viewMoreText}>Ver más</Text>
-            </TouchableOpacity>
+<TouchableOpacity 
+  style={styles.viewMoreButton} 
+  onPress={() => navigation.navigate('Patients')}
+>
+  <Text style={styles.viewMoreText}>Ver más</Text>
+</TouchableOpacity>
           </View>
         </View>
 
@@ -127,7 +135,7 @@ const DashboardScreen: React.FC = () => {
           <Text style={[styles.tabLabel, styles.activeTabLabel]}>Home</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.tabButton}>
+        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('Patients')}>
           <Ionicons name="people" size={24} color="#ADB5BD" />
           <Text style={styles.tabLabel}>Niños</Text>
         </TouchableOpacity>
@@ -136,9 +144,9 @@ const DashboardScreen: React.FC = () => {
           <Ionicons name="add" size={28} color="white" />
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.tabButton}>
-          <Ionicons name="document-text" size={24} color="#ADB5BD" />
-          <Text style={styles.tabLabel}>Medicación</Text>
+        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('Bluetooth')}>
+          <Ionicons name="bluetooth" size={24} color="#ADB5BD" />
+          <Text style={styles.tabLabel}>Bluetooth</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.tabButton}>
