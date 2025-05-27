@@ -9,6 +9,7 @@ import PatientsScreen from './src/screens/PatientsScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+import AuthForm from './src/views/loginView';
 
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
         <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ title: 'Buscar Peluche' }} />
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
+        <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
       </Stack.Navigator>
     </NavigationContainer>
