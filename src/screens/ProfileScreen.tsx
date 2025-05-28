@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
+import HeaderProfile from '../shared/components/profile/HeaderProfile';
 
 // Importar colores del sistema (asumiendo que existe este archivo)
 // import Colors from '../shared/components/bluetooth/constants/colors';
@@ -152,12 +153,14 @@ export default function ProfileScreen() {
     return (
         <ScrollView style={styles.container}>
             {/* HEADER - Encabezado con botón de regreso y título */}
-            <View style={styles.header}>
+            {/* <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton}>
                     <Text style={styles.backText}>{"<"}</Text>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Perfil - Niño</Text>
-            </View>
+            </View> */}
+
+            <HeaderProfile/>
 
             {/* DATOS PERSONALES - Card principal con información del niño */}
             <View style={styles.profileCard}>

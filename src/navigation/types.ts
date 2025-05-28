@@ -6,4 +6,5 @@ export type RootStackParamList = {
   WiFi: { device: Device };
   Patients: undefined
   Profile: undefined;
+  HomeTutor:undefined;
 };

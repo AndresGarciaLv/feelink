@@ -11,6 +11,7 @@ import PatientsScreen
 import DashboardScreen from './src/screens/DashboardScrean';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 import AuthForm from './src/views/loginView';
+import HomeTutor from './src/screens/tutor/HomeTutorScreen';
 
 
 export default function App() {
@@ -21,9 +22,11 @@ export default function App() {
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
         <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
-                <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
-
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
+
+        <Stack.Screen name="HomeTutor" component={HomeTutor} options={{headerShown: false}} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
