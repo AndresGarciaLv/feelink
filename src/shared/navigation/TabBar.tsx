@@ -6,17 +6,18 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 
 interface TabBarProps {
-  activeTab?: 'Home' | 'Patients' | 'Bluetooth' | 'Profile';
+  activeTab?: 'Home' | 'Patients' | 'Bluetooth' | 'Profile' | 'TherapistProfile';
 }
 
 const TabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
+  
   return (
     <View style={styles.tabBar}>
-      <TouchableOpacity style={styles.tabButton}
-              onPress={() => navigation.navigate('Dashboard')}
->
+      <TouchableOpacity 
+        style={styles.tabButton}
+        onPress={() => navigation.navigate('Dashboard')}
+      >
         <Ionicons 
           name="home" 
           size={24} 
@@ -71,15 +72,18 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
         </Text>
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.tabButton}>
+      <TouchableOpacity 
+        style={styles.tabButton}
+        onPress={() => navigation.navigate('TherapistProfile')}
+      >
         <Ionicons 
           name="person" 
           size={24} 
-          color={activeTab === 'Profile' ? '#4A90E2' : '#ADB5BD'} 
+          color={activeTab === 'Profile' || activeTab === 'TherapistProfile' ? '#4A90E2' : '#ADB5BD'} 
         />
         <Text style={[
           styles.tabLabel,
-          activeTab === 'Profile' && styles.activeTabLabel
+          (activeTab === 'Profile' || activeTab === 'TherapistProfile') && styles.activeTabLabel
         ]}>
           Perfil
         </Text>
