@@ -162,6 +162,11 @@ export default function BluetoothScreen() {
          />
       </View>
 
+        <Button 
+         title="Ver Perfil" 
+         onPress={() => navigation.navigate('Profile')} 
+         />
+
       <Button title="Buscar Peluches" onPress={startScan} disabled={scanning} />
       <Button title="Tutor Profile" onPress={() => navigation.navigate('TutorProfile')} />
                <Button 

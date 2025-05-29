@@ -7,4 +7,5 @@ export type RootStackParamList = {
   Patients: { openAddModal?: boolean };
   TutorProfile: undefined;
   Auth: undefined;
+  Profile: undefined;
 };
