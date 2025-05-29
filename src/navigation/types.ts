@@ -8,4 +8,5 @@ export type RootStackParamList = {
   TutorProfile: undefined;
   Auth: undefined;
   Profile: undefined;
+  TherapistProfile: undefined;
 };
