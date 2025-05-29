@@ -1,0 +1,12 @@
+{
+  "patientId": "mock-123",
+  "emotions": [
+    { "day": "Lunes", "value": 70 },
+    { "day": "Martes", "value": 40 },
+    { "day": "Miércoles", "value": 60 },
+    { "day": "Jueves", "value": 30 },
+    { "day": "Viernes", "value": 50 },
+    { "day": "Sabado", "value": 45 },
+    { "day": "Domingo", "value": 57 }
+  ]
+}

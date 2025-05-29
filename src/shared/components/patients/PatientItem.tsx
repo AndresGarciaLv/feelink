@@ -2,25 +2,35 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import Colors from '../bluetooth/constants/colors';
-import perfil from '../../../../assets/perfil.png';
+const perfil = require('../../../../assets/perfil.png') as string;
+
+
 type Patient = {
   id: string;
   name: string;
   age: number;
   image?: any;
+  height?: number; // Se agrego PESO FGT
+  weight?: number; // Se agrego ALTURA FGT
+  bmi?: number;    // Se agrego IMC FGT
 };
+
+
+
 type Props = {
   data: Patient[];
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onPress:(patient:Patient) => void; // Se agrego espacio para ver los detalles FGT
 };
 
-export default function PatientList({ data, onEdit, onDelete }: Props) {
+export default function PatientList({ data, onEdit, onDelete, onPress }: Props) {
   return (
     <SwipeListView
       data={data}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
+        <TouchableOpacity onPress={() => onPress(item)}>
         <View style={styles.card}>
           <Image
             source={item.image ? item.image : perfil}
@@ -31,7 +41,9 @@ export default function PatientList({ data, onEdit, onDelete }: Props) {
             <Text style={styles.age}>{item.age} años</Text>
           </View>
         </View>
+      </TouchableOpacity>
       )}
+      
       renderHiddenItem={({ item }) => (
         <View style={styles.hiddenContainer}>
           <TouchableOpacity style={styles.editBtn} onPress={() => onEdit(item.id)}>
