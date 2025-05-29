@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import HeaderTutor from '../../components/HeaderTutor';
+import PelucheIcon from '../../components/PelucheIcon';
 
 const ProfileTutor: React.FC = () => {
   return (
     <View style={styles.container}>
       <HeaderTutor />
-      
+
       <View style={styles.avatarContainer}>
         <Image
           source={require('../../../../assets/perfil.png')}
@@ -16,47 +17,55 @@ const ProfileTutor: React.FC = () => {
           <Text style={styles.tagText}>peluchin</Text>
         </TouchableOpacity>
       </View>
+
       <View style={styles.infoContainer}>
         <Text style={styles.name}>Álvaro Díaz</Text>
         <Text style={styles.subText}>3 Años</Text>
         <Text style={styles.subTextGray}>321000218739812 • Niño</Text>
       </View>
+
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
-          <Text style={styles.statValueWithUnit}>73 
-            <Text style={styles.statUnit}>cm</Text>
-            </Text>
+          <Text style={styles.statValueWithUnit}>
+            73 <Text style={styles.statUnit}>cm</Text>
+          </Text>
           <Text style={styles.statLabel}>Altura</Text>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.statBox}>
-          <Text style={styles.statValueWithUnit}>12
-             <Text style={styles.statUnit}>kg</Text>
-             </Text>
+          <Text style={styles.statValueWithUnit}>
+            12 <Text style={styles.statUnit}>kg</Text>
+          </Text>
           <Text style={styles.statLabel}>Peso</Text>
         </View>
+
         <View style={styles.divider} />
+
         <View style={styles.statBox}>
           <Text style={styles.statValue}>12</Text>
           <Text style={styles.statUnit}>IMC</Text>
         </View>
       </View>
+
       <View style={styles.buttonGroup}>
         <TouchableOpacity style={styles.wifiButton}>
-          <Text style={styles.wifiText}>Conectar a Wifi</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.bluetoothButton}>
-          <Text style={styles.bluetoothText}>Conectar por Bluetooth</Text>
+          <Text style={styles.wifiText}>Conectar Peluche</Text>
         </TouchableOpacity>
       </View>
-      
+
+      <Text style={styles.batteryTitle}>Batería del peluche</Text>
+      <View style={styles.iconWrapper}>
+        <PelucheIcon />
+      </View>
+      <Text style={styles.batteryStatus}>80% de carga</Text>
     </View>
   );
 };
 
 export default ProfileTutor;
+
 
 const styles = StyleSheet.create({
     container: {
@@ -183,16 +192,23 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 16,
     },
-    bluetoothButton: {
-        borderColor: '#9BC4E0',
-        borderWidth: 1,
-        padding: 12,
-        borderRadius: 16,
-        alignItems: 'center',
-    },
-    bluetoothText: {
-        color: '#9BC4E0',
-        fontWeight: '500',
-        fontSize: 16,
-    },
+    batteryTitle: {
+    textAlign: 'left',
+    marginTop: 24,
+    marginLeft: 24,
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
+  },
+  iconWrapper: {
+    alignItems: 'center',
+    marginTop: 16,    
+  },
+  batteryStatus: {
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#4BA6F0',
+    marginTop: 8,
+  },
 });
