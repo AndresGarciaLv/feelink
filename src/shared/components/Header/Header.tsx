@@ -1,16 +1,27 @@
 // feelink/src/shared/components/Header/Header.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native'; // Importa ViewStyle
 import { useNavigation } from '@react-navigation/native';
-import Colors from '../bluetooth/constants/colors'; // Importa tus colores
-// import Icon from 'react-native-vector-icons/Ionicons'; // Asegúrate de instalar react-native-vector-icons
+import Colors from '../bluetooth/constants/colors';
+
+// Importa SVG para los íconos
+import Svg, { Path } from 'react-native-svg';
 
 interface HeaderProps {
   title: string;
+  subtitle?: string;
   showBackButton?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, showBackButton = true }) => {
+// Componente de ícono de flecha hacia atrás (simulando Ionicons arrow-back)
+// AHORA ACEPTA LA PROPIEDAD 'style'
+const BackIcon: React.FC<{ size: number; color: string; style?: ViewStyle }> = ({ size, color, style }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+    <Path d="M19 12H5M12 19l-7-7 7-7"/>
+  </Svg>
+);
+
+const Header: React.FC<HeaderProps> = ({ title, subtitle, showBackButton = true }) => {
   const navigation = useNavigation();
 
   const handleBackPress = () => {
@@ -21,11 +32,14 @@ const Header: React.FC<HeaderProps> = ({ title, showBackButton = true }) => {
     <View style={styles.headerContainer}>
       {showBackButton && (
         <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-          {/* <Icon name="arrow-back" size={24} color={Colors.textPrimary} /> */}
+          {/* Aquí se pasa el estilo al BackIcon */}
+          <BackIcon size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
       )}
-      <Text style={styles.headerTitle}>{title}</Text>
-      {/* Espacio para alinear el título si no hay botón de retroceso */}
+      <View style={styles.titleContainer}>
+        <Text style={styles.headerTitle}>{title}</Text>
+        {subtitle && <Text style={styles.headerSubtitle}>{subtitle}</Text>}
+      </View>
       {!showBackButton && <View style={styles.backButtonPlaceholder} />}
     </View>
   );
@@ -36,14 +50,14 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Centra el título por defecto
+    justifyContent: 'center',
     paddingVertical: 15,
     paddingHorizontal: 15,
-    backgroundColor: Colors.primary, // Color de fondo del encabezado
+    backgroundColor: Colors.primary,
     borderBottomWidth: 1,
     borderBottomColor: Colors.lightsteelblue,
-    elevation: 3, // Sombra para Android
-    shadowColor: '#000', // Sombra para iOS
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 1.5,
@@ -51,10 +65,14 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     left: 15,
-    padding: 5, // Aumenta el área táctil
+    padding: 5,
   },
   backButtonPlaceholder: {
-    width: 24 + 10, // Ancho del icono + padding
+    width: 24 + 10,
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
@@ -62,7 +80,14 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     fontFamily: 'Inter',
     textAlign: 'center',
-    flex: 1, // Permite que el título ocupe el espacio restante
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: Colors.textPrimary,
+    fontFamily: 'Inter',
+    textAlign: 'center',
+    marginTop: 2,
+    opacity: 0.8,
   },
 });
 

@@ -2,18 +2,17 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types'; // Importa tus tipos de navegación
+import { RootStackParamList } from '../navigation/types';
 import WifiInput from '../shared/components/Wifi1C/WifiInput';
 import CustomButton from '../shared/components/CustomButton/CustomButton';
 import CustomModal from '../shared/components/CustomModal/CustomModal';
-// import Header from '../shared/components/Header/Header';
-import Colors from '../shared/components/bluetooth/constants/colors'; // Importa tus colores
+import Header from '../shared/components/Header/Header'; // Asegúrate de que esta importación sea correcta
+import Colors from '../shared/components/bluetooth/constants/colors';
 
-// Define el tipo de la ruta para esta pantalla
 type WifiScreen1Props = NativeStackScreenProps<RootStackParamList, 'Wifi1'>;
 
 const WifiScreen1: React.FC<WifiScreen1Props> = ({ route, navigation }) => {
-  const { device } = route.params; // Obtiene el dispositivo Bluetooth de los parámetros de navegación
+  const { device } = route.params;
 
   const [ssid, setSsid] = useState('');
   const [password, setPassword] = useState('');
@@ -39,13 +38,10 @@ const WifiScreen1: React.FC<WifiScreen1Props> = ({ route, navigation }) => {
     setModalMessage(`Intentando conectar ${device.name} a la red ${ssid}...`);
     setModalVisible(true);
 
-    // Simula el proceso de conexión a WiFi
     setTimeout(() => {
       setModalTitle('Conexión WiFi Exitosa');
       setModalMessage(`¡${device.name} se ha conectado a la red ${ssid} exitosamente!`);
       setModalVisible(true);
-      // Opcional: navegar a otra pantalla o resetear el estado
-      // navigation.navigate('Dashboard');
     }, 3000);
   };
 
@@ -55,8 +51,12 @@ const WifiScreen1: React.FC<WifiScreen1Props> = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-
-      {/* <Header title="Conectar a WiFi" showBackButton={true} /> */}
+      {/* Header con subtítulo y botón de retroceso */}
+      <Header
+        title="Conectar a WiFi"
+        subtitle="CONECTA EL PELUCHE A UNA RED WIFI"
+        showBackButton={true} // Ya estaba en true
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.deviceInfoText}>
@@ -76,7 +76,7 @@ const WifiScreen1: React.FC<WifiScreen1Props> = ({ route, navigation }) => {
           placeholder="Ingresa la contraseña de la red"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry // Para ocultar la contraseña
+          secureTextEntry
         />
 
         <CustomButton
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: 20,
-    justifyContent: 'center', // Centra el contenido verticalmente
+    justifyContent: 'center',
   },
   deviceInfoText: {
     fontSize: 18,

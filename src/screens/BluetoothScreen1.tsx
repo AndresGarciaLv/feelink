@@ -1,19 +1,37 @@
 // feelink/src/screens/BluetoothScreen1.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, TouchableOpacity, ViewStyle } from 'react-native'; // Importa ViewStyle
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types'; // Importa tus tipos de navegación
+import { RootStackParamList } from '../navigation/types';
 import BluetoothDeviceItem from '../shared/components/Bluetooth1C/BluetoothDeviceItem';
 import CustomButton from '../shared/components/CustomButton/CustomButton';
 import CustomModal from '../shared/components/CustomModal/CustomModal';
 import Header from '../shared/components/Header/Header';
-import Colors from '../shared/components/bluetooth/constants/colors'; // Importa tus colores
-// import Icon from 'react-native-vector-icons/Ionicons';
+import Colors from '../shared/components/bluetooth/constants/colors';
 
-// Define el tipo de la ruta para esta pantalla
+// Importa SVG para los íconos
+import Svg, { Path, Circle } from 'react-native-svg';
+
+// Componente de ícono de búsqueda (simulando Ionicons search)
+// AHORA ACEPTA LA PROPIEDAD 'style'
+const SearchIcon: React.FC<{ size: number; color: string; style?: ViewStyle }> = ({ size, color, style }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+    <Circle cx="11" cy="11" r="8"/>
+    <Path d="M21 21l-4.35-4.35"/>
+  </Svg>
+);
+
+// Componente de ícono de cerrar (simulando Ionicons close-circle)
+// AHORA ACEPTA LA PROPIEDAD 'style'
+const CloseIcon: React.FC<{ size: number; color: string; style?: ViewStyle }> = ({ size, color, style }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+    <Circle cx="12" cy="12" r="10"/>
+    <Path d="M15 9l-6 6M9 9l6 6"/>
+  </Svg>
+);
+
 type BluetoothScreen1Props = NativeStackScreenProps<RootStackParamList, 'Bluetooth1'>;
 
-// Simulación de un dispositivo BLE
 interface SimulatedDevice {
   id: string;
   name: string;
@@ -30,10 +48,9 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
   const [modalTitle, setModalTitle] = useState('');
   const [selectedDevice, setSelectedDevice] = useState<SimulatedDevice | null>(null);
 
-  // Simula la búsqueda de dispositivos
   const startScan = () => {
     setIsScanning(true);
-    setDevices([]); // Limpia la lista anterior
+    setDevices([]);
     setModalMessage('Buscando dispositivos...');
     setModalTitle('Escaneando Bluetooth');
     setModalVisible(true);
@@ -42,17 +59,15 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
       const newDevices: SimulatedDevice[] = [
         { id: 'dev1', name: 'Peluche_Teddy_001', status: 'Disponible', isConnected: false },
         { id: 'dev2', name: 'Peluche_Bear_002', status: 'Disponible', isConnected: false },
-        { id: 'dev3', name: 'Peluche_Rabbit_003', status: 'Disponible', isConnected: false },
-        { id: 'dev4', name: 'Otro_Dispositivo', status: 'No Compatible', isConnected: false },
       ];
       setDevices(newDevices);
       setIsScanning(false);
-      setModalVisible(false); // Cierra el modal después de la búsqueda
-    }, 3000); // Simula 3 segundos de escaneo
+      setModalVisible(false);
+    }, 3000);
   };
 
   useEffect(() => {
-    startScan(); // Inicia el escaneo al montar la pantalla
+    startScan();
   }, []);
 
   const handleConnect = (deviceId: string) => {
@@ -68,7 +83,6 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
   const confirmConnection = () => {
     if (selectedDevice) {
       setModalVisible(false);
-      // Simula la conexión
       setDevices(prevDevices =>
         prevDevices.map(d =>
           d.id === selectedDevice.id ? { ...d, status: 'Conectado', isConnected: true } : d
@@ -78,10 +92,9 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
       setModalMessage(`¡Conectado a ${selectedDevice.name}! Ahora puedes configurar el WiFi.`);
       setModalVisible(true);
 
-      // Navega a la pantalla de WiFi después de un breve retraso
       setTimeout(() => {
-        setModalVisible(false); // Cierra el modal antes de navegar
-        navigation.navigate('Wifi1', { device: selectedDevice as any }); // 'as any' para evitar problemas de tipo con la simulación
+        setModalVisible(false);
+        navigation.navigate('Wifi1', { device: selectedDevice });
       }, 1500);
     }
   };
@@ -97,10 +110,15 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Header title="Buscar Peluche" showBackButton={false} /> {/* No mostrar botón de retroceso en la pantalla inicial */}
+      <Header
+        title="Buscar Peluche"
+        subtitle="CONECTA EL PELUCHE POR BLUETOOTH"
+        showBackButton={true}
+      />
 
       <View style={styles.searchContainer}>
-        {/* <Icon name="search" size={20} color={Colors.lightsteelblue} style={styles.searchIcon} /> */}
+        {/* Aquí se pasa el estilo al SearchIcon */}
+        <SearchIcon size={20} color={Colors.lightsteelblue} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar dispositivo..."
@@ -110,7 +128,8 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
         />
         {searchText.length > 0 && (
           <TouchableOpacity onPress={() => setSearchText('')} style={styles.clearSearchButton}>
-            {/* <Icon name="close-circle" size={20} color={Colors.lightsteelblue} /> */}
+            {/* Aquí se pasa el estilo al CloseIcon */}
+            <CloseIcon size={20} color={Colors.lightsteelblue} />
           </TouchableOpacity>
         )}
       </View>
@@ -151,8 +170,8 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
         isVisible={modalVisible}
         title={modalTitle}
         message={modalMessage}
-        onConfirm={selectedDevice ? confirmConnection : closeModal} // Si hay un dispositivo seleccionado, es una confirmación de conexión
-        onCancel={selectedDevice ? closeModal : undefined} // Si hay un dispositivo, permite cancelar
+        onConfirm={selectedDevice ? confirmConnection : closeModal}
+        onCancel={selectedDevice ? closeModal : undefined}
         confirmText={selectedDevice ? 'Conectar' : 'OK'}
         cancelText="Cancelar"
       />
@@ -163,7 +182,7 @@ const BluetoothScreen1: React.FC<BluetoothScreen1Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary, // Color de fondo de la pantalla
+    backgroundColor: Colors.primary,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -179,7 +198,7 @@ const styles = StyleSheet.create({
     shadowRadius: 1.5,
     elevation: 2,
   },
-  searchIcon: {
+  searchIcon: { // Este estilo se aplicará al ícono
     marginRight: 10,
   },
   searchInput: {
@@ -205,7 +224,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 20, // Espacio al final de la lista
+    paddingBottom: 20,
   },
   emptyListText: {
     textAlign: 'center',

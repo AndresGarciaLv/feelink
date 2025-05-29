@@ -15,9 +15,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 import AuthForm from './src/views/loginView';
 import TutorProfile from './src/shared/components/profiles/TutorProfile'
 import EmotionGraphs from './src/shared/components/EmotionGraphs';
-import PatientDetailScreen from './src/screens/PatientDetailScreen'; // Detalles de paciente grafica de cada uno de los pacientes FGT
-
-
+import PatientDetailScreen from './src/screens/PatientDetailScreen'; 
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 
 export default function App() {
