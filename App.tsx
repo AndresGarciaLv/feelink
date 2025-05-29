@@ -18,6 +18,7 @@ import EmotionGraphs from './src/shared/components/EmotionGraphs';
 import PatientDetailScreen from './src/screens/PatientDetailScreen'; // Detalles de paciente grafica de cada uno de los pacientes FGT
 
 
+import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
         <Stack.Screen name="TutorProfile" component={TutorProfile} options={{ headerShown: false}} />
+        <Stack.Screen name="TherapistProfile" component={TherapistProfile} options={{ headerShown: false}} />
         <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
         <Stack.Screen name="EmotionGraphs"component={EmotionGraphs as React.FC} options={{ title: 'Gráficas' }} />
