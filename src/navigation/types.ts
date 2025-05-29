@@ -4,7 +4,9 @@ export type RootStackParamList = {
   Dashboard: undefined;
   Bluetooth: undefined;
   WiFi: { device: Device };
-  Patients: undefined
+  Patients: { openAddModal?: boolean };
+  TutorProfile: undefined;
+  Auth: undefined;
   Profile: undefined;
   HomeTutor:undefined;
 };

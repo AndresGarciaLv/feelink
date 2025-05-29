@@ -17,6 +17,7 @@ import { Buffer } from 'buffer';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
+import TabBar from '../shared/navigation/TabBar';
 
 const SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
 const CHARACTERISTIC_UUID = 'abcd1234-abcd-1234-abcd-1234567890ab';
@@ -146,6 +147,7 @@ export default function BluetoothScreen() {
 
   return (
     <View style={styles.container}>
+      
       <View style={styles.headerRow}>
         <Text style={styles.title}>Buscar Peluche</Text>
         <Button
@@ -156,7 +158,7 @@ export default function BluetoothScreen() {
         />
          <Button 
          title="Ver Pacientes" 
-         onPress={() => navigation.navigate('Patients')} 
+         onPress={() => navigation.navigate('Patients', { openAddModal: false })} 
          />
       </View>
 
@@ -170,6 +172,7 @@ export default function BluetoothScreen() {
          />
 
       <Button title="Buscar Peluches" onPress={startScan} disabled={scanning} />
+      <Button title="Tutor Profile" onPress={() => navigation.navigate('TutorProfile')} />
                <Button 
          title="Ir al dashboard" 
          onPress={() => navigation.navigate('Dashboard')} 
@@ -190,6 +193,7 @@ export default function BluetoothScreen() {
           />
         )}
       />
+      <TabBar activeTab="Bluetooth" />
     </View>
   );
 }

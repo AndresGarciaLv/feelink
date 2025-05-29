@@ -3,13 +3,13 @@ import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import NavBar from '../shared/navigation/Navbar';
-import Navbar from '../shared/navigation/Navbar';
+import TabBar from '../shared/navigation/TabBar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 
-const PROFILE_IMAGE = null; // ya no lo necesitas
-const PATIENT_AVATAR = null; // ya no lo necesitas
+const PROFILE_IMAGE = null; 
+const PATIENT_AVATAR = null; 
 
 interface PatientData {
   id: string;
@@ -37,15 +37,13 @@ const DashboardScreen: React.FC = () => {
     { month: 'Febrero', days: 20, stressLevel: 70 },
   ];
 
-const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <Navbar/>
+        <NavBar/>
         
-
-
         {/* My Patients Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Mis pacientes</Text>
@@ -68,12 +66,12 @@ const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(
               <View style={styles.paginationDot} />
             </View>
             
-<TouchableOpacity 
-  style={styles.viewMoreButton} 
-  onPress={() => navigation.navigate('Patients')}
->
-  <Text style={styles.viewMoreText}>Ver más</Text>
-</TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.viewMoreButton} 
+              onPress={() => navigation.navigate('Patients', { openAddModal: false })}
+            >
+              <Text style={styles.viewMoreText}>Ver más</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -128,32 +126,8 @@ const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(
         <View style={styles.bottomSpacer} />
       </ScrollView>
       
-      {/* Tab Bar */}
-      <View style={styles.tabBar}>
-        <TouchableOpacity style={styles.tabButton}>
-          <Ionicons name="home" size={24} color="#4A90E2" />
-          <Text style={[styles.tabLabel, styles.activeTabLabel]}>Home</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('Patients')}>
-          <Ionicons name="people" size={24} color="#ADB5BD" />
-          <Text style={styles.tabLabel}>Niños</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.addButton}>
-          <Ionicons name="add" size={28} color="white" />
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.tabButton} onPress={() => navigation.navigate('Bluetooth')}>
-          <Ionicons name="bluetooth" size={24} color="#ADB5BD" />
-          <Text style={styles.tabLabel}>Bluetooth</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.tabButton}>
-          <Ionicons name="person" size={24} color="#ADB5BD" />
-          <Text style={styles.tabLabel}>Perfil</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Tab Bar Component */}
+      <TabBar activeTab="Home" />
     </View>
   );
 };
@@ -207,17 +181,17 @@ const styles = StyleSheet.create({
     color: '#8D99AE',
     marginBottom: 12,
   },
-patientsCard: {
-  backgroundColor: 'white',
-  borderRadius: 12,
-  padding: 16,
-  marginTop: 8,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 5, // Android
-},
+  patientsCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5, // Android
+  },
 
   patientsContainer: {
     flexDirection: 'row',
@@ -266,34 +240,34 @@ patientsCard: {
     fontSize: 14,
     fontWeight: '600',
   },
- statsContainer: {
-  flexDirection: 'row',
-  marginTop: 8,
-},
-registeredStatBox: {
-  flex: 1,
-  backgroundColor: '#A8C7E5',
-  borderTopLeftRadius: 12,
-  borderBottomLeftRadius: 12,
-  borderTopRightRadius: 0, // esquina interior cuadrada
-  borderBottomRightRadius: 0,
-  padding: 16,
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: 100,
-},
-unregisteredStatBox: {
-  flex: 1,
-  backgroundColor: '#E5A4C0',
-  borderTopRightRadius: 12,
-  borderBottomRightRadius: 12,
-  borderTopLeftRadius: 0, // esquina interior cuadrada
-  borderBottomLeftRadius: 0,
-  padding: 16,
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: 100,
-},
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  registeredStatBox: {
+    flex: 1,
+    backgroundColor: '#A8C7E5',
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+    borderTopRightRadius: 0, // esquina interior cuadrada
+    borderBottomRightRadius: 0,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 100,
+  },
+  unregisteredStatBox: {
+    flex: 1,
+    backgroundColor: '#E5A4C0',
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+    borderTopLeftRadius: 0, // esquina interior cuadrada
+    borderBottomLeftRadius: 0,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 100,
+  },
   registeredLabel: {
     fontSize: 14,
     color: 'white',
@@ -329,35 +303,35 @@ unregisteredStatBox: {
   stressContainer: {
     marginTop: 8,
   },
-monthStressCard: {
-  backgroundColor: 'white',
-  borderRadius: 12,
-  padding: 12,
-  marginBottom: 12,
-  flexDirection: 'row',
-  alignItems: 'center',
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.05,
-  shadowRadius: 4,
-  elevation: 2,
-},
-monthLabelContainer: {
-  backgroundColor: '#E8F0FE',
-  padding: 12,
-  borderRadius: 8,
-  marginRight: 12,
-  minWidth: 70,
-  alignItems: 'center',
-},
+  monthStressCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  monthLabelContainer: {
+    backgroundColor: '#E8F0FE',
+    padding: 12,
+    borderRadius: 8,
+    marginRight: 12,
+    minWidth: 70,
+    alignItems: 'center',
+  },
   monthLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#2D3748',
   },
-stressContent: {
-  flex: 1,
-},
+  stressContent: {
+    flex: 1,
+  },
   stressDays: {
     fontSize: 14,
     color: '#8D99AE',
@@ -378,50 +352,10 @@ stressContent: {
   stressPercentage: {
     fontSize: 12,
     color: '#8D99AE',
-    // alignSelf: 'flex',
   },
   bottomSpacer: {
     height: 20,
   },
-tabBar: {
-  flexDirection: 'row',
-  backgroundColor: 'white',
-  borderTopLeftRadius: 24,
-  borderTopRightRadius: 24,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: -2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 6,
-  elevation: 10,
-  paddingVertical: 12,
-  paddingHorizontal: 24,
-  alignItems: 'center',
-},
-  tabButton: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  tabLabel: {
-    fontSize: 12,
-    color: '#ADB5BD',
-    marginTop: 4,
-  },
-  activeTabLabel: {
-    color: '#4A90E2',
-  },
-addButton: {
-  backgroundColor: '#4A90E2',
-  width: 64,
-  height: 64,
-  borderRadius: 32,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginTop: -30,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.2,
-  shadowRadius: 6,
-  elevation: 6,
-},
 });
+
 export default DashboardScreen;

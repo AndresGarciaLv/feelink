@@ -3,6 +3,9 @@ import {View,Text,TouchableOpacity,StyleSheet,Modal,TextInput,Alert,Image} from 
 import PatientList from '../shared/components/patients/PatientItem';
 import Colors from '../shared/components/bluetooth/constants/colors';
 import HeaderPatients from '../shared/components/HeaderPatients';
+import { useRoute, RouteProp  } from '@react-navigation/native';
+import type { RootStackParamList } from '../navigation/types';
+import TabBar from '../shared/navigation/TabBar';
 
 const initialPatients = [
   { id: '1', name: 'Julian Gonzalez', age: 19, avatar: require('../../assets/perfil.png') },
@@ -20,6 +23,18 @@ export default function PatientsScreen() {
   const [newAltura, setNewAltura] = useState('');
   const [newPeso, setNewPeso] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<{ id: string, name: string, age: number } | null>(null);
+
+
+
+// Al principio del componente:
+const route = useRoute<RouteProp<RootStackParamList, 'Patients'>>();
+const shouldOpenModal = route.params?.openAddModal ?? false;
+
+useEffect(() => {
+  if (shouldOpenModal) {
+    setModalVisible(true);
+  }
+}, [shouldOpenModal]);
 
   useEffect(() => {
     if (selectedPatient) {
@@ -173,6 +188,7 @@ export default function PatientsScreen() {
           </View>
         </View>
       </Modal>
+      <TabBar activeTab="Patients" />
     </View>
   );
 }

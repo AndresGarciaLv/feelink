@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 interface NavbarProps {
@@ -14,7 +15,12 @@ const Navbar: React.FC<NavbarProps> = ({
   profileImage,
 }) => {
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#9bc4e0', '#cbe0f4']} 
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
       <View style={styles.content}>
         <View style={styles.profileContainer}>
           <View style={styles.profileImageWrapper}>
@@ -23,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <View style={styles.defaultProfileImage}>
                 <View style={styles.avatarFace}>
-                <Ionicons name="person" size={35} color="black" />
+                  <Ionicons name="person" size={35} color="black" />
                 </View>
               </View>
             )}
@@ -33,18 +39,21 @@ const Navbar: React.FC<NavbarProps> = ({
             <Text style={styles.doctorName}>{doctorName}</Text>
           </View>
         </View>
-
-        <View style={styles.hospitalContainer}>
+        <LinearGradient
+          colors={['#7ba8d1', '#9bc4e0']} // Degradado sutil para el hospital container
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.hospitalContainer}
+        >
           <Text style={styles.hospitalText}>{hospitalName}</Text>
-        </View>
+        </LinearGradient>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#b7d4ec', // Color base que parece en el degradado
     paddingTop: Platform.OS === 'android' ? 50 : 60,
     paddingBottom: 20,
     paddingHorizontal: 16,
@@ -79,21 +88,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#9BC4E0',
     justifyContent: 'center',
     alignItems: 'center',
-    // borderWidth: 2,
-    // borderColor: '#C2E1F5',
   },
   avatarFace: {
     width: 52,
     height: 52,
     borderRadius: 30,
     backgroundColor: '#d88ea9',
-        justifyContent: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
-      borderWidth: 1.5,
+    borderWidth: 1.5,
     borderColor: 'white'
   },
-
-   patientAvatarContainer: {
+  patientAvatarContainer: {
     width: 60,
     height: 60,
     borderRadius: 30,
@@ -114,7 +120,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
   },
   hospitalContainer: {
-    backgroundColor: '#9bc4e0', // color muy similar al de la referencia
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
