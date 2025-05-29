@@ -14,13 +14,10 @@ const HeaderPatients = () => {
   };
 
   return (
-    
     <View style={styles.container}>
       <TouchableOpacity onPress={handleGoBack}>
         <Ionicons name="arrow-back" size={28} color="white" />
       </TouchableOpacity>
-      
-      
     </View>
   );
 };
@@ -35,6 +32,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     width: '100%',
-  
   }
 });

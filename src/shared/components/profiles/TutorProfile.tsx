@@ -16,15 +16,11 @@ const ProfileTutor: React.FC = () => {
           <Text style={styles.tagText}>peluchin</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Información personal */}
       <View style={styles.infoContainer}>
         <Text style={styles.name}>Álvaro Díaz</Text>
         <Text style={styles.subText}>3 Años</Text>
         <Text style={styles.subTextGray}>321000218739812 • Niño</Text>
       </View>
-
-      {/* Datos físicos con divisores */}
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
           <Text style={styles.statValueWithUnit}>73 
@@ -41,16 +37,12 @@ const ProfileTutor: React.FC = () => {
              </Text>
           <Text style={styles.statLabel}>Peso</Text>
         </View>
-
         <View style={styles.divider} />
-
         <View style={styles.statBox}>
           <Text style={styles.statValue}>12</Text>
           <Text style={styles.statUnit}>IMC</Text>
         </View>
       </View>
-
-      {/* Botones */}
       <View style={styles.buttonGroup}>
         <TouchableOpacity style={styles.wifiButton}>
           <Text style={styles.wifiText}>Conectar a Wifi</Text>
