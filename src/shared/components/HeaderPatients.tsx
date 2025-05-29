@@ -10,7 +10,7 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Patients'>;
 const HeaderPatients = () => {
   const navigation = useNavigation<NavigationProp>();
   const handleGoBack = () => {
-  navigation.navigate('Bluetooth');
+  navigation.navigate('Dashboard');
   };
 
   return (
