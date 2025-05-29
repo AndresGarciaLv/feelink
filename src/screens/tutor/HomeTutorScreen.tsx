@@ -7,8 +7,7 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-import HeaderProfile from '../../shared/components/profile/HeaderProfile';
-import Navbar from '../../shared/navigation/Navbar';
+
 import HeaderTutor from '../../shared/components/home-tutor/HeaderTutor';
 
 // PALETA DE COLORES - Basada en el diseño de referencia
@@ -23,9 +22,9 @@ const Colors = {
     timelineBackgroundPrimary: '#BFDDFB',
     timelineBackgroundSecundary: '#F3F6FB',
     // Colores para estados emocionales
-    emotionGreen: '#4CAF50',
-    emotionYellow: '#FFC107',
-    emotionRed: '#F44336',
+    emotionGreen: '#89C58B',
+    emotionYellow: '#D8DB56',
+    emotionRed: '#D27373',
     // Colores adicionales para las cards
     cardShadow: 'rgba(0, 0, 0, 0.1)',
     borderLight: '#E5E5E5',
@@ -212,7 +211,7 @@ export default function HomeTutor() {
     // Renderiza el resumen mensual con información detallada
     const renderMonthlySummary = () => {
         const currentData = monthlyData[selectedMonth];
-        
+
         return (
             <View style={styles.monthlySummaryCard}>
                 <View style={styles.summaryHeader}>
@@ -226,7 +225,7 @@ export default function HomeTutor() {
                         <Text style={styles.statusText}>{currentData.summary.status}</Text>
                     </View>
                 </View>
-                
+
                 {/* Estadísticas mensuales detalladas */}
                 <View style={styles.monthlySummaryStats}>
                     <View style={styles.monthlyStatItem}>
@@ -255,12 +254,12 @@ export default function HomeTutor() {
     // Renderiza las recomendaciones en formato carrusel
     const renderRecommendations = () => {
         const recommendations = monthlyData[selectedMonth].recommendations;
-        
+
         return (
             <View style={styles.recommendationsSection}>
                 <Text style={styles.sectionTitle}>Recomendaciones</Text>
-                <ScrollView 
-                    horizontal 
+                <ScrollView
+                    horizontal
                     showsHorizontalScrollIndicator={false}
                     style={styles.recommendationsCarousel}
                 >
@@ -278,7 +277,7 @@ export default function HomeTutor() {
     // Renderiza la frase motivacional del día
     const renderDailyQuote = () => {
         const quote = monthlyData[selectedMonth].dailyQuote;
-        
+
         return (
             <View style={styles.dailyQuoteSection}>
                 <Text style={styles.sectionTitle}>Frase del día</Text>
@@ -292,7 +291,7 @@ export default function HomeTutor() {
     // COMPONENTE PRINCIPAL - Estructura completa de la pantalla
     return (
         <ScrollView style={styles.container}>
-            
+
             {/* NAVIGATION - Barra de navegación principal */}
             <HeaderTutor />
 
@@ -316,7 +315,7 @@ export default function HomeTutor() {
 
             {/* SECCIÓN: REGISTRO MENSUAL */}
             <Text style={styles.mainSectionTitle}>Registro mensual</Text>
-            
+
             {/* NAVEGACIÓN MENSUAL - Tabs para seleccionar meses */}
             <View style={styles.monthTabs}>
                 {['Abril', 'Marzo', 'Febrero', 'Enero'].map((mes, index) => (
