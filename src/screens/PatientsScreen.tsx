@@ -3,18 +3,22 @@ import {View,Text,TouchableOpacity,StyleSheet,Modal,TextInput,Alert,Image} from 
 import PatientList from '../shared/components/patients/PatientItem';
 import Colors from '../shared/components/bluetooth/constants/colors';
 import HeaderPatients from '../shared/components/HeaderPatients';
-import { useRoute, RouteProp  } from '@react-navigation/native';
-import type { RootStackParamList } from '../navigation/types';
-import TabBar from '../shared/navigation/TabBar';
 
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+
+
+type PatientsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Patients'>;
 const initialPatients = [
-  { id: '1', name: 'Julian Gonzalez', age: 19, avatar: require('../../assets/perfil.png') },
-  { id: '2', name: 'Luis Ramirez', age: 10, avatar: require('../../assets/perfil.png')},
-  { id: '3', name: 'Álvaro Díaz', age: 17, avatar: require('../../assets/perfil.png') },
-  { id: '4', name: 'Astrid López', age: 5, avatar: require('../../assets/perfil.png') },
+  { id: '1', name: 'Julian Gonzalez', age: 19,height: 170, avatar: require('../../assets/perfil.png') },
+  { id: '2', name: 'Luis Ramirez', age: 10,height: 140, avatar: require('../../assets/perfil.png')},
+  { id: '3', name: 'Álvaro Díaz', age: 17,height: 165, avatar: require('../../assets/perfil.png') },
+  { id: '4', name: 'Astrid López', age: 5,height: 105, avatar: require('../../assets/perfil.png') },
 ];
 
 export default function PatientsScreen() {
+  const navigation = useNavigation<PatientsScreenNavigationProp>();
   const [patients, setPatients] = useState(initialPatients);
   const [modalVisible, setModalVisible] = useState(false);
   const [newName, setNewName] = useState('');
@@ -24,18 +28,6 @@ export default function PatientsScreen() {
   const [newPeso, setNewPeso] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<{ id: string, name: string, age: number } | null>(null);
 
-
-
-// Al principio del componente:
-const route = useRoute<RouteProp<RootStackParamList, 'Patients'>>();
-const shouldOpenModal = route.params?.openAddModal ?? false;
-
-useEffect(() => {
-  if (shouldOpenModal) {
-    setModalVisible(true);
-  }
-}, [shouldOpenModal]);
-
   useEffect(() => {
     if (selectedPatient) {
       setNewName(selectedPatient.name);
@@ -43,6 +35,36 @@ useEffect(() => {
       setModalVisible(true);
     }
   }, [selectedPatient]);
+
+// Funcion que calcula el IMC 
+const calculateBMI = (height: number, weight: number) => {
+    if (height > 0 && weight > 0) {
+      return (weight / ((height / 100) ** 2)).toFixed(1);
+    }
+    return 0;
+  };
+  
+  // Se agrego la seccion de navegar
+  const handlePressPatient = (patient: {
+    id: string;
+    name: string;
+    age: number;
+    height?: number;
+    weight?: number;
+    bmi?: number | string;
+  }) => {
+    navigation.navigate('PatientDetail', {
+      patientId: patient.id,
+      name: patient.name,
+      age: patient.age,
+      height: patient.height || 0,
+      weight: patient.weight || 0,
+      bmi: patient.bmi || 0,
+    });
+  };
+
+
+
 
   const handleEdit = (id: string) => {
     const patientToEdit = patients.find(p => p.id === id);
@@ -60,12 +82,15 @@ useEffect(() => {
     );
   };
 
+  // Esto es para agregar detalles que se veran en la lista del niño
   const resetForm = () => {
     setNewName('');
     setNewAge('');
     setSelectedPatient(null);
     setModalVisible(false);
   };
+
+
 
   const handleSave = () => {
     if (!newName.trim() || !newAge.trim()) {
@@ -83,11 +108,15 @@ useEffect(() => {
         id: Date.now().toString(),
         name: newName,
         age: parseInt(newAge),
+        height: parseInt(newAltura) || 0,
+        weight: parseInt(newPeso) || 0,
+        bmi: calculateBMI(parseInt(newAltura), parseInt(newPeso)) || 0,
         avatar: getRandomAvatar(),
       };
       setPatients(prev => [...prev, newPatient]);
     }
     resetForm();
+
   };
     const getRandomAvatar = () => {
     const avatars = [
@@ -106,7 +135,7 @@ useEffect(() => {
         <Text style={styles.addText}>Agregar paciente</Text>
       </TouchableOpacity>
       <View style={{ height: 10 }} />
-      <PatientList data={patients} onEdit={handleEdit} onDelete={handleDelete} />
+      <PatientList data={patients} onEdit={handleEdit} onDelete={handleDelete} onPress={handlePressPatient} />
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -188,7 +217,6 @@ useEffect(() => {
           </View>
         </View>
       </Modal>
-      <TabBar activeTab="Patients" />
     </View>
   );
 }
@@ -287,3 +315,4 @@ arrow: {
   marginRight: 10,
 },
 });
+
