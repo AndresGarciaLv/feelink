@@ -175,10 +175,10 @@ export default function BluetoothScreen() {
          />
 
           {/* BOTON DE GRAFICA */}
-         {/* <Button 
+         <Button 
         title="Ver Gráficas de Emoción" 
         onPress={() => navigation.navigate('EmotionGraphs')} 
-      /> */}
+      />
        
         <Button
           title="Buscar Peluche (Bluetooth)"
