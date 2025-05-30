@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
 
 const fondo = require('../img/Bienvenida.png');
 
@@ -9,10 +12,14 @@ const AuthForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const handleSubmit = () => {
     if (isRegistrado) {
+      setIsRegistrado(false);
       console.log('Registrando:', { name, email, password });
     } else {
+      navigation.navigate('Dashboard', { openAddModal: false });
       console.log('Iniciando sesión con:', { email, password });
     }
   };
