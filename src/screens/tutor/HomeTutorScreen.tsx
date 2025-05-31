@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import HeaderTutor from '../../shared/components/home-tutor/HeaderTutor';
+import HeaderProfile from '../../shared/components/profile/HeaderProfile';
 
 // PALETA DE COLORES - Basada en el diseño de referencia
 const Colors = {
