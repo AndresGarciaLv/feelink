@@ -13,15 +13,12 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import DashboardScreen from './src/screens/DashboardScrean';
 import PatientDetailScreen from './src/screens/PatientDetailScreen';
 import HomeTutor from './src/screens/tutor/HomeTutorScreen';
-
 // Views
 import AuthForm from './src/screens/loginView';
-
 // Shared components
 import TutorProfile from './src/shared/components/profiles/TutorProfile';
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 import EmotionGraphs from './src/shared/components/EmotionGraphs';
-
 // Navigation types
 import type { RootStackParamList } from './src/navigation/types';
 

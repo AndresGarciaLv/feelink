@@ -7,7 +7,7 @@ import type { RootStackParamList } from '../navigation/types';
 const fondo = require('../img/Bienvenida.png');
 
 const AuthForm: React.FC = () => {
-  const [isRegistrado, setIsRegistrado] = useState(true);
+  const [formState, setFormState] = useState<null | 'login' | 'register'>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,58 +15,79 @@ const AuthForm: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleSubmit = () => {
-    if (isRegistrado) {
-      setIsRegistrado(false);
+    if (formState === 'register') {
       console.log('Registrando:', { name, email, password });
-    } else {
-      navigation.navigate('Dashboard', { openAddModal: false });
+    } else if (formState === 'login') {
       console.log('Iniciando sesión con:', { email, password });
+      navigation.navigate('Dashboard', { openAddModal: false });
     }
   };
 
+  const renderForm = () => (
+    <>
+      <Text style={styles.title}>{formState === 'register' ? 'Registro' : 'Iniciar Sesión'}</Text>
+
+      {formState === 'register' && (
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
+          value={name}
+          onChangeText={setName}
+        />
+      )}
+      <TextInput
+        style={styles.input}
+        placeholder="Correo electrónico"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Contraseña"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+
+      <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+        <Text style={styles.buttonText}>
+          {formState === 'register' ? 'Registrarme' : 'Iniciar sesión'}
+        </Text>
+      </TouchableOpacity>
+
+      <Text style={styles.switchText}>
+        {formState === 'register' ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
+        <Text style={styles.link} onPress={() => setFormState(formState === 'register' ? 'login' : 'register')}>
+          {formState === 'register' ? 'Inicia sesión' : 'Regístrate'}
+        </Text>
+      </Text>
+    </>
+  );
+
+  const renderInitialButtons = () => (
+    <>
+      <Text style={styles.title}>Bienvenido a Feelink</Text>
+
+      <TouchableOpacity onPress={() => setFormState('login')} style={styles.button}>
+        <Text style={styles.buttonText}>Iniciar Sesión</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => setFormState('register')} style={[styles.button, { marginTop: 16 }]}>
+        <Text style={styles.buttonText}>Registrarme</Text>
+      </TouchableOpacity>
+    </>
+  );
+
+  // Estilo extra cuando está en la pantalla inicial
+  const extraHeight = formState === null ? { paddingVertical: '15%', minHeight: '35%' } : {};
+
   return (
     <ImageBackground source={fondo} style={styles.background}>
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.title}>{isRegistrado ? 'Registro' : 'Iniciar Sesión'}</Text>
-
-        {isRegistrado && (
-          <TextInput
-            style={styles.input}
-            placeholder="Nombre"
-            value={name}
-            onChangeText={setName}
-          />
-        )}
-        <TextInput
-          style={styles.input}
-          placeholder="Correo electrónico"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-
-        <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-          <Text style={styles.buttonText}>
-            {isRegistrado ? 'Registrarme' : 'Iniciar sesión'}
-          </Text>
-        </TouchableOpacity>
-
-        <Text style={styles.switchText}>
-          {isRegistrado ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
-          <Text style={styles.link} onPress={() => setIsRegistrado(!isRegistrado)}>
-            {isRegistrado ? 'Inicia sesión' : 'Regístrate'}
-          </Text>
-        </Text>
+      <View style={styles.container}>
+        <View style={[styles.form, extraHeight]}>
+          {formState ? renderForm() : renderInitialButtons()}
+        </View>
       </View>
-    </View>
     </ImageBackground>
   );
 };
@@ -84,8 +105,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    margin:0,
-    padding: 0,
     width: '100%',
     fontFamily: 'Poppins',
   },
@@ -95,20 +114,18 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 35,
     padding: '10%',
     width: '100%',
-    maxWidth: '100%',
-    elevation: 5, 
-    shadowColor: '#000', 
+    elevation: 5,
+    shadowColor: '#000',
     shadowOpacity: 0.05,
-    shadowOffset: { width: 4, height: -4 }, 
+    shadowOffset: { width: 4, height: -4 },
     shadowRadius: 4,
   },
   title: {
     color: '#91bddf',
     fontSize: 24,
-    marginBottom: 10,
+    marginBottom: 16,
     fontWeight: '600',
     textAlign: 'center',
-    
   },
   input: {
     width: '100%',
@@ -125,7 +142,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
     alignItems: 'center',
-    marginTop: 10,
   },
   buttonText: {
     color: '#fff',
