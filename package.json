@@ -30,7 +30,8 @@
     "react-native-screens": "~4.10.0",
     "react-native-svg": "15.11.2",
     "react-native-swipe-list-view": "^3.2.9",
-    "react-native-vector-icons": "^10.2.0"
+    "react-native-vector-icons": "^10.2.0",
+    "expo-splash-screen": "~0.30.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

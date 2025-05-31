@@ -21,7 +21,7 @@ import TherapistProfile from './src/shared/components/profiles/TherapistProfile'
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Bluetooth">
+      <Stack.Navigator initialRouteName="Auth">
         <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ title: 'Buscar Peluche' }} />
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
