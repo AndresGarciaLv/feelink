@@ -180,6 +180,8 @@ export default function BluetoothScreen() {
 
     <Button title="Buscar Peluche (Bluetooth)" onPress={() => navigation.navigate('Bluetooth1')}/>
 
+ <Button title="Configurar WiFi" onPress={() => navigation.navigate('Wifi1', { device: { id: 'mock', name: 'Dispositivo Mock' } })}/>
+  
       {scanning && <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 10 }} />}
 
       {sensorData && <SensorDataView jsonData={sensorData} />}
