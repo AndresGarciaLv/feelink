@@ -64,7 +64,7 @@ const useBluetoothLogic = () => {
 
       setTimeout(() => {
         setModalVisible(false);
-        // navigation.navigate('Wifi1', { device: selectedDevice });
+        // navigation.navigate('Wifi1', { device: selectedDevice });   // Navegacion a vista de WIFI
       }, 1500);
     }
   };
@@ -76,7 +76,7 @@ const useBluetoothLogic = () => {
 
   const connectToWifi = () => {
     if (selectedDevice) {
-    //   navigation.navigate('Wifi1', { device: selectedDevice });
+    //   navigation.navigate('Wifi1', { device: selectedDevice }); // Navegacion a vista de WIFI
     } else {
       setModalTitle('Error');
       setModalMessage('Por favor, conecta un peluche primero para configurar el WiFi.');
