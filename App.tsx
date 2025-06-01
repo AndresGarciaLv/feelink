@@ -14,6 +14,7 @@ import AuthForm from './src/views/loginView';
 import TutorProfile from './src/shared/components/profiles/TutorProfile'
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 import HomeTutor from './src/screens/tutor/HomeTutorScreen';
+import BluetoothScreen1 from './src/screens/BluetoothScreen1';
 
 
 export default function App() {
@@ -28,8 +29,8 @@ export default function App() {
         <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
-
         <Stack.Screen name="HomeTutor" component={HomeTutor} options={{headerShown: false}} />
+        <Stack.Screen name="Bluetooth1" component={BluetoothScreen1} options={{ headerShown: false }} />
 
       </Stack.Navigator>
     </NavigationContainer>
