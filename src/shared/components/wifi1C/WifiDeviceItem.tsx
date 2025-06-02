@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Colors from '../bluetooth/constants/colors';
-import CustomButton from '../Bluetooth1C/CustomButton/CustomButton';
+import CustomButton from '../bluetooth/CustomButton/CustomButton';
 import Svg, { Path } from 'react-native-svg';
 
 // Icono de candado para redes seguras

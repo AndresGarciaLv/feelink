@@ -4,7 +4,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import WiFiDeviceItem from '../shared/components/wifi1C/WifiDeviceItem';
 import CustomModal from '../shared/components/wifi1C/CustomModal1';
-import Header from '../shared/components/Bluetooth1C/Header/Header';
+import Header from '../shared/components/bluetooth/Header/Header';
 import Colors from '../shared/components/bluetooth/constants/colors';
 import SimulatedDeviceScannerWifi from '../shared/components/wifi1C/SimulatedDeviceScannerWifi';
 
