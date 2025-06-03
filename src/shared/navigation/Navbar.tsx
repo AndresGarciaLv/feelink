@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, Platform, Image, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,12 +7,14 @@ interface NavbarProps {
   doctorName?: string;
   hospitalName?: string;
   profileImage?: any;
+  onBackPress?: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({
   doctorName = 'Dr. Ricardo Chi',
   hospitalName = 'Hospital Sunrise',
   profileImage,
+  onBackPress,
 }) => {
   return (
     <LinearGradient
@@ -22,25 +24,33 @@ const Navbar: React.FC<NavbarProps> = ({
       style={styles.container}
     >
       <View style={styles.content}>
-        <View style={styles.profileContainer}>
-          <View style={styles.profileImageWrapper}>
-            {profileImage ? (
-              <Image source={profileImage} style={styles.profileImage} />
-            ) : (
-              <View style={styles.defaultProfileImage}>
-                <View style={styles.avatarFace}>
-                  <Ionicons name="person" size={35} color="black" />
+        <View style={styles.topRow}>
+          {onBackPress && (
+            <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
+              <Ionicons name="arrow-back" size={24} color="#FFF" />
+            </TouchableOpacity>
+          )}
+          <View style={styles.profileContainer}>
+            <View style={styles.profileImageWrapper}>
+              {profileImage ? (
+                <Image source={profileImage} style={styles.profileImage} />
+              ) : (
+                <View style={styles.defaultProfileImage}>
+                  <View style={styles.avatarFace}>
+                    <Ionicons name="person" size={35} color="black" />
+                  </View>
                 </View>
-              </View>
-            )}
-          </View>
-          <View style={styles.textContainer}>
-            <Text style={styles.welcomeText}>Bienvenido a FeeLink :)</Text>
-            <Text style={styles.doctorName}>{doctorName}</Text>
+              )}
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.welcomeText}>Bienvenido a FeeLink :)</Text>
+              <Text style={styles.doctorName}>{doctorName}</Text>
+            </View>
           </View>
         </View>
+        
         <LinearGradient
-          colors={['#7ba8d1', '#9bc4e0']} // Degradado sutil para el hospital container
+          colors={['#7ba8d1', '#9bc4e0']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.hospitalContainer}
@@ -68,10 +78,20 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  profileContainer: {
+  topRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+  },
+  backButton: {
+    marginRight: 12,
+    padding: 8,
+    alignSelf: 'flex-start',
+  },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   profileImageWrapper: {
     marginRight: 12,

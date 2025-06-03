@@ -6,9 +6,11 @@ import TabBar from '../../../shared/navigation/TabBar';
 import type { RootStackParamList } from '../../../navigation/types';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const TherapistProfile: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const insets = useSafeAreaInsets();
     
   return (
     <SafeAreaView style={styles.container}>
@@ -70,7 +72,10 @@ const TherapistProfile: React.FC = () => {
       </View>
             
       {/* Tab Bar Component - Fijo en el fondo */}
+            <View style={{ paddingBottom: insets.bottom }}>
+      
       <TabBar activeTab="Profile" />
+      </View>
     </SafeAreaView>
   );
 };
@@ -83,8 +88,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   gradientHeader: {
-    paddingTop: Platform.OS === 'android' ? 50 : 60,
-    paddingBottom: 30,
+    paddingTop: Platform.OS === 'android' ? 30 : 40, // Reducido
+    paddingBottom: 20, // Reducido
     paddingHorizontal: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -98,7 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 15, // Reducido
   },
   backButton: {
     padding: 8,
@@ -109,19 +114,19 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   placeholder: {
-    width: 40, // Para balancear el header
+    width: 40,
   },
   content: {
     flex: 1,
-    paddingTop: 20,
+    paddingTop: 15, // Reducido
   },
   avatarContainer: {
     alignItems: 'center',
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 90, // Reducido ligeramente
+    height: 90, // Reducido ligeramente
+    borderRadius: 45,
     borderWidth: 3,
     borderColor: '#FFF',
     shadowColor: '#000',
@@ -145,8 +150,8 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 15, // Reducido
+    marginBottom: 25, // Reducido
     paddingHorizontal: 24,
   },
   name: {
