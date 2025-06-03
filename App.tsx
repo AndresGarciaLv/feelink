@@ -10,7 +10,7 @@ import PatientsScreen
  import ProfileScreen from './src/screens/ProfileScreen';
 import DashboardScreen from './src/screens/DashboardScrean';
 const Stack = createNativeStackNavigator<RootStackParamList>();
-import AuthForm from './src/views/loginView';
+import AuthForm from './src/screens/loginScreen';
 import TutorProfile from './src/shared/components/profiles/TutorProfile'
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 import HomeTutor from './src/screens/tutor/HomeTutorScreen';
@@ -21,7 +21,7 @@ import WifiScreen1 from './src/screens/WifiScreen1';
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="BleScreen">
+      <Stack.Navigator initialRouteName="Auth">
         <Stack.Screen name="BleScreen" component={BleScreen} options={{ title: 'LISTA DE PANTALLAS' }} />
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
