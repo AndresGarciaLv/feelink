@@ -29,7 +29,7 @@ export default function App() {
         <Stack.Screen name="TherapistProfile" component={TherapistProfile} options={{ headerShown: false}} />
         <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
-        <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} options={{headerShown: false}}  />
         <Stack.Screen name="HomeTutor" component={HomeTutor} options={{headerShown: false}} />
         <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Wifi1" component={WifiScreen1} options={{ headerShown: false }} />
