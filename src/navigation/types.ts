@@ -10,4 +10,5 @@ export type RootStackParamList = {
   Profile: undefined;
   TherapistProfile: undefined;
   HomeTutor:undefined;
+  ProfileChart:undefined;
 };

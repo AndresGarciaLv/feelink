@@ -14,6 +14,7 @@ import AuthForm from './src/views/loginView';
 import TutorProfile from './src/shared/components/profiles/TutorProfile'
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 import HomeTutor from './src/screens/tutor/HomeTutorScreen';
+import ChartsProfileScreen from './src/screens/ChartsProfileScreen';
 
 
 export default function App() {
@@ -30,6 +31,9 @@ export default function App() {
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Dashboard' }} />
 
         <Stack.Screen name="HomeTutor" component={HomeTutor} options={{headerShown: false}} />
+
+
+        <Stack.Screen name="ProfileChart" component={ChartsProfileScreen} options={{headerShown: false}} />
 
       </Stack.Navigator>
     </NavigationContainer>
