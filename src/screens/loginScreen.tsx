@@ -37,8 +37,8 @@ const AuthForm: React.FC = () => {
         } else {
           console.log('Iniciando sesión con:', values);
 
-          const isTerapeuta = values.email === 'terapeuta@feelink.com';
-          const isTutor = values.email === 'tutor@feelink.com';
+          const isTerapeuta = values.email === 'terapeuta@gmail.com';
+          const isTutor = values.email === 'tutor@gmail.com';
 
           if (isTerapeuta) {
             navigation.navigate('Dashboard', { openAddModal: false });
