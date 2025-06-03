@@ -1,216 +1,207 @@
-// src/BluetoothScreen.tsx
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  Button,
-  FlatList,
   StyleSheet,
-  Alert,
+  FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
-import { Device } from 'react-native-ble-plx';
-import { manager, requestPermissions } from '../core/services/ble/BluetoothManager';
-import DeviceItem from '../shared/components/bluetooth/DeviceItem';
-import SensorDataView from '../shared/components/bluetooth/SensorDataView';
-import { Buffer } from 'buffer';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/types';
+
+import BluetoothDeviceItem from '../shared/components/bluetooth/BluetoothDeviceItem';
+import CustomModal from '../shared/components/bluetooth/CustomModal/CustomModal';
+import Header from '../shared/components/bluetooth/Header/Header';
+import BubbleOverlay from '../shared/components/bluetooth/BubbleOverlay';
+import Colors from '../shared/components/bluetooth/constants/colors';
+import useBluetoothLogic from '../shared/hooks/useBluetoothLogic';
 import TabBar from '../shared/navigation/TabBar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
-const CHARACTERISTIC_UUID = 'abcd1234-abcd-1234-abcd-1234567890ab';
+const BluetoothScreen = () => {
+  const {
+    devices,
+    isScanning,
+    modalVisible,
+    modalMessage,
+    modalTitle,
+    selectedDevice,
+    isConnected,
+    connectedDevice,
+    startScan,
+    handleConnect,
+    confirmConnection,
+    closeModal,
+    connectToWifi,
+    handleDisconnect,
+    setSelectedDevice,
+  } = useBluetoothLogic();
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Bluetooth'>;
-
-export default function BluetoothScreen() {
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-  const [sensorData, setSensorData] = useState<{
-    p: number;
-    b: number;
-    m?: { x: number; y: number; z: number };
-  } | null>(null);
-  const [scanning, setScanning] = useState(false);
-
-  const seenDeviceIds = useRef<Set<string>>(new Set());
-  const buffer = useRef<string[]>([]);
-  const isParsing = useRef(false);
-  const parseTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  const navigation = useNavigation<NavigationProp>();
-
-  useEffect(() => {
-    return () => {
-      manager.destroy();
-    };
-  }, []);
-
-  const startScan = async () => {
-    seenDeviceIds.current.clear();
-    setDevices([]);
-    await requestPermissions();
-    setScanning(true);
-
-    manager.startDeviceScan(null, null, (error, device) => {
-      if (error) {
-        Alert.alert('Error al escanear', error.message);
-        setScanning(false);
-        return;
-      }
-      if (device && !seenDeviceIds.current.has(device.id)) {
-        seenDeviceIds.current.add(device.id);
-        setDevices(prev => [...prev, device]);
-      }
-    });
-
-    setTimeout(() => {
-      manager.stopDeviceScan();
-      setScanning(false);
-    }, 10000);
-  };
-
-  const handleConnect = async (device: Device) => {
-    try {
-      const connected = await device.connect();
-      await connected.discoverAllServicesAndCharacteristics();
-
-      connected.monitorCharacteristicForService(
-        SERVICE_UUID,
-        CHARACTERISTIC_UUID,
-        (error, characteristic) => {
-          if (error || !characteristic?.value) return;
-          const fragment = Buffer.from(characteristic.value, 'base64').toString('utf-8');
-          console.log('Fragmento sensor:', fragment);
-
-          // Inicia ensamblaje de fragmentos
-          if (fragment.startsWith('#1')) {
-            buffer.current = [];
-            isParsing.current = true;
-          }
-          if (!isParsing.current) return;
-
-          const match = fragment.match(/^#(\d+)/);
-          if (!match) return;
-          const index = parseInt(match[1], 10);
-          const prefix = match[0];
-          const payload = fragment.slice(prefix.length);
-
-          buffer.current[index - 1] = payload;
-
-          const assembled = buffer.current.join('').trim();
-          if (assembled.startsWith('{') && assembled.endsWith('}')) {
-            try {
-              const obj = JSON.parse(assembled);
-              setSensorData(obj);
-            } catch (e) {
-              console.error('Error al parsear JSON sensor:', e, assembled);
-            }
-            isParsing.current = false;
-          } else {
-            clearTimeout(parseTimeout.current!);
-            parseTimeout.current = setTimeout(() => {
-              const assembledTimeout = buffer.current.join('').trim();
-              if (assembledTimeout.startsWith('{') && assembledTimeout.endsWith('}')) {
-                try { setSensorData(JSON.parse(assembledTimeout)); } catch {}
-              }
-              isParsing.current = false;
-            }, 1000);
-          }
-        }
-      );
-
-      setConnectedDevice(connected);
-      Alert.alert('Conectado', `Conectado a ${connected.name ?? connected.id}`);
-    } catch (error: any) {
-      Alert.alert('Error', error.message);
-    }
-  };
-
-  const handleDisconnect = async () => {
-    if (connectedDevice) {
-      await connectedDevice.cancelConnection();
-      setConnectedDevice(null);
-      setSensorData(null);
-      Alert.alert('Desconectado', 'El dispositivo ha sido desconectado.');
-    }
-  };
-
-  const goToWiFi = () => {
-    if (!connectedDevice) {
-      Alert.alert('Advertencia', 'Conéctate a un peluche primero.');
-      return;
-    }
-    navigation.navigate('WiFi', { device: connectedDevice });
-  };
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
-      
-      <View style={styles.headerRow}>
-        <Text style={styles.title}>Buscar Peluche</Text>
-        <Button
-          title="Conectar a WiFi"
-          onPress={goToWiFi}
-          disabled={!connectedDevice}
-          color="#007AFF"
-        />
-         <Button 
-         title="Ver Pacientes" 
-         onPress={() => navigation.navigate('Patients', { openAddModal: false })} 
-         />
+      <View style={styles.headerWrapper}>
+        <Header title="Conexión por Bluetooth" showBackButton />
       </View>
 
-        <Button 
-         title="Ver Perfil" 
-         onPress={() => navigation.navigate('Profile')} 
-         />
-         <Button 
-         title="Home Tutor" 
-         onPress={() => navigation.navigate('HomeTutor')} 
-         />
-          <Button 
-         title="ProfileChart"  
-         onPress={() => navigation.navigate('ProfileChart')} 
-         />
+      <BubbleOverlay />
 
-      <Button title="Buscar Peluches" onPress={startScan} disabled={scanning} />
-      <Button title="Tutor Profile" onPress={() => navigation.navigate('TutorProfile')} />
-               <Button 
-         title="Ir al dashboard" 
-         onPress={() => navigation.navigate('Dashboard')} 
-         />
-      {scanning && <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 10 }} />}
+      <Text style={styles.stepText}>
+        Paso 1: Asegúrate de que el peluche esté encendido y se encuentre cerca.
+      </Text>
 
-      {sensorData && <SensorDataView jsonData={sensorData} />}
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={[styles.leftButton, isScanning && { opacity: 0.5 }]}
+          onPress={startScan}
+          disabled={isScanning}
+        >
+          <Text style={styles.buttonText}>Buscar Peluches</Text>
+        </TouchableOpacity>
 
-      <FlatList
-        data={devices}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <DeviceItem
-            device={item}
-            isConnected={connectedDevice?.id === item.id}
-            onConnect={() => handleConnect(item)}
-            onDisconnect={handleDisconnect}
+        <TouchableOpacity
+          style={[styles.rightButton, !isConnected && { opacity: 0.5 }]}
+          onPress={connectToWifi}
+          disabled={!isConnected}
+        >
+          <Text style={styles.buttonText}>Conectar Wifi</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.bottomSection}>
+        {isScanning ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.secondary} />
+            <Text style={styles.loadingText}>Escaneando dispositivos...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={devices}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <BluetoothDeviceItem
+                deviceName={item.name || 'Dispositivo'}
+                deviceId={item.id}
+                status={item.id}
+                onConnect={() => {
+                  if (connectedDevice?.id === item.id) {
+                    handleDisconnect();
+                  } else {
+                    setSelectedDevice(item);
+                    handleConnect(item);
+                  }
+                }}
+                isConnected={connectedDevice?.id === item.id}
+              />
+            )}
+            contentContainerStyle={styles.listContent}
+            ListEmptyComponent={() => (
+              <Text style={styles.emptyListText}>
+                No se encontraron dispositivos.
+              </Text>
+            )}
           />
         )}
-      />
-      <TabBar activeTab="Bluetooth" />
+      </View>
+
+     
+      <CustomModal
+  isVisible={modalVisible}
+  title={modalTitle}
+  message={modalMessage}
+  onConfirm={isScanning || !selectedDevice ? closeModal : confirmConnection}
+  onCancel={!isScanning && selectedDevice ? closeModal : undefined}
+  confirmText={isScanning || !selectedDevice ? 'OK' : 'Conectar WiFi'}
+  cancelText="Cancelar"
+/>
+
+
+      {/* TabBar Posicionado correctamente */}
+      <View style={[styles.tabBarWrapper, { bottom: insets.bottom || 12 }]}>
+        <TabBar activeTab="Bluetooth" />
+      </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#f4f4f4' },
-  title: { fontSize: 24, fontWeight: 'bold' },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    backgroundColor: Colors.white,
+  },
+  headerWrapper: {
+    position: 'relative',
+    zIndex: 2,
+  },
+  stepText: {
+    fontSize: 13,
+    color: Colors.textPrimary,
+    fontFamily: 'Inter-Light',
+    textAlign: 'center',
     marginBottom: 20,
-    marginTop: 40,
+    paddingHorizontal: 55,
+    marginTop: 50,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 10,
+    gap: 16,
+  },
+  leftButton: {
+    backgroundColor: '#9BC4E0',
+    paddingVertical: 10,
+    borderRadius: 15,
+    flex: 1,
+    alignItems: 'center',
+  },
+  rightButton: {
+    backgroundColor: '#9BC4E0',
+    paddingVertical: 10,
+    borderRadius: 15,
+    flex: 1,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: Colors.white,
+    fontSize: 15,
+    fontFamily: 'Inter-SemiBold',
+  },
+  bottomSection: {
+    flex: 1,
+    marginTop: 30,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 60,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.textPrimary,
+    fontFamily: 'Inter',
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
+  emptyListText: {
+    textAlign: 'center',
+    marginTop: 50,
+    fontSize: 16,
+    color: Colors.textPrimary,
+    fontFamily: 'Inter',
+  },
+  tabBarWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 10,
   },
 });
 
+export default BluetoothScreen;

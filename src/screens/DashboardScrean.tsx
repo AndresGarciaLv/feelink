@@ -7,6 +7,8 @@ import TabBar from '../shared/navigation/TabBar';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 const PROFILE_IMAGE = null; 
 const PATIENT_AVATAR = null; 
@@ -38,12 +40,17 @@ const DashboardScreen: React.FC = () => {
   ];
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <NavBar/>
-        
+        <NavBar 
+  doctorName="Dr. Diego Aleman Mena"
+  profileImage={require('../../assets/perfil.png')}
+  onBackPress={() => navigation.goBack()}
+/>
+
         {/* My Patients Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Mis pacientes</Text>
@@ -127,7 +134,10 @@ const DashboardScreen: React.FC = () => {
       </ScrollView>
       
       {/* Tab Bar Component */}
+      <View style={{ paddingBottom: insets.bottom }}>
+
       <TabBar activeTab="Home" />
+    </View>
     </View>
   );
 };
