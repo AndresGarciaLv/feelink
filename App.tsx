@@ -5,8 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BleScreen from './src/screens/BleScreen';
 import WiFiConfigScreen from './src/screens/WifiConfigScreen';
 import type { RootStackParamList } from './src/navigation/types';
-import PatientsScreen
- from './src/screens/PatientsScreen';
+import PatientsScreen from './src/screens/PatientsScreen';
  import ProfileScreen from './src/screens/ProfileScreen';
 import DashboardScreen from './src/screens/DashboardScrean';
 const Stack = createNativeStackNavigator<RootStackParamList>();
