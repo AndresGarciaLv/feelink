@@ -16,6 +16,7 @@ import TherapistProfile from './src/shared/components/profiles/TherapistProfile'
 import HomeTutor from './src/screens/tutor/HomeTutorScreen';
 import BluetoothScreen from './src/screens/BluetoothScreen';
 import WifiScreen1 from './src/screens/WifiScreen1';
+import ChartsProfileScreen from './src/screens/ChartsProfileScreen';
 import SplashScreenComponent from './src/screens/SplashScreen';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -39,6 +40,9 @@ export default function App() {
         <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{ headerShown: false }} />
         <Stack.Screen name="Wifi1" component={WifiScreen1} options={{ headerShown: false }} />
 
+
+
+        <Stack.Screen name="ProfileChart" component={ChartsProfileScreen} options={{headerShown: false}} />
 
       </Stack.Navigator>
     </NavigationContainer>
