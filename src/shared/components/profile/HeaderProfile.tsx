@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     width: '100%',
-  
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15
   }
 });
