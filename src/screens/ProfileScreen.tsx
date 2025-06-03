@@ -7,14 +7,41 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import Colors from '../shared/components/bluetooth/constants/colors';
 import HeaderProfile from '../shared/components/profile/HeaderProfile';
+import { PacienteGraficas, EstadoEmocional } from '../types/PatientChart';
+
+// Tipos para la navegación
+type RootStackParamList = {
+    ChartsProfile: {
+        data: PacienteGraficas;
+        chartType: 'stress' | 'emotions';
+    };
+};
+
+type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
+    const navigation = useNavigation<NavigationProp>();
+
     // Estado para controlar el mes seleccionado
     const [selectedMonth, setSelectedMonth] = useState('Abril');
 
-    // Datos de ejemplo para cada mes
+    // DATOS DEL PACIENTE - Información básica del perfil
+    const patientInfo = {
+        id: 'pac_001_alvaro',
+        name: 'Álvaro Díaz',
+        age: '3 Años',
+        fullAge: '3 Años 10 Meses 2 Días',
+        height: 73,
+        weight: 12,
+        bmi: 12,
+        tag: 'peluchin'
+    };
+
+    // Datos de ejemplo para cada mes (mantén tu estructura actual)
     const monthlyData = {
         'Abril': {
             summary: {
@@ -114,6 +141,110 @@ export default function ProfileScreen() {
         }
     };
 
+    // FUNCIÓN PARA CONVERTIR DATOS - Transforma los datos del perfil al formato de gráficas
+    const convertToChartData = (chartType: 'stress' | 'emotions'): PacienteGraficas => {
+        const currentMonthData = monthlyData[selectedMonth];
+
+        // Mapear emociones del perfil a estados emocionales de las gráficas
+        const mapEmotionToState = (emotion: string): EstadoEmocional => {
+            switch (emotion) {
+                case 'Feliz':
+                    return 'estable';
+                case 'Neutro':
+                    return 'ansioso';
+                case 'Triste':
+                    return 'crisis';
+                default:
+                    return 'estable';
+            }
+        };
+
+        // Generar datos detallados basados en los días del mes actual
+        const detailedData = currentMonthData.dailyData.map(dayData => ({
+            fecha: convertDateToISO(dayData.date),
+            estado: mapEmotionToState(getRandomEmotion(dayData.emotions))
+        }));
+
+        // Calcular resumen de estados
+        const summary = detailedData.reduce(
+            (acc, curr) => {
+                acc[curr.estado]++;
+                return acc;
+            },
+            { estable: 0, ansioso: 0, crisis: 0 }
+        );
+
+        return {
+            pacienteId: patientInfo.id,
+            nombre: patientInfo.name,
+            periodo: 'mensual' as const,
+            rango: {
+                inicio: getMonthStartDate(selectedMonth),
+                fin: getMonthEndDate(selectedMonth)
+            },
+            resumen: summary,
+            detallado: detailedData
+        };
+    };
+
+    // FUNCIONES AUXILIARES
+    const convertDateToISO = (dateString: string): string => {
+        // Convierte "28 Abril 2025" a "2025-04-28"
+        const months = {
+            'Enero': '01', 'Febrero': '02', 'Marzo': '03', 'Abril': '04',
+            'Mayo': '05', 'Junio': '06', 'Julio': '07', 'Agosto': '08',
+            'Septiembre': '09', 'Octubre': '10', 'Noviembre': '11', 'Diciembre': '12'
+        };
+
+        const parts = dateString.split(' ');
+        const day = parts[0].padStart(2, '0');
+        const month = months[parts[1] as keyof typeof months];
+        const year = parts[2];
+
+        return `${year}-${month}-${day}`;
+    };
+
+    const getMonthStartDate = (month: string): string => {
+        const monthMap = {
+            'Enero': '2025-01-01',
+            'Febrero': '2025-02-01',
+            'Marzo': '2025-03-01',
+            'Abril': '2025-04-01'
+        };
+        return monthMap[month as keyof typeof monthMap] || '2025-04-01';
+    };
+
+    const getMonthEndDate = (month: string): string => {
+        const monthMap = {
+            'Enero': '2025-01-31',
+            'Febrero': '2025-02-28',
+            'Marzo': '2025-03-31',
+            'Abril': '2025-04-30'
+        };
+        return monthMap[month as keyof typeof monthMap] || '2025-04-30';
+    };
+
+    const getRandomEmotion = (emotions: string[]): string => {
+        return emotions[Math.floor(Math.random() * emotions.length)];
+    };
+
+    // NAVEGACIÓN A GRÁFICAS
+    const handleStressChart = () => {
+        const chartData = convertToChartData('stress');
+        navigation.navigate('ProfileChart', {
+            data: chartData,
+            chartType: 'stress'
+        });
+    };
+
+    // const handleEmotionsChart = () => {
+    //     const chartData = convertToChartData('emotions');
+    //     navigation.navigate('ProfileChart', {
+    //         data: chartData,
+    //         chartType: 'emotions'
+    //     });
+    // };
+
     // Función para obtener el color de cada etiqueta de emoción
     const getEmotionStyle = (emotion) => {
         switch (emotion) {
@@ -144,7 +275,6 @@ export default function ProfileScreen() {
 
     return (
         <ScrollView>
-
             <View style={styles.container}>
                 {/* HEADER - Encabezado con botón de regreso y título */}
                 <HeaderProfile />
@@ -155,21 +285,22 @@ export default function ProfileScreen() {
                         style={styles.avatar}
                     />
                     <TouchableOpacity style={styles.tagButton}>
-                        <Text style={styles.tagText}>peluchin</Text>
+                        <Text style={styles.tagText}>{patientInfo.tag}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Información personal */}
                 <View style={styles.infoContainer}>
-                    <Text style={styles.name}>Álvaro Díaz</Text>
-                    <Text style={styles.subText}>3 Años</Text>
+                    <Text style={styles.name}>{patientInfo.name}</Text>
+                    <Text style={styles.subText}>{patientInfo.age}</Text>
                     <Text style={styles.subTextGray}>321000218739812 • Niño</Text>
                 </View>
 
                 {/* Datos físicos con divisores */}
                 <View style={styles.statsContainer}>
                     <View style={styles.statBox}>
-                        <Text style={styles.statValueWithUnit}>73
+                        <Text style={styles.statValueWithUnit}>
+                            {patientInfo.height}
                             <Text style={styles.statUnit}>cm</Text>
                         </Text>
                         <Text style={styles.statLabel}>Altura</Text>
@@ -178,7 +309,8 @@ export default function ProfileScreen() {
                     <View style={styles.divider} />
 
                     <View style={styles.statBox}>
-                        <Text style={styles.statValueWithUnit}>12
+                        <Text style={styles.statValueWithUnit}>
+                            {patientInfo.weight}
                             <Text style={styles.statUnit}>kg</Text>
                         </Text>
                         <Text style={styles.statLabel}>Peso</Text>
@@ -187,19 +319,25 @@ export default function ProfileScreen() {
                     <View style={styles.divider} />
 
                     <View style={styles.statBox}>
-                        <Text style={styles.statValue}>12</Text>
+                        <Text style={styles.statValue}>{patientInfo.bmi}</Text>
                         <Text style={styles.statUnit}>IMC</Text>
                     </View>
                 </View>
 
-                {/* Botones */}
+                {/* BOTONES CON NAVEGACIÓN */}
                 <View style={styles.buttonGroup}>
-                    <TouchableOpacity style={styles.stressButton}>
-                        <Text style={styles.stressText}>Grafica de estrés</Text>
+                    <TouchableOpacity
+                        style={styles.stressButton}
+                        onPress={handleStressChart}
+                    >
+                        <Text style={styles.stressText}>Gráfica de estrés</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.emotionsButton}>
+                    {/* <TouchableOpacity 
+                        style={styles.emotionsButton}
+                        onPress={handleEmotionsChart}
+                    >
                         <Text style={styles.emotionsText}>Gráfica de emociones</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
 
                 {/* NAVEGACIÓN MENSUAL - Navbar tipo calendario para seleccionar meses */}
@@ -305,12 +443,12 @@ export default function ProfileScreen() {
                         </View>
                     ))}
                 </View>
-
             </View>
         </ScrollView>
     );
 }
 
+// ESTILOS (mantén todos tus estilos actuales)
 const styles = StyleSheet.create({
     // CONTENEDOR PRINCIPAL
     container: {
@@ -451,7 +589,6 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 16,
     },
-
 
     // ESTILOS DE LA NAVEGACIÓN MENSUAL
     monthTabs: {
@@ -641,7 +778,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        rowGap: 16, // Si estás usando React Native 0.71+ o con soporte de `rowGap`
+        rowGap: 16,
         marginHorizontal: 35,
         marginTop: 4,
     },

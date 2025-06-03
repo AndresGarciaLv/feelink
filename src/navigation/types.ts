@@ -12,4 +12,5 @@ export type RootStackParamList = {
   HomeTutor:undefined;
   Bluetooth: undefined; 
   Wifi1: { device: any }; // NUEVA RUTA para WifiScreen1, 'any' temporalmente si Device no es el mismo que en la simulación
+  ProfileChart:undefined;
 };
