@@ -5,6 +5,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import { KeyboardAvoidingView, Platform, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+
 
 const fondo = require('../img/Bienvenida.png');
 
@@ -144,14 +146,28 @@ const AuthForm: React.FC = () => {
   const extraHeight = formState === null ? { paddingVertical: '15%', minHeight: '35%' } : {};
 
   return (
-    <ImageBackground source={fondo} style={styles.background}>
-      <View style={styles.container}>
-        <View style={[styles.form, extraHeight]}>
-          {formState ? renderForm() : renderInitialButtons()}
-        </View>
-      </View>
-    </ImageBackground>
-  );
+  <ImageBackground source={fondo} style={styles.background}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1, width: '100%' }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.container}>
+            <View style={[styles.form, extraHeight]}>
+              {formState ? renderForm() : renderInitialButtons()}
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+  </ImageBackground>
+);
+
 };
 
 const styles = StyleSheet.create({

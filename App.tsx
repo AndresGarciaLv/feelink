@@ -16,18 +16,23 @@ import TherapistProfile from './src/shared/components/profiles/TherapistProfile'
 import HomeTutor from './src/screens/tutor/HomeTutorScreen';
 import BluetoothScreen from './src/screens/BluetoothScreen';
 import WifiScreen1 from './src/screens/WifiScreen1';
+import SplashScreenComponent from './src/screens/SplashScreen';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Auth">
+      <Stack.Navigator initialRouteName="Splash">
+        <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
+        <Stack.Screen name="Splash" component={SplashScreenComponent} options={{ headerShown: false }} />
         <Stack.Screen name="BleScreen" component={BleScreen} options={{ title: 'LISTA DE PANTALLAS' }} />
         <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{ title: 'Conectar a WiFi' }} />
         <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}} />
         <Stack.Screen name="TutorProfile" component={TutorProfile} options={{ headerShown: false}} />
         <Stack.Screen name="TherapistProfile" component={TherapistProfile} options={{ headerShown: false}} />
-        <Stack.Screen name="Auth" component={AuthForm} options={{headerShown: false}} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} options={{headerShown: false}}  />
         <Stack.Screen name="HomeTutor" component={HomeTutor} options={{headerShown: false}} />
