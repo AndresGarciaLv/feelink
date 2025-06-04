@@ -156,6 +156,7 @@ const AuthForm: React.FC = () => {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           <View style={styles.container}>
             <View style={[styles.form, extraHeight]}>
