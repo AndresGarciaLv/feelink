@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
+import { useNavigation } from '@react-navigation/native';
 import Colors from '../bluetooth/constants/colors';
 import perfil from '../../../../assets/perfil.png';
+
 type Patient = {
   id: string;
   name: string;
@@ -16,11 +18,16 @@ type Props = {
 };
 
 export default function PatientList({ data, onEdit, onDelete }: Props) {
+   const navigation = useNavigation();
   return (
     <SwipeListView
       data={data}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
+        <TouchableOpacity
+          activeOpacity={15}
+          onPress={() => navigation.navigate('Profile', { patient: item })}
+        >
         <View style={styles.card}>
           <Image
             source={item.image ? item.image : perfil}
@@ -31,6 +38,7 @@ export default function PatientList({ data, onEdit, onDelete }: Props) {
             <Text style={styles.age}>{item.age} años</Text>
           </View>
         </View>
+        </TouchableOpacity>
       )}
       renderHiddenItem={({ item }) => (
         <View style={styles.hiddenContainer}>
