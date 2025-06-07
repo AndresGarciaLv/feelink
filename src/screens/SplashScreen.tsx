@@ -12,7 +12,7 @@ export default function SplashScreenComponent() {
     setTimeout(async () => {
       await SplashScreen.hideAsync();
         navigation.navigate('Auth'); 
-    }, 10);
+    }, 5000);
   }, []);
 
   return (
