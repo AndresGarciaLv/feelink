@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     fontFamily: 'Poppins',
+    paddingHorizontal: 20,
   },
   form: {
     backgroundColor: '#fff',
