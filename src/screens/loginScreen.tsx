@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ImageBackground,
+  KeyboardAvoidingView,
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Platform,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
-import { KeyboardAvoidingView, Platform, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
-
 
 const fondo = require('../img/Bienvenida.png');
 
 const AuthForm: React.FC = () => {
   const [formState, setFormState] = useState<null | 'login' | 'register'>(null);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -25,8 +36,6 @@ const AuthForm: React.FC = () => {
       .oneOf([Yup.ref('password')], 'Las contraseñas deben coincidir')
       .required('Confirmar contraseña es requerido'),
   });
-
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const renderForm = () => (
     <Formik
@@ -67,7 +76,7 @@ const AuthForm: React.FC = () => {
                 onChangeText={handleChange('name')}
                 onBlur={handleBlur('name')}
               />
-              {touched.name && errors.name && <Text style={{ color: 'red' }}>{errors.name}</Text>}
+              {touched.name && errors.name && <Text style={styles.error}>{errors.name}</Text>}
             </>
           )}
 
@@ -79,7 +88,7 @@ const AuthForm: React.FC = () => {
             onBlur={handleBlur('email')}
             keyboardType="email-address"
           />
-          {touched.email && errors.email && <Text style={{ color: 'red' }}>{errors.email}</Text>}
+          {touched.email && errors.email && <Text style={styles.error}>{errors.email}</Text>}
 
           <TextInput
             style={styles.input}
@@ -89,7 +98,7 @@ const AuthForm: React.FC = () => {
             onBlur={handleBlur('password')}
             secureTextEntry
           />
-          {touched.password && errors.password && <Text style={{ color: 'red' }}>{errors.password}</Text>}
+          {touched.password && errors.password && <Text style={styles.error}>{errors.password}</Text>}
 
           {formState === 'register' && (
             <>
@@ -102,7 +111,7 @@ const AuthForm: React.FC = () => {
                 secureTextEntry
               />
               {touched.checkPassword && errors.checkPassword && (
-                <Text style={{ color: 'red' }}>{errors.checkPassword}</Text>
+                <Text style={styles.error}>{errors.checkPassword}</Text>
               )}
             </>
           )}
@@ -146,29 +155,28 @@ const AuthForm: React.FC = () => {
   const extraHeight = formState === null ? { paddingVertical: '15%', minHeight: '35%' } : {};
 
   return (
-  <ImageBackground source={fondo} style={styles.background}>
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1, width: '100%' }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+    <ImageBackground source={fondo} style={styles.background}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={{ flex: 1, width: '100%' }}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
         >
-          <View style={styles.container}>
-            <View style={[styles.form, extraHeight]}>
-              {formState ? renderForm() : renderInitialButtons()}
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.container}>
+              <View style={[styles.form, extraHeight]}>
+                {formState ? renderForm() : renderInitialButtons()}
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
-  </ImageBackground>
-);
-
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </ImageBackground>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -179,14 +187,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
   container: {
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
     width: '100%',
-    fontFamily: 'Poppins',
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   form: {
     backgroundColor: '#fff',
@@ -237,6 +247,12 @@ const styles = StyleSheet.create({
   link: {
     color: '#91bddf',
     fontWeight: 'bold',
+  },
+  error: {
+    color: 'red',
+    marginBottom: 8,
+    marginTop: -8,
+    fontSize: 13,
   },
 });
 
