@@ -3,11 +3,11 @@ import React from 'react';
 import { ScrollView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { PacienteGraficas } from '../types/PatientChart';
-import SummaryChart from '../shared/components/charts/SummaryChart';
-import TrendChart from '../shared/components/charts/TrendChart';
-import { fakeData } from '../utils/fakeChartData';
-import Colors from '../shared/components/bluetooth/constants/colors';
+import { PacienteGraficas } from '../../core/types/common/PatientChart';
+import SummaryChart from '../../shared/components/charts/SummaryChart';
+import TrendChart from '../../shared/components/charts/TrendChart';
+import { fakeData } from '../../core/utils/fakeChartData';
+import Colors from '../../shared/components/bluetooth/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 // Tipos para los parámetros de ruta
@@ -28,7 +28,7 @@ interface Props {
 
 const ChartsProfileScreen: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation<NavigationProp>();
-  
+
   // Validación defensiva con fallback
   const data: PacienteGraficas = route?.params?.data || fakeData;
   const chartType = route?.params?.chartType || 'emotions';

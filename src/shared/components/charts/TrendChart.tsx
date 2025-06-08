@@ -1,7 +1,7 @@
 import React from 'react';
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions, View, Text, StyleSheet } from 'react-native';
-import { DetalleEstado } from '../../../types/PatientChart';
+import { DetalleEstado } from '../../../core/types/common/PatientChart';
 
 const screenWidth = Dimensions.get('window').width;
 

@@ -2,19 +2,19 @@ import React from 'react'; // Solo React, los hooks ya los usa el custom hook
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import WiFiDeviceItem from '../shared/components/wifi1C/WifiDeviceItem';
-import CustomModal from '../shared/components/wifi1C/CustomModal1';
-import Header from '../shared/components/bluetooth/Header/Header';
-import Colors from '../shared/components/bluetooth/constants/colors';
-import SimulatedDeviceScannerWifi from '../shared/components/wifi1C/SimulatedDeviceScannerWifi';
+import WiFiDeviceItem from '../../shared/components/wifi1C/WifiDeviceItem';
+import CustomModal from '../../shared/components/wifi1C/CustomModal1';
+import Header from '../../shared/components/bluetooth/Header/Header';
+import Colors from '../../shared/components/bluetooth/constants/colors';
+import SimulatedDeviceScannerWifi from '../../shared/components/wifi1C/SimulatedDeviceScannerWifi';
 
 // Import SVG for the icons
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
 // Import PelucheIcon
-import PelucheIcon from '../shared/components/PelucheIcon';
+import PelucheIcon from '../../shared/components/PelucheIcon';
 
 // Importar el custom hook
-import { useWifiLogic } from '../shared/hooks/useWifiLogic'; // Asegúrate de que la ruta sea correcta
+import { useWifiLogic } from '../../shared/hooks/useWifiLogic'; // Asegúrate de que la ruta sea correcta
 
 // Icono de Osito (Teddy Bear)
 const GenericTeddyBearIcon: React.FC<{ size: number; color: string }> = ({ size, color }) => (

@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import BluetoothDeviceItem from '../shared/components/bluetooth/BluetoothDeviceItem';
-import CustomModal from '../shared/components/bluetooth/CustomModal/CustomModal';
-import Header from '../shared/components/bluetooth/Header/Header';
-import BubbleOverlay from '../shared/components/bluetooth/BubbleOverlay';
-import Colors from '../shared/components/bluetooth/constants/colors';
-import useBluetoothLogic from '../shared/hooks/useBluetoothLogic';
-import TabBar from '../shared/navigation/TabBar';
+import BluetoothDeviceItem from '../../shared/components/bluetooth/BluetoothDeviceItem';
+import CustomModal from '../../shared/components/bluetooth/CustomModal/CustomModal';
+import Header from '../../shared/components/bluetooth/Header/Header';
+import BubbleOverlay from '../../shared/components/bluetooth/BubbleOverlay';
+import Colors from '../../shared/components/bluetooth/constants/colors';
+import useBluetoothLogic from '../../shared/hooks/useBluetoothLogic';
+import TabBar from '../layout/TabBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const BluetoothScreen = () => {

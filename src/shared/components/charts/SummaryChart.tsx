@@ -1,7 +1,7 @@
 import React from 'react';
 import { PieChart } from 'react-native-chart-kit';
 import { Dimensions, View, Text } from 'react-native';
-import { ResumenEstados } from '../../../types/PatientChart';
+import { ResumenEstados } from '../../../core/types/common/PatientChart';
 
 const screenWidth = Dimensions.get('window').width;
 

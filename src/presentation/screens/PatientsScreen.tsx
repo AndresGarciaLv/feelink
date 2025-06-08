@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {View,Text,TouchableOpacity,StyleSheet,Modal,TextInput,Alert,Image} from 'react-native';
-import PatientList from '../shared/components/patients/PatientItem';
-import Colors from '../shared/components/bluetooth/constants/colors';
-import HeaderPatients from '../shared/components/HeaderPatients';
+import PatientList from '../../shared/components/patients/PatientItem';
+import Colors from '../../shared/components/bluetooth/constants/colors';
+import HeaderPatients from '../../shared/components/HeaderPatients';
 import { useRoute, RouteProp  } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/types';
-import TabBar from '../shared/navigation/TabBar';
+import TabBar from '../layout/TabBar';
 
 const initialPatients = [
-  { id: '1', name: 'Julian Gonzalez', age: 19, avatar: require('../../assets/perfil.png') },
-  { id: '2', name: 'Luis Ramirez', age: 10, avatar: require('../../assets/perfil.png')},
-  { id: '3', name: 'Álvaro Díaz', age: 17, avatar: require('../../assets/perfil.png') },
-  { id: '4', name: 'Astrid López', age: 5, avatar: require('../../assets/perfil.png') },
+  { id: '1', name: 'Julian Gonzalez', age: 19, avatar: require('../../../assets/perfil.png') },
+  { id: '2', name: 'Luis Ramirez', age: 10, avatar: require('../../../assets/perfil.png')},
+  { id: '3', name: 'Álvaro Díaz', age: 17, avatar: require('../../../assets/perfil.png') },
+  { id: '4', name: 'Astrid López', age: 5, avatar: require('../../../assets/perfil.png') },
 ];
 
 export default function PatientsScreen() {
@@ -91,7 +91,7 @@ useEffect(() => {
   };
     const getRandomAvatar = () => {
     const avatars = [
-      require('../../assets/perfil.png'),
+      require('../../../assets/perfil.png'),
     ];
     return avatars[Math.floor(Math.random() * avatars.length)];
   };

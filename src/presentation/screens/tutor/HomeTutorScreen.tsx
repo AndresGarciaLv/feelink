@@ -8,8 +8,8 @@ import {
     Image
 } from 'react-native';
 
-import HeaderTutor from '../../shared/components/home-tutor/HeaderTutor';
-import HeaderProfile from '../../shared/components/profile/HeaderProfile';
+import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
+import HeaderProfile from '../../../shared/components/profile/HeaderProfile';
 
 // PALETA DE COLORES - Basada en el diseño de referencia
 const Colors = {
@@ -301,7 +301,7 @@ export default function HomeTutor() {
             <View style={styles.profileCard}>
                 {/* Avatar del niño */}
                 <Image
-                    source={require('../../img/Home-tutor.png')}
+                    source={require('../../../shared/assets/img/Home-tutor.png')}
                     style={styles.avatar}
                 />
 

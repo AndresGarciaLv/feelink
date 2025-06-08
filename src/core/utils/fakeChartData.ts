@@ -1,4 +1,4 @@
-import { PacienteGraficas } from '../types/PatientChart';
+import { PacienteGraficas } from '../types/common/PatientChart';
 
 export const fakeData: PacienteGraficas = {
   pacienteId: '12345',

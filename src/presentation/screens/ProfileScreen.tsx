@@ -9,9 +9,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import Colors from '../shared/components/bluetooth/constants/colors';
-import HeaderProfile from '../shared/components/profile/HeaderProfile';
-import { PacienteGraficas, EstadoEmocional } from '../types/PatientChart';
+import Colors from '../../shared/components/bluetooth/constants/colors';
+import HeaderProfile from '../../shared/components/profile/HeaderProfile';
+import { PacienteGraficas, EstadoEmocional } from '../../core/types/common/PatientChart';
 
 // Tipos para la navegación
 type RootStackParamList = {
@@ -281,7 +281,7 @@ export default function ProfileScreen() {
 
                 <View style={styles.avatarContainer}>
                     <Image
-                        source={require('../../assets/perfil.png')}
+                        source={require('../../../assets/perfil.png')}
                         style={styles.avatar}
                     />
                     <TouchableOpacity style={styles.tagButton}>
