@@ -18,13 +18,17 @@ import WifiScreen1 from './src/presentation/screens/WifiScreen1';
 import ChartsProfileScreen from './src/presentation/screens/ChartsProfileScreen';
 import {Provider} from "react-redux";
 import store from "./src/core/stores/store";
+import * as SplashScreen from 'expo-splash-screen';
+import SplashScreenComponent from './src/presentation/screens/SplashScreen';
 
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
   return (
       <Provider store={store} >
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="Auth">
+          <Stack.Navigator initialRouteName="Splash">
+            <Stack.Screen name="Splash" component={SplashScreenComponent} options={{ headerShown: false }} />
             <Stack.Screen name="BleScreen" component={BleScreen} options={{title: 'LISTA DE PANTALLAS'}}/>
             <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{title: 'Conectar a WiFi'}}/>
             <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}}/>

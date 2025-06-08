@@ -11,6 +11,7 @@ export type RootStackParamList = {
     TherapistProfile: undefined;
     HomeTutor:undefined;
     Bluetooth: undefined;
+    Splash: undefined;
     Wifi1: { device: any }; // NUEVA RUTA para WifiScreen1, 'any' temporalmente si Device no es el mismo que en la simulación
     ProfileChart:undefined;
 };
