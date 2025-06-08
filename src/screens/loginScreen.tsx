@@ -158,12 +158,12 @@ const AuthForm: React.FC = () => {
     <ImageBackground source={fondo} style={styles.background}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
-          behavior="padding"
+          behavior={Platform.OS === 'ios' ? 'position' : 'height'}
           style={{ flex: 1, width: '100%' }}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
         >
           <ScrollView
-            contentContainerStyle={{ flexGrow: 1 }}
+            contentContainerStyle={{ minHeight: '100%' }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
@@ -177,6 +177,7 @@ const AuthForm: React.FC = () => {
       </TouchableWithoutFeedback>
     </ImageBackground>
   );
+
 };
 
 const styles = StyleSheet.create({
