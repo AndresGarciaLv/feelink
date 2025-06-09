@@ -7,17 +7,22 @@ export const manager = new BleManager();
 
 export const requestPermissions = async () => {
   if (Platform.OS === 'android') {
-    // Solicita permisos si son necesarios
-    await PermissionsAndroid.requestMultiple([
+    const granted = await PermissionsAndroid.requestMultiple([
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
     ]);
+    
+    const allGranted = Object.values(granted).every(res => res === PermissionsAndroid.RESULTS.GRANTED);
+    if (!allGranted) {
+      Alert.alert("Permisos requeridos para usar Bluetooth");
+      return;
+    }
 
-    // Verifica si Bluetooth está activado
     const state = await BluetoothStateManager.getState();
     if (state !== 'PoweredOn') {
-      await BluetoothStateManager.requestToEnable(); // Pide que lo active
+      await BluetoothStateManager.requestToEnable();
     }
   }
 };
+

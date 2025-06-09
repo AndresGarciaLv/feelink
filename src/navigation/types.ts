@@ -1,6 +1,7 @@
 import { Device } from 'react-native-ble-plx';
 
 export type RootStackParamList = {
+  Splash: undefined;
   Dashboard: undefined;
   BleScreen: undefined;
   WiFi: { device: Device };
