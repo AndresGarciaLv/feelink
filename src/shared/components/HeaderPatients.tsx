@@ -28,7 +28,7 @@ const HeaderPatients = () => {
             <Ionicons name="arrow-back" size={28} color="white" />
           </TouchableOpacity>
           <Image
-            source={require('../../../assets/perfil.png')}
+            source={require('../../shared/assets/img/perfil.png')}
             style={styles.avatar}
           />
           <View style={styles.titleContainer}>
