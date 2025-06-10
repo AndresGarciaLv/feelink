@@ -4,8 +4,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useNavigation } from '@react-navigation/native';
 import type {NativeStackNavigationProp} from "@react-navigation/native-stack";
 import {RootStackParamList} from "../../core/types/common/navigation";
+// @ts-ignore
+import BgIcon from "../../shared/assets/img/icon.png";
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().then(r =>{});
 
 export default function SplashScreenComponent() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -19,7 +21,7 @@ export default function SplashScreenComponent() {
   return (
     
     <View style={styles.container}>
-      <Image source={require('../../assets/icon.png')} style={styles.image} resizeMode="contain" />
+      <Image source={BgIcon} style={styles.image} resizeMode="contain" />
     </View>
   );
 }

@@ -281,7 +281,7 @@ export default function ProfileScreen() {
 
                 <View style={styles.avatarContainer}>
                     <Image
-                        source={require('../../../assets/perfil.png')}
+                        source={require('../../shared/assets/img/perfil.png')}
                         style={styles.avatar}
                     />
                     <TouchableOpacity style={styles.tagButton}>

@@ -4,11 +4,11 @@
     "slug": "FeeLink",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./src/shared/assets/img/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./src/shared/assets/img/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#9BC4E0"
     },
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./src/shared/assets/img/adaptive-icon.png",
         "backgroundColor": "#9BC4E0"
       },
       "edgeToEdgeEnabled": true,
@@ -43,7 +43,7 @@
       ]
     ],
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./src/shared/assets/img/favicon.png"
     },
     "extra": {
       "eas": {

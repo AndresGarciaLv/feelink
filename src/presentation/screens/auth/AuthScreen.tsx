@@ -28,7 +28,12 @@ const AuthScreen: React.FC = () => {
                     accessToken: authState.accessToken!,
                     role: authState.role!
                 }));
-                navigation.navigate("Dashboard");
+
+                if (authState.role === "SuperAdmin" || authState.role === "ClinicAdmin") {
+                    navigation.navigate("Dashboard");
+                } else {
+                    navigation.navigate("HomeTutor")
+                }
             })
             .catch(err => {
                 console.error(err);

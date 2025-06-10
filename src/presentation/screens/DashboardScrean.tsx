@@ -57,7 +57,7 @@ const DashboardScreen: React.FC = () => {
             <ScrollView style={styles.scrollView}>
                 <NavBar
                     doctorName={`Dr. ${userData?.name}`}
-                    profileImage={require('../../../assets/perfil.png')}
+                    profileImage={require('../../shared/assets/img/perfil.png')}
                     onBackPress={() => navigation.goBack()}
                 />
 

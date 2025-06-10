@@ -10,7 +10,7 @@ const ProfileTutor: React.FC = () => {
 
       <View style={styles.avatarContainer}>
         <Image
-          source={require('../../../../assets/perfil.png')}
+          source={require('../../assets/img/perfil.png')}
           style={styles.avatar}
         />
         <TouchableOpacity style={styles.tagButton}>
