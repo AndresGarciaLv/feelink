@@ -4,9 +4,10 @@ import {RootState} from "../stores/store";
 import {FetchBaseQueryError} from "@reduxjs/toolkit/query";
 import {AuthResponse} from "../contracts/auth/authResponse";
 import {login, logout} from "../stores/auth/authSlice";
+import Constants from 'expo-constants';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: process.env.EXPO_PUBLIC_API_URL,
+    baseUrl: Constants.expoConfig?.extra?.apiUrl,
     timeout: 15000,
     credentials: "include",
     prepareHeaders: (headers, {getState}) => {
