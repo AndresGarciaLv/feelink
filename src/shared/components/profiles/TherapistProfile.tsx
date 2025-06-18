@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import TabBar from '../../../shared/navigation/TabBar';
-import type { RootStackParamList } from '../../../navigation/types';
+import TabBar from '../../../presentation/layout/TabBar';
+import type { RootStackParamList } from '../../../core/types/common/navigation';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -36,7 +36,7 @@ const TherapistProfile: React.FC = () => {
         {/* Avatar y tag dentro del gradiente */}
         <View style={styles.avatarContainer}>
           <Image
-            source={require('../../../../assets/perfil.png')}
+            source={require('../../../shared/assets/img/perfil.png')} // Asegúrate de tener esta imagen
             style={styles.avatar}
           />
           <TouchableOpacity style={styles.tagButton}>
