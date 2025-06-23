@@ -14,12 +14,15 @@ import TutorProfile from './src/shared/components/profiles/TutorProfile'
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 import HomeTutor from './src/presentation/screens/tutor/HomeTutorScreen';
 import BluetoothScreen from './src/presentation/screens/BluetoothScreen';
-import WifiScreen1 from './src/presentation/screens/WifiScreen1';
+import WifiScreen1 from './src/presentation/screens/WifiScreen';
 import ChartsProfileScreen from './src/presentation/screens/ChartsProfileScreen';
 import {Provider} from "react-redux";
 import store from "./src/core/stores/store";
 import * as SplashScreen from 'expo-splash-screen';
 import SplashScreenComponent from './src/presentation/screens/SplashScreen';
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
+
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 

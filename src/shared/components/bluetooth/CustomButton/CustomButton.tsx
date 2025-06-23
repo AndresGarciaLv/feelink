@@ -1,7 +1,7 @@
 // feelink/src/shared/components/CustomButton/CustomButton.tsx
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import Colors from '../../bluetooth/constants/colors'; // Importa tus colores
+import Colors from '../../constants/colors'; // Importa tus colores
 
 interface CustomButtonProps {
   title: string;

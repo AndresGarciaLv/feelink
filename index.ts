@@ -1,6 +1,9 @@
 import { registerRootComponent } from 'expo';
 
 import App from './App';
+import { Buffer } from 'buffer';
+global.Buffer = global.Buffer || Buffer;
+
 
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);

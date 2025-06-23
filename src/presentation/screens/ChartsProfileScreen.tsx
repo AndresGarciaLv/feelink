@@ -7,7 +7,7 @@ import { PacienteGraficas } from '../../core/types/common/PatientChart';
 import SummaryChart from '../../shared/components/charts/SummaryChart';
 import TrendChart from '../../shared/components/charts/TrendChart';
 import { fakeData } from '../../core/utils/fakeChartData';
-import Colors from '../../shared/components/bluetooth/constants/colors';
+import Colors from '../../shared/components/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
 // Tipos para los parámetros de ruta

@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Colors from '../constants/colors'; // Asegúrate de que esta ruta sea correcta y Colors contenga los colores necesarios.
+import Colors from '../../constants/colors'; // Asegúrate de que esta ruta sea correcta y Colors contenga los colores necesarios.
 
 // Importa SVG para los íconos
 import Svg, { Path } from 'react-native-svg';

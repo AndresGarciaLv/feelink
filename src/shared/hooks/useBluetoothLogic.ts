@@ -1,3 +1,4 @@
+// useBluetoothLogic.ts
 import { useEffect, useRef, useState } from 'react';
 import { Device } from 'react-native-ble-plx';
 import { Alert } from 'react-native';
