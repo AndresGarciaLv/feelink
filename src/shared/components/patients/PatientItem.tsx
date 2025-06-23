@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { useNavigation } from '@react-navigation/native';
-import Colors from '../bluetooth/constants/colors';
+import Colors from '../constants/colors';
 import perfil from "../../assets/img/perfil.png";
 
 type Patient = {

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, Alert, Image} from 'react-native';
 import PatientList from '../../shared/components/patients/PatientItem';
-import Colors from '../../shared/components/bluetooth/constants/colors';
+import Colors from '../../shared/components/constants/colors';
 import HeaderPatients from '../../shared/components/HeaderPatients';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import type {RootStackParamList} from "../../core/types/common/navigation"

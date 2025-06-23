@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import Colors from '../constants/colors';
+import Colors from '../../constants/colors';
 
 type Patient = {
   id: string;

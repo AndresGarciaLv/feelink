@@ -3,11 +3,13 @@ import authReducer from "./auth/authSlice";
 import {serverApi} from "../http/serverApi";
 import {TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import bleReducer from "./ble/bleSlice";
+import wifiReducer from "./wifi/wifiSlice"
 
 const store = configureStore({
     reducer: {
         auth: authReducer,
         ble: bleReducer,
+        wifi:wifiReducer,
         [serverApi.reducerPath]: serverApi.reducer,
     },
     middleware: (getDefaultMiddleware) => {

@@ -1,6 +1,8 @@
+// core/services/ble/BluetoothManager.ts
+
 import { BleManager } from 'react-native-ble-plx';
 import { PermissionsAndroid, Platform, Alert } from 'react-native';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { Buffer } from 'buffer';
 import BluetoothStateManager from 'react-native-bluetooth-state-manager';
 
 export const manager = new BleManager();
@@ -12,8 +14,11 @@ export const requestPermissions = async () => {
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
       PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
     ]);
-    
-    const allGranted = Object.values(granted).every(res => res === PermissionsAndroid.RESULTS.GRANTED);
+
+    const allGranted = Object.values(granted).every(
+      res => res === PermissionsAndroid.RESULTS.GRANTED
+    );
+
     if (!allGranted) {
       Alert.alert("Permisos requeridos para usar Bluetooth");
       return;
@@ -26,3 +31,22 @@ export const requestPermissions = async () => {
   }
 };
 
+/**
+ * Envía un objeto JSON por BLE codificado en base64.
+ */
+export const sendBLECommand = async (
+  deviceId: string,
+  serviceUUID: string,
+  characteristicUUID: string,
+  command: object
+) => {
+  const json = JSON.stringify(command);
+  const encoded = Buffer.from(json).toString('base64');
+
+  return await manager.writeCharacteristicWithResponseForDevice(
+    deviceId,
+    serviceUUID,
+    characteristicUUID,
+    encoded
+  );
+};

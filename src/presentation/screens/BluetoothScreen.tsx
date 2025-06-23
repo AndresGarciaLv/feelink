@@ -1,3 +1,4 @@
+// BluetoothScreen.tsx
 import React from 'react';
 import {
   View,
@@ -12,10 +13,12 @@ import BluetoothDeviceItem from '../../shared/components/bluetooth/BluetoothDevi
 import CustomModal from '../../shared/components/bluetooth/CustomModal/CustomModal';
 import Header from '../../shared/components/bluetooth/Header/Header';
 import BubbleOverlay from '../../shared/components/bluetooth/BubbleOverlay';
-import Colors from '../../shared/components/bluetooth/constants/colors';
+import Colors from '../../shared/components/constants/colors';
 import useBluetoothLogic from '../../shared/hooks/useBluetoothLogic';
 import TabBar from '../layout/TabBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Device } from 'react-native-ble-plx';
+
 
 const BluetoothScreen = () => {
   const {
@@ -75,32 +78,31 @@ const BluetoothScreen = () => {
             <Text style={styles.loadingText}>Escaneando dispositivos...</Text>
           </View>
         ) : (
-          <FlatList
-            data={devices}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <BluetoothDeviceItem
-                deviceName={item.name || 'Dispositivo'}
-                deviceId={item.id}
-                status={item.id}
-                onConnect={() => {
-                  if (connectedDevice?.id === item.id) {
-                    handleDisconnect();
-                  } else {
-                    setSelectedDevice(item);
-                    handleConnect(item);
-                  }
-                }}
-                isConnected={connectedDevice?.id === item.id}
-              />
-            )}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={() => (
-              <Text style={styles.emptyListText}>
-                No se encontraron dispositivos.
-              </Text>
-            )}
-          />
+         <FlatList
+  data={devices.filter((item): item is Device & { name: string } => !!item.name)}
+  keyExtractor={(item) => item.id}
+  renderItem={({ item }) => (
+    <BluetoothDeviceItem
+      deviceName={item.name}
+      deviceId={item.id}
+      status={item.id}
+      onConnect={() => {
+        if (connectedDevice?.id === item.id) {
+          handleDisconnect();
+        } else {
+          setSelectedDevice(item as Device);
+          handleConnect(item as Device);
+        }
+      }}
+      isConnected={connectedDevice?.id === item.id}
+    />
+  )}
+  contentContainerStyle={styles.listContent}
+  ListEmptyComponent={() => (
+    <Text style={styles.emptyListText}>No se encontraron dispositivos.</Text>
+  )}
+/>
+
         )}
       </View>
 

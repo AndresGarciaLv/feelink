@@ -1,7 +1,14 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet } from 'react-native';
-import Colors from '../../constants/colors';
-import CustomButton from '../CustomButton/CustomButton';
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  ActivityIndicator,
+} from 'react-native';
+import Colors from '../constants/colors';
+import CustomButton from './CustomButton';
 
 interface CustomModalProps {
   isVisible: boolean;
@@ -11,6 +18,10 @@ interface CustomModalProps {
   onCancel?: () => void;
   confirmText?: string;
   cancelText?: string;
+  showInput?: boolean;
+  password?: string;
+  setPassword?: (text: string) => void;
+  isLoading?: boolean;
 }
 
 const CustomModal: React.FC<CustomModalProps> = ({
@@ -21,6 +32,10 @@ const CustomModal: React.FC<CustomModalProps> = ({
   onCancel,
   confirmText = 'Aceptar',
   cancelText = 'Cancelar',
+  showInput = false,
+  password = '',
+  setPassword,
+  isLoading = false,
 }) => {
   return (
     <Modal
@@ -34,22 +49,46 @@ const CustomModal: React.FC<CustomModalProps> = ({
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
 
-          <View style={styles.buttonGroup}>
-            {onCancel && (
-              <CustomButton
-                title={cancelText}
-                onPress={onCancel}
-                style={styles.cancelButton}
-                textStyle={styles.cancelButtonText}
-              />
-            )}
-            <CustomButton
-              title={confirmText}
-              onPress={onConfirm}
-              style={styles.confirmButton}
-              textStyle={styles.confirmButtonText}
+          {/* 🔄 Loader mientras se conecta */}
+          {isLoading && (
+            <ActivityIndicator
+              size="large"
+              color={Colors.secondary}
+              style={{ marginBottom: 20 }}
             />
-          </View>
+          )}
+
+          {/* 🔐 Input solo si no está cargando */}
+          {showInput && !isLoading && (
+            <TextInput
+              style={styles.input}
+              placeholder="Contraseña"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              placeholderTextColor={Colors.textSecundary}
+            />
+          )}
+
+          {/* 🔘 Botones solo si no está cargando */}
+          {!isLoading && (
+            <View style={styles.buttonGroup}>
+              {onCancel && (
+                <CustomButton
+                  title={cancelText}
+                  onPress={onCancel}
+                  style={styles.cancelButton}
+                  textStyle={styles.cancelButtonText}
+                />
+              )}
+              <CustomButton
+                title={confirmText}
+                onPress={onConfirm}
+                style={styles.confirmButton}
+                textStyle={styles.confirmButtonText}
+              />
+            </View>
+          )}
         </View>
       </View>
     </Modal>
@@ -88,8 +127,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.textPrimary,
     textAlign: 'center',
-    marginBottom: 25,
+    marginBottom: 20,
     fontFamily: 'Inter',
+  },
+  input: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: Colors.lightsteelblue,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+    fontFamily: 'Inter',
+    marginBottom: 20,
+    color: Colors.textPrimary,
   },
   buttonGroup: {
     flexDirection: 'row',
