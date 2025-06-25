@@ -19,6 +19,7 @@ type RootStackParamList = {
         data: PacienteGraficas;
         chartType: 'stress' | 'emotions';
     };
+    DetallesPeluche: undefined;
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
@@ -32,7 +33,7 @@ export default function ProfileScreen() {
     // DATOS DEL PACIENTE - Información básica del perfil
     const patientInfo = {
         id: 'pac_001_alvaro',
-        name: 'Álvaro Díazzz',
+        name: 'Álvaro Díaz',
         age: '3 Años',
         fullAge: '3 Años 10 Meses 2 Días',
         height: 73,
@@ -284,9 +285,11 @@ export default function ProfileScreen() {
                         source={require('../../shared/assets/img/perfil.png')}
                         style={styles.avatar}
                     />
-                    <TouchableOpacity style={styles.tagButton}>
-                        <Text style={styles.tagText}>{patientInfo.tag}</Text>
-                    </TouchableOpacity>
+                     <TouchableOpacity style={styles.tagButton}
+onPress={() => navigation.navigate('DetallesPeluche')} // <-- Agrega esta línea
+>
+    <Text style={styles.tagText}>{patientInfo.tag}</Text>
+</TouchableOpacity>
                 </View>
 
                 {/* Información personal */}
@@ -807,3 +810,4 @@ const styles = StyleSheet.create({
         backgroundColor: '#D27373',
     },
 });
+   
