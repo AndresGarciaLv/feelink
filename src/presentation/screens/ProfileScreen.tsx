@@ -32,7 +32,7 @@ export default function ProfileScreen() {
     // DATOS DEL PACIENTE - Información básica del perfil
     const patientInfo = {
         id: 'pac_001_alvaro',
-        name: 'Álvaro Díaz',
+        name: 'Álvaro Díazzz',
         age: '3 Años',
         fullAge: '3 Años 10 Meses 2 Días',
         height: 73,

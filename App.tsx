@@ -7,7 +7,7 @@ import WiFiConfigScreen from './src/presentation/screens/WifiConfigScreen';
 import type { RootStackParamList } from './src/core/types/common/navigation';
 import PatientsScreen from './src/presentation/screens/PatientsScreen';
 import ProfileScreen from './src/presentation/screens/ProfileScreen';
-import DashboardScreen from './src/presentation/screens/DashboardScrean';
+import DashboardScreen from './src/presentation/screens/DashboardScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 import AuthScreen from './src/presentation/screens/auth/AuthScreen';
 import TutorProfile from './src/shared/components/profiles/TutorProfile'

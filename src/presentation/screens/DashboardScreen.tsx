@@ -11,6 +11,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAppSelector} from "../../core/stores/store";
 import {selectUserData} from "../../core/stores/auth/authSlice";
 import {useListPatientsQuery} from "../../core/http/requests/patientServerApi";
+import MyPatientsSection from '../../shared/components/dashboard/myPatients';
 
 
 const PROFILE_IMAGE = null;
@@ -62,46 +63,7 @@ const DashboardScreen: React.FC = () => {
                 />
 
                 {/* My Patients Section */}
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>Mis pacientes</Text>
-                    <View style={styles.patientsCard}>
-                        <View style={styles.patientsContainer}>
-                            {/*{patients.map((patient) => (*/}
-                            {/*    <View key={patient.id} style={styles.patientItem}>*/}
-                            {/*        <View style={styles.patientAvatarContainer}>*/}
-                            {/*            <Ionicons name="person" size={40} color="#8D99AE"/>*/}
-                            {/*        </View>*/}
-                            {/*        <Text style={styles.patientName}>{patient.name}</Text>*/}
-                            {/*    </View>*/}
-                            {/*))}*/}
-
-                            {patientsDataFetching && <Text>Cargando pacientes...</Text>}
-
-                            {patientsData && patientsData.items.map((patient) => (
-                                <View key={patient.id} style={styles.patientItem}>
-                                    <View style={styles.patientAvatarContainer}>
-                                        <Ionicons name={"person"} size={40} color="#8D99AE"/>
-                                    </View>
-                                    <Text style={styles.patientName}>{patient.name}</Text>
-                                </View>
-                            ))}
-                        </View>
-
-                        {/* Pagination dots */}
-                        <View style={styles.paginationContainer}>
-                            <View style={[styles.paginationDot, styles.activeDot]}/>
-                            <View style={styles.paginationDot}/>
-                            <View style={styles.paginationDot}/>
-                        </View>
-
-                        <TouchableOpacity
-                            style={styles.viewMoreButton}
-                            onPress={() => navigation.navigate('Patients', {openAddModal: false})}
-                        >
-                            <Text style={styles.viewMoreText}>Ver más</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                <MyPatientsSection />
 
                 {/* Kids Registration Section */}
                 <View style={styles.sectionContainer}>
