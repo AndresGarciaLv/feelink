@@ -3,9 +3,10 @@ import 'dotenv/config';
 export default {
   expo: {
     name: 'FeeLink',
-    slug: 'FeeLink',
+    slug: 'feelink',
     version: '1.0.0',
     orientation: 'portrait',
+    "owner": "andresgarciia",
     icon: './src/shared/assets/img/icon.png',
     userInterfaceStyle: 'light',
     newArchEnabled: true,
@@ -50,7 +51,7 @@ export default {
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
       eas: {
-        projectId: '3b211721-735c-4eba-9cf0-94b33a1ecdcc'
+        projectId: 'ec910ac9-3490-4b83-8fc0-916c7e94492b'
       }
     }
   }

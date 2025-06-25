@@ -56,7 +56,7 @@ export default function useBluetoothLogic() {
     setDevices([]);
     await requestPermissions();
     setIsScanning(true);
-    setModalTitle('Escaneando Bluetooth');
+    setModalTitle('Escaneando Dispositivos');
     setModalMessage('Buscando peluches cercanos...');
     setModalVisible(true);
 
