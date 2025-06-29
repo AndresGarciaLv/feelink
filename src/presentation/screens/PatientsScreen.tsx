@@ -28,6 +28,26 @@ export default function PatientsScreen() {
 // Al principio del componente:
     const route = useRoute<RouteProp<RootStackParamList, 'Patients'>>();
     const shouldOpenModal = route.params?.openAddModal ?? false;
+    const loadPatients = async () => {
+    try {
+        const response = await fetch('http://192.168.18.7:5002/api/patients?page=1&pageSize=100');
+        if (!response.ok) throw new Error('Error al cargar pacientes');
+        const data = await response.json();
+        const patientsFromApi = data.items.map((p: any) => ({
+            id: p.id.toString(),
+            name: p.name,
+            age: p.age,
+            //avatar: getRandomAvatar(),
+        }));
+        setPatients(patientsFromApi);
+    } catch (error) {
+        console.error('Error al cargar pacientes:', error);
+        Alert.alert('Error', 'No se pudieron cargar los pacientes.');
+    }
+};
+
+useEffect(() => { loadPatients(); }, []);
+
 
     useEffect(() => {
         if (shouldOpenModal) {
@@ -57,41 +77,82 @@ export default function PatientsScreen() {
                 {
                     text: 'Eliminar',
                     style: 'destructive',
-                    onPress: () => setPatients(prev => prev.filter(p => p.id !== id))
+                    onPress:async () => {
+                        try {
+                            const response =await fetch(`http://192.168.18.7:5002/api/patients/${id}`, {
+                                method: 'DELETE'
+                            });
+                            if (!response.ok) 
+                                throw new Error('Error al eliminar el paciente');
+                            await loadPatients();
+                        } catch (error) {
+                            console.error('Error al eliminar paciente:', error);
+                            Alert.alert('Error', 'No se pudo eliminar el paciente.');
+                        }    
+                    }
                 }
             ]
         );
     };
 
-    const resetForm = () => {
-        setNewName('');
-        setNewAge('');
-        setSelectedPatient(null);
-        setModalVisible(false);
-    };
+   const resetForm = () => {
+    setNewName('');
+    setNewAge('');
+    setNewSexo('');
+    setNewAltura('');
+    setNewPeso('');
+    setSelectedPatient(null);
+    setModalVisible(false);
+};
 
-    const handleSave = () => {
-        if (!newName.trim() || !newAge.trim()) {
+
+    const handleSave = async () => {
+        if (!newName.trim() || !newAge.trim() || !newSexo.trim() || !newAltura.trim() || !newPeso.trim()) {
             Alert.alert('Error', 'Por favor, completa todos los campos.');
             return;
         }
 
-        if (selectedPatient) {
-            const updatedList = patients.map(p =>
-                p.id === selectedPatient.id ? {...p, name: newName, age: parseInt(newAge)} : p
-            );
-            setPatients(updatedList);
-        } else {
-            const newPatient = {
-                id: Date.now().toString(),
+        const patientPayload = {
                 name: newName,
                 age: parseInt(newAge),
-                avatar: getRandomAvatar(),
+                gender: newSexo,
+                height: parseInt(newAltura),
+                weight: parseInt(newPeso),
+                //avatar: getRandomAvatar(),
             };
-            setPatients(prev => [...prev, newPatient]);
-        }
-        resetForm();
+            
+            try {
+                if (selectedPatient) {
+                    // UPDATE paciente existente
+                const response = await fetch(`http://192.168.18.7:5002/api/patients/${selectedPatient.id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({...patientPayload, id: selectedPatient.id}),
+                });
+                if (!response.ok) 
+                    throw new Error('Error al guardar el paciente');
+                //Recargar pacientes
+                await loadPatients();
+                } else {
+                // CREATE nuevo paciente
+                const response = await fetch('http://192.168.18.7:5002/api/patients', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(patientPayload),
+                });
+                if (!response.ok)
+                    throw new Error('Error al guardar el paciente');
+                //recargar pacientes
+                await loadPatients();
+                }
+                resetForm();
+            } catch (error) {
+    console.error('Error al guardar paciente:', error);
+    Alert.alert('Error', 'No se pudo guardar el paciente.');
+    }
     };
+
+    
     const getRandomAvatar = () => {
         const avatars = [
             require('../../shared/assets/img/perfil.png'),
