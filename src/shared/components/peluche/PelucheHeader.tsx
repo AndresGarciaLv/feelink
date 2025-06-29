@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Colors from '../../constants/colors'; // Asegúrate de que esta ruta sea correcta y Colors contenga los colores necesarios.
+import Colors from '../../components/constants/colors'; // Asegúrate de que esta ruta sea correcta y Colors contenga los colores necesarios.
 
 // Importa SVG para los íconos
 import Svg, { Path } from 'react-native-svg';
@@ -21,7 +21,7 @@ const BackIcon: React.FC<{ size: number; color: string; style?: ViewStyle }> = (
   </Svg>
 );
 
-const Header: React.FC<HeaderProps> = ({ title, subtitle, showBackButton = true }) => {
+const PelucheHeader: React.FC<HeaderProps> = ({ title, subtitle, showBackButton = true }) => {
   const navigation = useNavigation();
 
   const handleBackPress = () => {
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     opacity: 0.8,
   },
+
 });
 
-export default Header;
+export default PelucheHeader;

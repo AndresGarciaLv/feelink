@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import Colors from '../../shared/components/bluetooth/constants/colors';
+import Colors from '../../shared/components/constants/colors';
 import HeaderProfile from '../../shared/components/profile/HeaderProfile';
 import { PacienteGraficas, EstadoEmocional } from '../../core/types/common/PatientChart';
 
@@ -19,6 +19,7 @@ type RootStackParamList = {
         data: PacienteGraficas;
         chartType: 'stress' | 'emotions';
     };
+    DetallesPeluche: undefined;
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList>;
@@ -284,9 +285,11 @@ export default function ProfileScreen() {
                         source={require('../../shared/assets/img/perfil.png')}
                         style={styles.avatar}
                     />
-                    <TouchableOpacity style={styles.tagButton}>
-                        <Text style={styles.tagText}>{patientInfo.tag}</Text>
-                    </TouchableOpacity>
+                     <TouchableOpacity style={styles.tagButton}
+onPress={() => navigation.navigate('DetallesPeluche')} // <-- Agrega esta línea
+>
+    <Text style={styles.tagText}>{patientInfo.tag}</Text>
+</TouchableOpacity>
                 </View>
 
                 {/* Información personal */}
@@ -807,3 +810,4 @@ const styles = StyleSheet.create({
         backgroundColor: '#D27373',
     },
 });
+   

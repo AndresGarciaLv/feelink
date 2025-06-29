@@ -1,4 +1,4 @@
-// 📁 src/store/slices/bleSlice.ts
+// 📁 src/store/ble/bleSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { SerializableDevice } from "../../types/bleTypes";

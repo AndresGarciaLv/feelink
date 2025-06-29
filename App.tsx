@@ -7,19 +7,23 @@ import WiFiConfigScreen from './src/presentation/screens/WifiConfigScreen';
 import type { RootStackParamList } from './src/core/types/common/navigation';
 import PatientsScreen from './src/presentation/screens/PatientsScreen';
 import ProfileScreen from './src/presentation/screens/ProfileScreen';
-import DashboardScreen from './src/presentation/screens/DashboardScrean';
+import DashboardScreen from './src/presentation/screens/DashboardScreen';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 import AuthScreen from './src/presentation/screens/auth/AuthScreen';
 import TutorProfile from './src/shared/components/profiles/TutorProfile'
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 import HomeTutor from './src/presentation/screens/tutor/HomeTutorScreen';
 import BluetoothScreen from './src/presentation/screens/BluetoothScreen';
-import WifiScreen1 from './src/presentation/screens/WifiScreen1';
+import WifiScreen1 from './src/presentation/screens/WifiScreen';
 import ChartsProfileScreen from './src/presentation/screens/ChartsProfileScreen';
 import {Provider} from "react-redux";
 import store from "./src/core/stores/store";
 import * as SplashScreen from 'expo-splash-screen';
 import SplashScreenComponent from './src/presentation/screens/SplashScreen';
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
+import DetallesPelucheScreen from './src/presentation/screens/DetallesPelucheScreen';
+
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -41,6 +45,7 @@ export default function App() {
             <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{headerShown: false}}/>
             <Stack.Screen name="Wifi1" component={WifiScreen1} options={{headerShown: false}}/>
             <Stack.Screen name="ProfileChart" component={ChartsProfileScreen} options={{headerShown: false}}/>
+            <Stack.Screen name="DetallesPeluche" component={DetallesPelucheScreen} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>

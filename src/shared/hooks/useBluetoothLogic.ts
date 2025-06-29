@@ -1,3 +1,4 @@
+// useBluetoothLogic.ts
 import { useEffect, useRef, useState } from 'react';
 import { Device } from 'react-native-ble-plx';
 import { Alert } from 'react-native';
@@ -55,7 +56,7 @@ export default function useBluetoothLogic() {
     setDevices([]);
     await requestPermissions();
     setIsScanning(true);
-    setModalTitle('Escaneando Bluetooth');
+    setModalTitle('Escaneando Dispositivos');
     setModalMessage('Buscando peluches cercanos...');
     setModalVisible(true);
 
