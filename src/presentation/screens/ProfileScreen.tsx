@@ -1,5 +1,5 @@
 // src/presentation/screens/ProfileScreen.tsx
-import React, { useState, useEffect, useMemo } from "react"; // Importa useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -18,15 +18,13 @@ import {
   EstadoEmocional,
 } from "../../core/types/common/PatientChart";
 
-// IMPORTA TUS HOOKS DE RTK QUERY
 import {
   useGetPatientByIdQuery,
   useGetToyByPatientIdQuery,
-  useGetPatientActivitySummaryQuery, // <-- Nuevo hook
+  useGetPatientActivitySummaryQuery,
 } from "../../core/http/requests/patientServerApi";
-import { useGetToyReadingsSummaryQuery } from "../../core/http/requests/toyServerApi"; // <-- Nuevo hook para el resumen de lecturas del juguete
+import { useGetToyReadingsSummaryQuery } from "../../core/http/requests/toyServerApi";
 
-// Tipos para la navegación (ajusta según tus rutas reales si es necesario)
 type RootStackParamList = {
   Profile: { patientId: string };
   ChartsProfile: {
@@ -45,54 +43,42 @@ export default function ProfileScreen() {
 
   const { patientId } = route.params;
 
-  // Estado para controlar el mes seleccionado (se almacenará el índice del mes, de 0 a 11)
-  // Usaremos `new Date().getMonth()` para que empiece en el mes actual.
-  // O puedes inicializarlo con un mes específico, como 3 para Abril (0=Enero, 3=Abril).
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(
     new Date().getMonth()
   );
-
-  // Obtenemos el año actual (o el año relevante para tus datos)
   const currentYear = new Date().getFullYear();
 
-  // --- INTEGRACIÓN CON RTK QUERY ---
-  // 1. Obtener la información del paciente
   const {
     data: patientData,
     isLoading: isPatientLoading,
     error: patientError,
   } = useGetPatientByIdQuery(patientId);
 
-  // 2. Obtener la información del juguete asociado al paciente
   const {
     data: toyData,
     isLoading: isToyLoading,
     error: toyError,
   } = useGetToyByPatientIdQuery(patientId);
 
-  // Extraer el macAddress del juguete si existe, para usarlo en la consulta de lecturas
   const toyMacAddress = toyData?.macAddress;
-  const patientTag = toyData?.name || "Sin Peluche"; // Asumo que el 'name' del juguete es el 'tag'
+  const patientTag = toyData?.name || "Sin Peluche";
 
-  // 3. Obtener el resumen de actividad del paciente para el mes seleccionado
   const {
     data: patientActivitySummary,
     isLoading: isActivitySummaryLoading,
     error: activitySummaryError,
   } = useGetPatientActivitySummaryQuery(
-    { month: selectedMonthIndex + 1, dummy: false }, // RTK Query espera el número del mes (1-12)
-    { skip: !patientId } // Solo ejecuta si tenemos un patientId
+    { month: selectedMonthIndex + 1, dummy: false },
+    { skip: !patientId }
   );
 
-  // 4. Obtener el resumen de lecturas del juguete para el mes seleccionado
-  // Calculamos las fechas de inicio y fin del mes seleccionado para la consulta
   const { fromDate, toDate } = useMemo(() => {
     const monthStart = new Date(currentYear, selectedMonthIndex, 1);
-    const monthEnd = new Date(currentYear, selectedMonthIndex + 1, 0); // Último día del mes
+    const monthEnd = new Date(currentYear, selectedMonthIndex + 1, 0);
 
     return {
-      fromDate: monthStart.toISOString().split("T")[0], // "YYYY-MM-DD"
-      toDate: monthEnd.toISOString().split("T")[0], // "YYYY-MM-DD"
+      fromDate: monthStart.toISOString().split("T")[0],
+      toDate: monthEnd.toISOString().split("T")[0],
     };
   }, [selectedMonthIndex, currentYear]);
 
@@ -104,10 +90,9 @@ export default function ProfileScreen() {
     error: toyReadingsError,
   } = useGetToyReadingsSummaryQuery(
     { macAddress: safeMacAddress, from: fromDate, to: toDate, dummy: false },
-    { skip: !toyMacAddress } // Esto está bien si el hook no cambia de lugar
+    { skip: !toyMacAddress }
   );
 
-  // Consolidar la información del paciente
   const patientInfo = useMemo(() => {
     if (!patientData) {
       return {
@@ -122,7 +107,6 @@ export default function ProfileScreen() {
       };
     }
 
-    // Aquí puedes añadir lógica para calcular fullAge y BMI si no vienen del backend
     const calculatedAge = `${patientData.age || 0} Años`;
     const calculatedBMI =
       patientData.height && patientData.weight
@@ -130,13 +114,13 @@ export default function ProfileScreen() {
             patientData.weight /
             ((patientData.height / 100) * (patientData.height / 100))
           ).toFixed(1)
-        : 0; // Calculo básico de IMC
+        : 0;
 
     return {
       id: patientData.id,
       name: `${patientData.name || ""} ${patientData.lastName || ""}`,
       age: calculatedAge,
-      fullAge: "3 Años 10 Meses 2 Días", // Placeholder, idealmente esto vendría de un cálculo más preciso o del backend
+      fullAge: "3 Años 10 Meses 2 Días",
       height: patientData.height,
       weight: patientData.weight,
       bmi: parseFloat(calculatedBMI.toString()),
@@ -144,7 +128,6 @@ export default function ProfileScreen() {
     };
   }, [patientData, patientTag]);
 
-  // Función auxiliar para mapear el índice del mes a su nombre
   const getMonthName = (monthIndex: number): string => {
     const months = [
       "Enero",
@@ -163,48 +146,43 @@ export default function ProfileScreen() {
     return months[monthIndex];
   };
 
-  // Mapear los datos de la API a la estructura `monthlyData` que tu UI espera
-  // Esto es crucial para no tener que reestructurar todo tu componente de renderizado.
   const currentMonthDataForUI = useMemo(() => {
     const selectedMonthName = getMonthName(selectedMonthIndex);
     const defaultSummary = {
       title: "Estado emocional del niño",
       date: `${selectedMonthName} ${currentYear}`,
       age: patientInfo.fullAge,
-      emotions: ["Feliz", "Neutro", "Triste"], // Valores por defecto
+      emotions: ["Feliz", "Neutro", "Triste"],
     };
     const defaultDailyData = [];
 
-    // Si tenemos datos del resumen de actividad del paciente (monthlyData)
     if (patientActivitySummary) {
       const summaryData = patientActivitySummary;
-      // Aquí deberías mapear los campos del API al formato de tu `summary`
       defaultSummary.title = "Resumen Mensual de Actividad";
-      defaultSummary.date = summaryData.date; // Asegúrate que el formato de fecha sea correcto
-      // Aquí puedes ajustar las emociones según la distribución que te dé el backend
-      // Por ejemplo, si el backend te da counts para happy, neutral, sad
-      // Y quieres mostrar solo las que tienen > 0.
+      defaultSummary.date = summaryData.date;
       const emotionsToShow: string[] = [];
       if (summaryData.happyDays > 0) emotionsToShow.push("Feliz");
       if (summaryData.neutralDays > 0) emotionsToShow.push("Neutro");
       if (summaryData.sadDays > 0) emotionsToShow.push("Triste");
       defaultSummary.emotions =
-        emotionsToShow.length > 0 ? emotionsToShow : ["Neutro"]; // Fallback
+        emotionsToShow.length > 0 ? emotionsToShow : ["Neutro"];
 
-      // Mapear los datos diarios (toyReadingsSummary)
+      // --- CAMBIO CLAVE AQUÍ: VERIFICAR dailyReadings ANTES DE MAPEAR ---
       const dailyDataMapped =
-        toyReadingsSummary?.dailyReadings.map((daily) => ({
-          day: new Date(daily.date).getDate(),
-          date: new Date(daily.date).toLocaleDateString("es-ES", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }),
-          subtitle: "Horas diarias cambio de estado", // Ajusta si la API te da algo más específico
-          name: patientInfo.name,
-          hours: "Datos de la API", // Esto necesita un mapeo específico de tus 'horas' si la API lo da
-          emotions: daily.emotions, // Asumiendo que la API devuelve un array de strings de emociones
-        })) || [];
+        toyReadingsSummary && Array.isArray(toyReadingsSummary.dailyReadings)
+          ? toyReadingsSummary.dailyReadings.map((daily) => ({
+              day: new Date(daily.date).getDate(),
+              date: new Date(daily.date).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }),
+              subtitle: "Horas diarias cambio de estado",
+              name: patientInfo.name,
+              hours: "Datos de la API",
+              emotions: daily.emotions,
+            }))
+          : []; // Proporciona un array vacío si dailyReadings no es un array o no existe
 
       return {
         summary: defaultSummary,
@@ -212,7 +190,6 @@ export default function ProfileScreen() {
       };
     }
 
-    // Si no hay datos de la API, usa los valores por defecto (o un objeto vacío si prefieres)
     return {
       summary: defaultSummary,
       dailyData: defaultDailyData,
@@ -226,19 +203,20 @@ export default function ProfileScreen() {
     patientInfo.name,
   ]);
 
-  // FUNCIONES AUXILIARES (mantienen su lógica, pero ahora usarán los datos reales)
   const convertToChartData = (
     chartType: "stress" | "emotions"
   ): PacienteGraficas => {
-    const currentMonthData = currentMonthDataForUI; // Usamos los datos mapeados
+    const currentMonthData = currentMonthDataForUI;
 
     const mapEmotionToState = (emotion: string): EstadoEmocional => {
       switch (emotion) {
         case "Feliz":
           return "estable";
         case "Neutro":
+        case "Ansioso": // Añade este caso si tu API devuelve "Ansioso"
           return "ansioso";
         case "Triste":
+        case "Crisis": // Añade este caso si tu API devuelve "Crisis"
           return "crisis";
         default:
           return "estable";
@@ -246,11 +224,10 @@ export default function ProfileScreen() {
     };
 
     const detailedData = currentMonthData.dailyData.map((dayData) => ({
-      fecha: convertDateToISO(new Date(dayData.date).toISOString()), // Asegúrate que la fecha se formatee correctamente
-      estado: mapEmotionToState(getRandomEmotion(dayData.emotions)), // Ajusta esto si la API ya te da el estado
+      fecha: convertDateToISO(new Date(dayData.date).toISOString()),
+      estado: mapEmotionToState(getRandomEmotion(dayData.emotions)),
     }));
 
-    // Calcular resumen de estados basado en los datos reales (o como los mapees)
     const summary = detailedData.reduce(
       (acc, curr) => {
         acc[curr.estado]++;
@@ -264,7 +241,7 @@ export default function ProfileScreen() {
       nombre: patientInfo.name,
       periodo: "mensual" as const,
       rango: {
-        inicio: fromDate, // Usamos las fechas reales calculadas
+        inicio: fromDate,
         fin: toDate,
       },
       resumen: summary,
@@ -272,13 +249,10 @@ export default function ProfileScreen() {
     };
   };
 
-  // Las funciones convertDateToISO, getMonthStartDate, getMonthEndDate ya no son tan críticas
-  // para las llamadas a la API (pues usamos ISOString), pero pueden ser útiles para formateo de UI.
   const convertDateToISO = (isoDateString: string): string => {
-    return isoDateString.split("T")[0]; // Simplemente devuelve "YYYY-MM-DD"
+    return isoDateString.split("T")[0];
   };
 
-  // Estas funciones ya no se usarán para la API, pero las mantengo por si las usas para UI
   const getMonthStartDate = (monthIndex: number): string => {
     const date = new Date(currentYear, monthIndex, 1);
     return date.toISOString().split("T")[0];
@@ -290,7 +264,7 @@ export default function ProfileScreen() {
   };
 
   const getRandomEmotion = (emotions: string[]): string => {
-    if (!emotions || emotions.length === 0) return "Neutro"; // Fallback
+    if (!emotions || emotions.length === 0) return "Neutro";
     return emotions[Math.floor(Math.random() * emotions.length)];
   };
 
@@ -328,15 +302,12 @@ export default function ProfileScreen() {
     ));
   };
 
-  // --- Manejo de estados de carga y error ---
   const isLoading =
     isPatientLoading ||
     isToyLoading ||
     isActivitySummaryLoading ||
     isToyReadingsLoading;
 
-  //   const hasError =
-  //     patientError || toyError || activitySummaryError || toyReadingsError;
   const getErrorStatus = (error: any, label: string) => {
     if (!error || typeof error !== "object") return null;
     if ("status" in error) {
@@ -382,7 +353,6 @@ export default function ProfileScreen() {
       </View>
     );
   }
-
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -489,7 +459,7 @@ export default function ProfileScreen() {
                 <Text style={styles.cardSubtitle}>{patientInfo.fullAge}</Text>
               </View>
               <View style={styles.statusBadge}>
-                <Text style={styles.statusText}>Normal</Text>{" "}
+                <Text style={styles.statusText}>Normal</Text>
                 {/* Ajustar si la API te da un "estado" general del mes */}
               </View>
             </View>
@@ -533,7 +503,7 @@ export default function ProfileScreen() {
                     <Text style={styles.cardSubtitle}>{dayData.name}</Text>
                   </View>
                   <View style={styles.statusBadgeSecondary}>
-                    <Text style={styles.statusTextSecondary}>Normal</Text>{" "}
+                    <Text style={styles.statusTextSecondary}>Normal</Text>
                     {/* Ajustar según la API */}
                   </View>
                 </View>

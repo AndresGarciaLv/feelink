@@ -1,4 +1,3 @@
-// src/core/http/requests/patientServerApi.ts
 import { serverApi } from "../serverApi";
 import BaseListResponse from "../../contracts/BaseListResponse";
 import { Patient } from "../../contracts/patient/patientsDto";
@@ -9,10 +8,8 @@ import { AssignTherapistsDto } from "../../contracts/patient/assignTherapistsDto
 import { AssignTutorsDto } from "../../contracts/patient/assignTutorsDto";
 
 // --- NUEVO DTO PARA EL RESUMEN DE ACTIVIDAD DEL PACIENTE ---
-// Basado en la estructura de tu JSON, definamos una interfaz para el resumen de actividad.
-// Puede que necesites ajustarla según la respuesta real de tu backend.
 export interface PatientActivitySummary {
-  date: string; // "YYYY-MM-DD" o "Month YYYY"
+  date: string; // "YYYY-MM-DD" o "MonthYYYY"
   patientId: string;
   patientName: string;
   totalDays: number;
@@ -46,6 +43,12 @@ interface ListPatientsParams {
 // Interfaz para los parámetros de la consulta de resumen de actividad del paciente
 interface GetPatientActivitySummaryParams {
   month: number;
+  dummy?: boolean;
+}
+
+// Interfaz para los parámetros de la consulta de resumen de pacientes por fecha
+interface GetPatientSummaryParams {
+  date?: string; // Formato "YYYY-MM-DD"
   dummy?: boolean;
 }
 
@@ -83,6 +86,14 @@ export const patientServerApi = serverApi.injectEndpoints({
       invalidatesTags: (_result, _error, arg) => [{ type: "Patient", id: arg.id }],
     }),
 
+    deletePatient: builder.mutation<void, string>({ // <--- NUEVO ENDPOINT DE ELIMINACIÓN
+      query: (id) => ({
+        url: `Patients/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Patient'], // Importante para que la lista de pacientes se refetchee
+    }),
+
     assignTherapists: builder.mutation<void, { id: string; data: AssignTherapistsDto }>({
       query: ({ id, data }) => ({
         url: `Patients/${id}/therapists`,
@@ -106,7 +117,6 @@ export const patientServerApi = serverApi.injectEndpoints({
       providesTags: (_result, _error, id) => [{ type: "Patient", id }],
     }),
 
-    // --- NUEVO ENDPOINT PARA EL RESUMEN DE ACTIVIDAD DEL PACIENTE ---
     getPatientActivitySummary: builder.query<PatientActivitySummary, GetPatientActivitySummaryParams>({
       query: ({ month, dummy }) => {
         const params = buildQueryParams({ Month: month, Dummy: dummy });
@@ -114,7 +124,14 @@ export const patientServerApi = serverApi.injectEndpoints({
       },
       providesTags: ["Patient"], // Considera una etiqueta más específica si tienes muchos resúmenes, ej: "PatientActivitySummary"
     }),
-    // --- FIN NUEVO ENDPOINT ---
+
+    getPatientSummary: builder.query<any, GetPatientSummaryParams>({ // Asume el tipo de respuesta, ajusta si es necesario
+      query: ({ date, dummy }) => {
+        const params = buildQueryParams({ Date: date, Dummy: dummy });
+        return `Patients/summary?${params}`;
+      },
+      providesTags: ["Patient"],
+    }),
 
   }),
   overrideExisting: false,
@@ -125,8 +142,10 @@ export const {
   useGetPatientByIdQuery,
   useCreatePatientMutation,
   useUpdatePatientMutation,
+  useDeletePatientMutation, // Exporta el hook de eliminación
   useAssignTherapistsMutation,
   useAssignTutorsMutation,
-  useGetToyByPatientIdQuery, // Exporta el nuevo hook
-  useGetPatientActivitySummaryQuery // Exporta el nuevo hook
+  useGetToyByPatientIdQuery,
+  useGetPatientActivitySummaryQuery,
+  useGetPatientSummaryQuery, // Exporta el hook para el resumen general de pacientes
 } = patientServerApi;
