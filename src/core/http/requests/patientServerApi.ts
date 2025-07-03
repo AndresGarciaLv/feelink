@@ -1,3 +1,4 @@
+// src/core/http/requests/patientServerApi.ts
 import { serverApi } from "../serverApi";
 import BaseListResponse from "../../contracts/BaseListResponse";
 import { Patient } from "../../contracts/patient/patientsDto";
@@ -7,12 +8,45 @@ import { PatientUpdateDto } from "../../contracts/patient/patientUpdateDto";
 import { AssignTherapistsDto } from "../../contracts/patient/assignTherapistsDto";
 import { AssignTutorsDto } from "../../contracts/patient/assignTutorsDto";
 
+// --- NUEVO DTO PARA EL RESUMEN DE ACTIVIDAD DEL PACIENTE ---
+// Basado en la estructura de tu JSON, definamos una interfaz para el resumen de actividad.
+// Puede que necesites ajustarla según la respuesta real de tu backend.
+export interface PatientActivitySummary {
+  date: string; // "YYYY-MM-DD" o "Month YYYY"
+  patientId: string;
+  patientName: string;
+  totalDays: number;
+  happyDays: number;
+  neutralDays: number;
+  sadDays: number;
+  dailySummaries: DailyPatientActivitySummary[];
+}
+
+export interface DailyPatientActivitySummary {
+  date: string; // "YYYY-MM-DD"
+  stressLevel: 'low' | 'medium' | 'high'; // Ejemplo, ajusta a tus niveles reales
+  emotionDistribution: { // Puedes ajustar esto a la estructura real de tus emociones
+    happy: number;
+    neutral: number;
+    sad: number;
+    // ... otras emociones
+  };
+}
+// --- FIN DEL NUEVO DTO ---
+
+
 interface ListPatientsParams {
   page?: number;
   pageSize?: number;
   search?: string;
   therapistId?: string;
   tutorId?: string;
+}
+
+// Interfaz para los parámetros de la consulta de resumen de actividad del paciente
+interface GetPatientActivitySummaryParams {
+  month: number;
+  dummy?: boolean;
 }
 
 export const patientServerApi = serverApi.injectEndpoints({
@@ -67,10 +101,20 @@ export const patientServerApi = serverApi.injectEndpoints({
       invalidatesTags: (_result, _error, arg) => [{ type: "Patient", id: arg.id }],
     }),
 
-    getToyByPatientId: builder.query<any, string>({
+    getToyByPatientId: builder.query<any, string>({ // Asume que esto devuelve el objeto completo del juguete
       query: (id) => `Patients/${id}/toy`,
       providesTags: (_result, _error, id) => [{ type: "Patient", id }],
     }),
+
+    // --- NUEVO ENDPOINT PARA EL RESUMEN DE ACTIVIDAD DEL PACIENTE ---
+    getPatientActivitySummary: builder.query<PatientActivitySummary, GetPatientActivitySummaryParams>({
+      query: ({ month, dummy }) => {
+        const params = buildQueryParams({ Month: month, Dummy: dummy });
+        return `Patients/activity/summary?${params}`;
+      },
+      providesTags: ["Patient"], // Considera una etiqueta más específica si tienes muchos resúmenes, ej: "PatientActivitySummary"
+    }),
+    // --- FIN NUEVO ENDPOINT ---
 
   }),
   overrideExisting: false,
@@ -83,5 +127,6 @@ export const {
   useUpdatePatientMutation,
   useAssignTherapistsMutation,
   useAssignTutorsMutation,
-  useGetToyByPatientIdQuery
+  useGetToyByPatientIdQuery, // Exporta el nuevo hook
+  useGetPatientActivitySummaryQuery // Exporta el nuevo hook
 } = patientServerApi;
