@@ -52,5 +52,5 @@ export const serverApi = createApi({
     keepUnusedDataFor: 30,
     baseQuery: baseQueryWithReauth,
     endpoints: () => ({}),
-    tagTypes: ["User", "Assets", "Auth", "Patient"],
+    tagTypes: ["User", "Assets", "Auth", "Patient", "Toy"],
 });

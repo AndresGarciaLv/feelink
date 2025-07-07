@@ -22,6 +22,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import SplashScreenComponent from './src/presentation/screens/SplashScreen';
 import { Buffer } from 'buffer';
 global.Buffer = Buffer;
+import DetallesPelucheScreen from './src/presentation/screens/DetallesPelucheScreen';
 
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -44,6 +45,7 @@ export default function App() {
             <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{headerShown: false}}/>
             <Stack.Screen name="Wifi1" component={WifiScreen1} options={{headerShown: false}}/>
             <Stack.Screen name="ProfileChart" component={ChartsProfileScreen} options={{headerShown: false}}/>
+            <Stack.Screen name="DetallesPeluche" component={DetallesPelucheScreen} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>
