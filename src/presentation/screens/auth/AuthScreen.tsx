@@ -1,5 +1,9 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground} from 'react-native';
+import {
+    View, Text, TextInput, TouchableOpacity, StyleSheet,
+    ImageBackground, KeyboardAvoidingView, ScrollView,
+    Keyboard, TouchableWithoutFeedback, Platform
+} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Formik} from 'formik';
@@ -86,7 +90,7 @@ const AuthScreen: React.FC = () => {
                                 onChangeText={handleChange('name')}
                                 onBlur={handleBlur('name')}
                             />
-                            {touched.name && errors.name && <Text style={{color: 'red'}}>{errors.name}</Text>}
+                            {touched.name && errors.name && <Text style={styles.error}>{errors.name}</Text>}
                         </>
                     )}
 
@@ -98,7 +102,7 @@ const AuthScreen: React.FC = () => {
                         onBlur={handleBlur('email')}
                         keyboardType="email-address"
                     />
-                    {touched.email && errors.email && <Text style={{color: 'red'}}>{errors.email}</Text>}
+                    {touched.email && errors.email && <Text style={styles.error}>{errors.email}</Text>}
 
                     <TextInput
                         style={styles.input}
@@ -108,7 +112,7 @@ const AuthScreen: React.FC = () => {
                         onBlur={handleBlur('password')}
                         secureTextEntry
                     />
-                    {touched.password && errors.password && <Text style={{color: 'red'}}>{errors.password}</Text>}
+                    {touched.password && errors.password && <Text style={styles.error}>{errors.password}</Text>}
 
                     {formState === 'register' && (
                         <>
@@ -121,7 +125,7 @@ const AuthScreen: React.FC = () => {
                                 secureTextEntry
                             />
                             {touched.checkPassword && errors.checkPassword && (
-                                <Text style={{color: 'red'}}>{errors.checkPassword}</Text>
+                                <Text style={styles.error}>{errors.checkPassword}</Text>
                             )}
                         </>
                     )}
@@ -165,13 +169,27 @@ const AuthScreen: React.FC = () => {
     const extraHeight = formState === null ? {paddingVertical: '15%', minHeight: '35%'} : {};
 
     return (
-        <ImageBackground source={ScreenBackground} style={styles.background}>
-            <View style={styles.container}>
-                <View style={[styles.form, extraHeight]}>
-                    {formState ? renderForm() : renderInitialButtons()}
-                </View>
-            </View>
-        </ImageBackground>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{flex: 1}}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+            >
+                <ScrollView
+                    contentContainerStyle={{flexGrow: 1, justifyContent: 'flex-end'}}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    <ImageBackground source={ScreenBackground} style={styles.background}>
+                        <View style={[styles.container, {minHeight: '100%', paddingBottom: 0}]}>
+                            <View style={[styles.form, extraHeight]}>
+                                {formState ? renderForm() : renderInitialButtons()}
+                            </View>
+                        </View>
+                    </ImageBackground>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -185,11 +203,10 @@ const styles = StyleSheet.create({
         height: '100%',
     },
     container: {
-        flex: 1,
+        flexGrow: 1,
         justifyContent: 'flex-end',
         alignItems: 'center',
         width: '100%',
-        fontFamily: 'Poppins',
     },
     form: {
         backgroundColor: '#fff',
@@ -233,13 +250,19 @@ const styles = StyleSheet.create({
     },
     switchText: {
         fontSize: 14,
-        color: '#444',
+        color: '#C6DAFA',
         marginTop: 16,
         textAlign: 'center',
     },
     link: {
         color: '#91bddf',
         fontWeight: 'bold',
+    },
+    error: {
+        color: 'red',
+        marginBottom: 8,
+        marginTop: -8,
+        fontSize: 13,
     },
 });
 
