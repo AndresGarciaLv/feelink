@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import {
     View,
     Text,
@@ -289,6 +290,8 @@ export default function HomeTutor() {
             </View>
         );
     };
+    const navigation = useNavigation();
+
 
     // COMPONENTE PRINCIPAL - Estructura completa de la pantalla
     return (
@@ -299,6 +302,7 @@ export default function HomeTutor() {
 
             {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
             <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('TutorProfile')}>
             <View style={styles.profileCard}>
                 {/* Avatar del niño */}
                 <Image
@@ -311,6 +315,7 @@ export default function HomeTutor() {
                 <Text style={styles.childAge}>3 Años</Text>
                 <Text style={styles.childId}>321000218739812 • Niño</Text>
             </View>
+            </TouchableOpacity>
 
             {/* SECCIÓN: ESTADOS EMOCIONALES DEL DÍA */}
             {renderEmotionalStats()}
