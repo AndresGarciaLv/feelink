@@ -1,9 +1,20 @@
 import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../../../core/types/common/navigation'; 
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import HeaderTutor from '../../components/HeaderTutor';
 import PelucheIcon from '../../components/PelucheIcon';
 
+type Navigation = StackNavigationProp<RootStackParamList, 'TutorProfile'>;
+
 const ProfileTutor: React.FC = () => {
+  // ⬇️ La llamada a useNavigation DEBE ir dentro del componente
+  const navigation = useNavigation<Navigation>();
+   const handleIconPress = () => {
+    navigation.navigate('DetallesPeluche');
+  };
+
   return (
     <View style={styles.container}>
       <HeaderTutor />
@@ -50,21 +61,27 @@ const ProfileTutor: React.FC = () => {
       </View>
 
       <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.wifiButton}>
+        <TouchableOpacity
+          style={styles.wifiButton}
+          onPress={() => navigation.navigate('Bluetooth')}
+        >
           <Text style={styles.wifiText}>Conectar Peluche</Text>
         </TouchableOpacity>
       </View>
 
       <Text style={styles.batteryTitle}>Batería del peluche</Text>
-      <View style={styles.iconWrapper}>
+
+      <TouchableOpacity style={styles.iconWrapper} onPress={handleIconPress}>
         <PelucheIcon />
-      </View>
+      </TouchableOpacity>
+
       <Text style={styles.batteryStatus}>80% de carga</Text>
     </View>
   );
 };
 
 export default ProfileTutor;
+
 
 
 const styles = StyleSheet.create({

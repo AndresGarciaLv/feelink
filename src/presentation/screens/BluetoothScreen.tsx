@@ -18,9 +18,15 @@ import useBluetoothLogic from '../../shared/hooks/useBluetoothLogic';
 import TabBar from '../layout/TabBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Device } from 'react-native-ble-plx';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '../../core/types/common/navigation'; 
+import { StackNavigationProp } from '@react-navigation/stack';
+type BluetoothScreenNavigationProp = StackNavigationProp<RootStackParamList>;
 
 
 const BluetoothScreen = () => {
+  const navigation = useNavigation<BluetoothScreenNavigationProp>();
+
   const {
     devices,
     isScanning,
@@ -34,12 +40,16 @@ const BluetoothScreen = () => {
     handleConnect,
     confirmConnection,
     closeModal,
-    connectToWifi,
+    
     handleDisconnect,
     setSelectedDevice,
   } = useBluetoothLogic();
 
   const insets = useSafeAreaInsets();
+  const connectToWifi = () => {
+    const deviceId = '1234'; // tu lógica real aquí
+    navigation.navigate('Wifi1', { deviceId });
+  };
 
   return (
     <View style={styles.container}>
@@ -62,13 +72,14 @@ const BluetoothScreen = () => {
           <Text style={styles.buttonText}>Buscar Peluches</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.rightButton, !isConnected && { opacity: 0.5 }]}
-          onPress={connectToWifi}
-          disabled={!isConnected}
+         <TouchableOpacity
+         style={[styles.rightButton]}
+         onPress={connectToWifi}
         >
-          <Text style={styles.buttonText}>Conectar Wifi</Text>
-        </TouchableOpacity>
+      <Text style={styles.buttonText}>Conectar Wifi</Text>
+    </TouchableOpacity>
+
+
       </View>
 
       <View style={styles.bottomSection}>
