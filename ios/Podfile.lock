@@ -1722,33 +1722,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context (5.4.1):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-hermes
-    - React-ImageManager
-    - React-jsi
-    - react-native-safe-area-context/common (= 5.4.1)
-    - react-native-safe-area-context/fabric (= 5.4.1)
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
-  - react-native-safe-area-context/common (5.4.1):
+  - react-native-pager-view (6.7.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1772,7 +1746,57 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-safe-area-context/fabric (5.4.1):
+  - react-native-safe-area-context (5.4.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - react-native-safe-area-context/common (= 5.4.0)
+    - react-native-safe-area-context/fabric (= 5.4.0)
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-safe-area-context/common (5.4.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - react-native-safe-area-context/fabric (5.4.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2293,7 +2317,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.10.0):
+  - RNScreens (4.11.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2317,9 +2341,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.10.0)
+    - RNScreens/common (= 4.11.1)
     - Yoga
-  - RNScreens/common (4.10.0):
+  - RNScreens/common (4.11.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2482,6 +2506,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -2649,6 +2674,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-ble-plx"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-pager-view:
+    :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
@@ -2792,7 +2819,8 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 054f34e9b82f02bd40f09cebd4083828b5b2beb6
   react-native-ble-plx: e1aa206c3d1a311de06c82cdab5be4abefad4634
   react-native-mmkv: d3cc73d2554fafa20dc5b86386359034d1faf8ff
-  react-native-safe-area-context: 5594ec631ede9c311c5c0efa244228eff845ce88
+  react-native-pager-view: f238ed7fb53458bd03366944a33686f067c83e9a
+  react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   React-NativeModulesApple: 2c4377e139522c3d73f5df582e4f051a838ff25e
   React-oscompat: ef5df1c734f19b8003e149317d041b8ce1f7d29c
   React-perflogger: 9a151e0b4c933c9205fd648c246506a83f31395d
@@ -2828,7 +2856,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 7d0931a61d7ba0259f32db0ba7d0963c3ed15d2b
   RNPermissions: 91cbb1391e2e7002f85d4b2f55d5b81cbc554b7c
   RNReanimated: 2313402fe27fecb7237619e9c6fcee3177f08a65
-  RNScreens: 5621e3ad5a329fbd16de683344ac5af4192b40d3
+  RNScreens: 482e9707f9826230810c92e765751af53826d509
   RNSVG: 8a1054afe490b5d63b9792d7ae3c1fde8c05cdd0
   RNVectorIcons: 941a39b5d3b9d8cf8ac2e2fc09b07bfafbcf9796
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
