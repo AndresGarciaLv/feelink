@@ -14,6 +14,10 @@ interface ListPatientsParams {
   therapistId?: string;
   tutorId?: string;
 }
+export interface PatientSummaryResponse {
+    registeredCount: number;
+    unregisteredCount: number;
+}
 
 export const patientServerApi = serverApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -70,6 +74,17 @@ export const patientServerApi = serverApi.injectEndpoints({
     getToyByPatientId: builder.query<any, string>({
       query: (id) => `Patients/${id}/toy`,
       providesTags: (_result, _error, id) => [{ type: "Patient", id }],
+    }), 
+
+    getPatientsSummary: builder.query<PatientSummaryResponse, { date: string; dummy: boolean }>({
+      query: ({ date, dummy }) => ({
+        url: `Patients/summary?Date=${date}&Dummy=${dummy}`,
+        method: "GET",
+      }),
+    }),
+
+    getMonthlyActivitySummary: builder.query<BaseListResponse<MonthlyActivity>, { month: number; dummy?: boolean }>({
+      query: ({ month, dummy = false }) => `Patients/activity/summary?Month=${month}&Dummy=${dummy}`,
     }),
 
   }),
@@ -83,5 +98,7 @@ export const {
   useUpdatePatientMutation,
   useAssignTherapistsMutation,
   useAssignTutorsMutation,
-  useGetToyByPatientIdQuery
+  useGetToyByPatientIdQuery,
+  useGetPatientsSummaryQuery,
+  useGetMonthlyActivitySummaryQuery
 } = patientServerApi;
