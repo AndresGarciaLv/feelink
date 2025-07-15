@@ -14,4 +14,5 @@ export type RootStackParamList = {
     Wifi1: { deviceId: string };
     ProfileChart:undefined;
     DetallesPeluche: undefined;
+    RoleBased: undefined;
 };

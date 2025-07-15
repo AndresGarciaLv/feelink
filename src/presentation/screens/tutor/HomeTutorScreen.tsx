@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
+import TutorTabBar from '../../layout/TutorTabBar';
 
 
 import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
@@ -273,6 +274,7 @@ export default function HomeTutor() {
                         </View>
                     ))}
                 </ScrollView>
+                
             </View>
         );
     };
@@ -303,18 +305,18 @@ export default function HomeTutor() {
             {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
             <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
             <TouchableOpacity onPress={() => navigation.navigate('TutorProfile')}>
-            <View style={styles.profileCard}>
-                {/* Avatar del niño */}
-                <Image
-                    source={require('../../../shared/assets/img/Home-tutor.png')}
-                    style={styles.avatar}
-                />
+                <View style={styles.profileCard}>
+                    {/* Avatar del niño */}
+                    <Image
+                        source={require('../../../shared/assets/img/Home-tutor.png')}
+                        style={styles.avatar}
+                    />
 
-                {/* Información básica del perfil */}
-                <Text style={styles.childName}>Álvaro Díaz</Text>
-                <Text style={styles.childAge}>3 Años</Text>
-                <Text style={styles.childId}>321000218739812 • Niño</Text>
-            </View>
+                    {/* Información básica del perfil */}
+                    <Text style={styles.childName}>Álvaro Díaz</Text>
+                    <Text style={styles.childAge}>3 Años</Text>
+                    <Text style={styles.childId}>321000218739812 • Niño</Text>
+                </View>
             </TouchableOpacity>
 
             {/* SECCIÓN: ESTADOS EMOCIONALES DEL DÍA */}
@@ -355,6 +357,9 @@ export default function HomeTutor() {
 
             {/* Espacio adicional para scroll */}
             <View style={styles.bottomPadding} />
+            <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
+          <TutorTabBar activeTab="Home" />
+        </View>
         </ScrollView>
     );
 }

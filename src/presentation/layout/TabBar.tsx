@@ -7,84 +7,104 @@ import type { RootStackParamList } from '../../navigation/types';
 
 interface TabBarProps {
   activeTab?: 'Home' | 'Patients' | 'Bluetooth' | 'Profile' | 'TherapistProfile';
+  role: 'Therapist' | 'Tutor';
 }
 
-const TabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
+const TabBar: React.FC<TabBarProps> = ({ activeTab = 'Home', role }) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  
+
   return (
     <View style={styles.tabBar}>
-      <TouchableOpacity 
+      {/* Home */}
+      <TouchableOpacity
         style={styles.tabButton}
-        onPress={() => navigation.navigate('Dashboard')}
+        onPress={() =>
+          navigation.navigate(role === 'Tutor' ? 'HomeTutor' : 'Dashboard')
+        }
       >
-        <Ionicons 
-          name="home" 
-          size={24} 
-          color={activeTab === 'Home' ? '#4A90E2' : '#ADB5BD'} 
+        <Ionicons
+          name="home"
+          size={24}
+          color={activeTab === 'Home' ? '#4A90E2' : '#ADB5BD'}
         />
-        <Text style={[
-          styles.tabLabel, 
-          activeTab === 'Home' && styles.activeTabLabel
-        ]}>
+        <Text style={[styles.tabLabel, activeTab === 'Home' && styles.activeTabLabel]}>
           Home
         </Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.tabButton} 
-        onPress={() => navigation.navigate('Patients', { openAddModal: false })}
+
+      {/* Si es terapeuta, mostramos "Niños" */}
+      {role === 'Therapist' && (
+        <TouchableOpacity
+          style={styles.tabButton}
+          onPress={() => navigation.navigate('Patients', { openAddModal: false })}
+        >
+          <Ionicons
+            name="people"
+            size={24}
+            color={activeTab === 'Patients' ? '#4A90E2' : '#ADB5BD'}
+          />
+          <Text style={[styles.tabLabel, activeTab === 'Patients' && styles.activeTabLabel]}>
+            Niños
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Botón central */}
+      <TouchableOpacity
+        style={styles.centerButton}
+        onPress={() =>
+          role === 'Therapist'
+            ? navigation.navigate('Patients', { openAddModal: true })
+            : navigation.navigate('Bluetooth')
+        }
       >
-        <Ionicons 
-          name="people" 
-          size={24} 
-          color={activeTab === 'Patients' ? '#4A90E2' : '#ADB5BD'} 
+        <Ionicons
+          name={role === 'Therapist' ? 'add' : 'bluetooth'}
+          size={28}
+          color="white"
         />
-        <Text style={[
-          styles.tabLabel,
-          activeTab === 'Patients' && styles.activeTabLabel
-        ]}>
-          Niños
-        </Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.addButton}
-        onPress={() => navigation.navigate('Patients', { openAddModal: true })}
-      >
-        <Ionicons name="add" size={28} color="white" />
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.tabButton} 
-        onPress={() => navigation.navigate('Bluetooth')}
-      >
-        <Ionicons 
-          name="bluetooth" 
-          size={24} 
-          color={activeTab === 'Bluetooth' ? '#4A90E2' : '#ADB5BD'} 
-        />
-        <Text style={[
-          styles.tabLabel,
-          activeTab === 'Bluetooth' && styles.activeTabLabel
-        ]}>
-          Bluetooth
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
+
+      {/* Si es terapeuta, muestra Bluetooth también */}
+      {role === 'Therapist' && (
+        <TouchableOpacity
+          style={styles.tabButton}
+          onPress={() => navigation.navigate('Bluetooth')}
+        >
+          <Ionicons
+            name="bluetooth"
+            size={24}
+            color={activeTab === 'Bluetooth' ? '#4A90E2' : '#ADB5BD'}
+          />
+          <Text style={[styles.tabLabel, activeTab === 'Bluetooth' && styles.activeTabLabel]}>
+            Bluetooth
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Perfil */}
+      <TouchableOpacity
         style={styles.tabButton}
-        onPress={() => navigation.navigate('TherapistProfile')}
+        onPress={() =>
+          navigation.navigate(role === 'Tutor' ? 'TutorProfile' : 'TherapistProfile')
+        }
       >
-        <Ionicons 
-          name="person" 
-          size={24} 
-          color={activeTab === 'Profile' || activeTab === 'TherapistProfile' ? '#4A90E2' : '#ADB5BD'} 
+        <Ionicons
+          name="person"
+          size={24}
+          color={
+            activeTab === 'Profile' || activeTab === 'TherapistProfile'
+              ? '#4A90E2'
+              : '#ADB5BD'
+          }
         />
-        <Text style={[
-          styles.tabLabel,
-          (activeTab === 'Profile' || activeTab === 'TherapistProfile') && styles.activeTabLabel
-        ]}>
+        <Text
+          style={[
+            styles.tabLabel,
+            (activeTab === 'Profile' || activeTab === 'TherapistProfile') &&
+              styles.activeTabLabel,
+          ]}
+        >
           Perfil
         </Text>
       </TouchableOpacity>
@@ -106,6 +126,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   tabButton: {
     alignItems: 'center',
@@ -119,7 +140,7 @@ const styles = StyleSheet.create({
   activeTabLabel: {
     color: '#4A90E2',
   },
-  addButton: {
+  centerButton: {
     backgroundColor: '#4A90E2',
     width: 64,
     height: 64,
