@@ -12,6 +12,7 @@ import {useAppSelector} from "../../core/stores/store";
 import {selectUserData} from "../../core/stores/auth/authSlice";
 import {useListPatientsQuery} from "../../core/http/requests/patientServerApi";
 import MyPatientsSection from '../../shared/components/dashboard/myPatients';
+import { useGetPatientsSummaryQuery, useGetMonthlyActivitySummaryQuery } from "../../core/http/requests/patientServerApi";
 
 
 const PROFILE_IMAGE = null;
@@ -22,36 +23,46 @@ interface PatientData {
     name: string;
     avatar: any;
 }
+interface MonthlyActivity {
+  month: string; // o number
+  daysRegistered: number;
+  stressLevel: number;
+}
+
 
 const DashboardScreen: React.FC = () => {
 
     const userData = useAppSelector(selectUserData)
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const insets = useSafeAreaInsets();
-    // Mock data for patients
-    const patients: PatientData[] = [
-        {id: '1', name: 'Juan', avatar: PATIENT_AVATAR},
-        {id: '2', name: 'Alvaro', avatar: PATIENT_AVATAR},
-        {id: '3', name: 'Luis', avatar: PATIENT_AVATAR},
-        {id: '4', name: 'Rosita', avatar: PATIENT_AVATAR},
-    ];
+    const today = new Date().toISOString().split("T")[0]; // formato YYYY-MM-DD
 
-    const { data: patientsData, isFetching: patientsDataFetching } = useListPatientsQuery({page: 1, pageSize: 10})
+//Obtener los registros del mes (Se tiene dummy de momento)
+const {
+    data: patientSummary,
+    isFetching: isFetchingSummary,
+    error: summaryError
+} = useGetPatientsSummaryQuery({date: today, dummy: true });
 
-    // Mock data for stats
-    const registeredKids = 12;
-    const unregisteredKids = 18;
+    // Stats niños
+    const registeredKids = patientSummary?.patientsWithActivity ?? 0;
+    const unregisteredKids = patientSummary?.patientsWithoutActivity ?? 0;
 
-    // Mock data for monthly stress
-    const monthlyStress = [
-        {month: 'Abril', days: 14, stressLevel: 65},
-        {month: 'Marzo', days: 16, stressLevel: 50},
-        {month: 'Febrero', days: 20, stressLevel: 70},
-    ];
+    //Obtener el mes
+    const currentMonth = new Date().getMonth() + 1; // +1 porque getMonth() devuelve 0-11
 
-    // useEffect(() => {
-    //     if
-    // }, [patientsData, patientsDataFetching]);
+    //Obtener los niveles de estres por mes  (Se tiene como dummy de momento)
+    const {
+    data: activitySummary,
+    isLoading: isActivityLoading
+    } = useGetMonthlyActivitySummaryQuery({ month: currentMonth, dummy: true}); // ← Junio
+
+    //mapeo de datos de estres por mes
+    const monthlyStress = activitySummary?.items.map(item => ({
+    month: item.month,
+    days: item.daysRegistered,
+    stressLevel: item.stressLevel
+    })) ?? [];
 
     return (
         <View style={styles.container}>
