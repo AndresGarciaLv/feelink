@@ -1,8 +1,7 @@
-// ✅ App.tsx con navegación entre BluetoothScreen y WiFiConfigScreen
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import BleScreen from './src/presentation/screens/BleScreen';
 import WiFiConfigScreen from './src/presentation/screens/WifiConfigScreen';
 import type { RootStackParamList } from './src/core/types/common/navigation';
 import PatientsScreen from './src/presentation/screens/PatientsScreen';
@@ -13,7 +12,6 @@ import AuthScreen from './src/presentation/screens/auth/AuthScreen';
 import TutorProfile from './src/shared/components/profiles/TutorProfile'
 import TherapistProfile from './src/shared/components/profiles/TherapistProfile';
 import HomeTutor from './src/presentation/screens/tutor/HomeTutorScreen';
-import BluetoothScreen from './src/presentation/screens/BluetoothScreen';
 import WifiScreen1 from './src/presentation/screens/WifiScreen';
 import ChartsProfileScreen from './src/presentation/screens/ChartsProfileScreen';
 import {Provider} from "react-redux";
@@ -33,7 +31,6 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Splash">
             <Stack.Screen name="Splash" component={SplashScreenComponent} options={{ headerShown: false }} />
-            <Stack.Screen name="BleScreen" component={BleScreen} options={{title: 'LISTA DE PANTALLAS'}}/>
             <Stack.Screen name="WiFi" component={WiFiConfigScreen} options={{title: 'Conectar a WiFi'}}/>
             <Stack.Screen name="Patients" component={PatientsScreen} options={{headerShown: false}}/>
             <Stack.Screen name="TutorProfile" component={TutorProfile} options={{headerShown: false}}/>
@@ -42,7 +39,6 @@ export default function App() {
             <Stack.Screen name="Profile" component={ProfileScreen} options={{headerShown: false}}/>
             <Stack.Screen name="Dashboard" component={DashboardScreen} options={{headerShown: false}}/>
             <Stack.Screen name="HomeTutor" component={HomeTutor} options={{headerShown: false}}/>
-            <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{headerShown: false}}/>
             <Stack.Screen name="Wifi1" component={WifiScreen1} options={{headerShown: false}}/>
             <Stack.Screen name="ChartsProfile" component={ChartsProfileScreen} options={{headerShown: false}}/>
             <Stack.Screen name="DetallesPeluche" component={DetallesPelucheScreen} options={{ headerShown: false }} />

@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types';
+import type { RootStackParamList } from '../../core/types/common/navigation';
 
 interface TabBarProps {
-  activeTab?: 'Home' | 'Bluetooth' | 'Profile';
+  activeTab?: 'Home' | 'Profile';
 }
 
 const TutorTabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
@@ -30,18 +30,6 @@ const TutorTabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
         ]}>
           Home
         </Text>
-      </TouchableOpacity>
-
-      {/* Bluetooth central button azul */}
-      <TouchableOpacity 
-        style={styles.bluetoothButton}
-        onPress={() => navigation.navigate('Bluetooth')}
-      >
-        <Ionicons 
-          name="bluetooth" 
-          size={28} 
-          color="white" 
-        />
       </TouchableOpacity>
 
       {/* Perfil */}
@@ -92,20 +80,6 @@ const styles = StyleSheet.create({
   },
   activeTabLabel: {
     color: '#4A90E2',
-  },
-  bluetoothButton: {
-    backgroundColor: '#4A90E2',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: -30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
   },
 });
 
