@@ -44,7 +44,7 @@ export default function App() {
             <Stack.Screen name="HomeTutor" component={HomeTutor} options={{headerShown: false}}/>
             <Stack.Screen name="Bluetooth" component={BluetoothScreen} options={{headerShown: false}}/>
             <Stack.Screen name="Wifi1" component={WifiScreen1} options={{headerShown: false}}/>
-            <Stack.Screen name="ProfileChart" component={ChartsProfileScreen} options={{headerShown: false}}/>
+            <Stack.Screen name="ChartsProfile" component={ChartsProfileScreen} options={{headerShown: false}}/>
             <Stack.Screen name="DetallesPeluche" component={DetallesPelucheScreen} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>

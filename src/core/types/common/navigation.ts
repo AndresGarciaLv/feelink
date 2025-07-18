@@ -12,6 +12,6 @@ export type RootStackParamList = {
     Bluetooth: undefined;
     Splash: undefined;
     Wifi1: { deviceId: string };
-    ProfileChart:undefined;
+    ChartsProfile:undefined;
     DetallesPeluche: undefined;
 };
