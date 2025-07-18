@@ -3,7 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import OsitoIcon from '../../assets/icons/OsitoIcon';
 import WifiIcon from '../../assets/icons/WifiIcon';
 import PlushIcon from '../../assets/icons/PlushIcon';
-import BluetoothIcon from '../../assets/icons/BluetoothIcon';
 
 const BubbleOverlayWifi = () => (
  <View style={styles.container}>

@@ -1,16 +1,12 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import PhoneIcon from '../../assets/icons/PhoneIcon';
-import BluetoothIcon from '../../assets/icons/BluetoothIcon';
 import OsitoIcon from '../../assets/icons/OsitoIcon';
 
 const BubbleOverlay = () => (
   <View style={styles.container}>
     <View style={[styles.iconBubble, { zIndex: 2 }]}>
       <PhoneIcon size={30} />
-    </View>
-    <View style={[styles.iconBubble, { marginLeft: -15, zIndex: 3 }]}>
-      <BluetoothIcon size={30} />
     </View>
     <View style={[styles.iconBubble, { marginLeft: -15, zIndex: 2 }]}>
       <OsitoIcon size={40} />

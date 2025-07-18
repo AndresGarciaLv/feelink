@@ -3,10 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types';
+import type { RootStackParamList } from '../../core/types/common/navigation';
 
 interface TabBarProps {
-  activeTab?: 'Home' | 'Patients' | 'Bluetooth' | 'Profile' | 'TherapistProfile';
+  activeTab?: 'Home' | 'Patients' | 'Profile' | 'TherapistProfile';
 }
 
 const TabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
@@ -53,23 +53,6 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
         onPress={() => navigation.navigate('Patients', { openAddModal: true })}
       >
         <Ionicons name="add" size={28} color="white" />
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={styles.tabButton} 
-        onPress={() => navigation.navigate('Bluetooth')}
-      >
-        <Ionicons 
-          name="bluetooth" 
-          size={24} 
-          color={activeTab === 'Bluetooth' ? '#4A90E2' : '#ADB5BD'} 
-        />
-        <Text style={[
-          styles.tabLabel,
-          activeTab === 'Bluetooth' && styles.activeTabLabel
-        ]}>
-          Bluetooth
-        </Text>
       </TouchableOpacity>
       
       <TouchableOpacity 

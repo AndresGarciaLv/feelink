@@ -51,6 +51,10 @@ interface GetPatientSummaryParams {
   date?: string; // Formato "YYYY-MM-DD"
   dummy?: boolean;
 }
+export interface PatientSummaryResponse {
+    registeredCount: number;
+    unregisteredCount: number;
+}
 
 export const patientServerApi = serverApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -115,6 +119,17 @@ export const patientServerApi = serverApi.injectEndpoints({
     getToyByPatientId: builder.query<any, string>({ // Asume que esto devuelve el objeto completo del juguete
       query: (id) => `Patients/${id}/toy`,
       providesTags: (_result, _error, id) => [{ type: "Patient", id }],
+    }), 
+
+    getPatientsSummary: builder.query<PatientSummaryResponse, { date: string; dummy: boolean }>({
+      query: ({ date, dummy }) => ({
+        url: `Patients/summary?Date=${date}&Dummy=${dummy}`,
+        method: "GET",
+      }),
+    }),
+
+    getMonthlyActivitySummary: builder.query<BaseListResponse<MonthlyActivity>, { month: number; dummy?: boolean }>({
+      query: ({ month, dummy = false }) => `Patients/activity/summary?Month=${month}&Dummy=${dummy}`,
     }),
 
     getPatientActivitySummary: builder.query<PatientActivitySummary, GetPatientActivitySummaryParams>({
@@ -145,7 +160,9 @@ export const {
   useDeletePatientMutation, // Exporta el hook de eliminación
   useAssignTherapistsMutation,
   useAssignTutorsMutation,
-  useGetToyByPatientIdQuery,
   useGetPatientActivitySummaryQuery,
   useGetPatientSummaryQuery, // Exporta el hook para el resumen general de pacientes
+  useGetToyByPatientIdQuery,
+  useGetPatientsSummaryQuery,
+  useGetMonthlyActivitySummaryQuery
 } = patientServerApi;

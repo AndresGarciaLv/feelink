@@ -1,7 +1,5 @@
 // src/shared/hooks/useWifiLogic.ts
 import { useEffect, useRef, useState } from 'react';
-import { manager, sendBLECommand } from '../../core/services/ble/BluetoothManager';
-import { selectConnectedDevice } from '../../core/stores/ble/bleSlice';
 import { useAppSelector } from '../../core/stores/store';
 import { Buffer } from 'buffer';
 import { useWifiRedux } from '../../core/stores/wifi/useWifiRedux';
@@ -15,7 +13,6 @@ interface WifiNetwork {
 }
 
 export default function useWifiLogic() {
-  const connectedDevice = useAppSelector(selectConnectedDevice);
   const [networks, setNetworks] = useState<WifiNetwork[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -27,12 +24,8 @@ export default function useWifiLogic() {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
 
   const fragments = useRef<Map<number, string>>(new Map());
-  const assemblyTimeout = useRef<NodeJS.Timeout | null>(null);
   const manualDisconnectRef = useRef(false);
   const hasTriedToConnect = useRef(false); // ✅ NUEVO
-
-  const SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
-  const CHARACTERISTIC_UUID = 'abcd1234-abcd-1234-abcd-1234567890ab';
 
   const {
     wifi,
@@ -43,43 +36,6 @@ export default function useWifiLogic() {
     updateStatusMessage,
     updateSSID
   } = useWifiRedux();
-
-  useEffect(() => {
-    if (!connectedDevice) return;
-
-    const subscription = manager.monitorCharacteristicForDevice(
-      connectedDevice.id,
-      SERVICE_UUID,
-      CHARACTERISTIC_UUID,
-      (error, characteristic) => {
-        if (error || !characteristic?.value) return;
-
-        const raw = Buffer.from(characteristic.value, 'base64').toString('utf-8');
-        console.log('📥 Fragmento recibido:', raw);
-
-        if (raw.startsWith('#')) {
-          if (raw === '#END') {
-            processFragments();
-            return;
-          }
-
-          const match = raw.match(/^#(\d+)\|(.+)$/);
-          if (!match) return;
-
-          const index = parseInt(match[1]);
-          const content = match[2];
-          fragments.current.set(index, content);
-
-          if (assemblyTimeout.current) clearTimeout(assemblyTimeout.current);
-          assemblyTimeout.current = setTimeout(processFragments, 1200);
-        }
-      }
-    );
-
-    checkWiFiStatus();
-
-    return () => subscription?.remove();
-  }, [connectedDevice]);
 
   const processFragments = () => {
     const keys = Array.from(fragments.current.keys()).sort((a, b) => a - b);
@@ -160,16 +116,7 @@ export default function useWifiLogic() {
     }
   };
 
-  const startScan = async () => {
-    if (!connectedDevice) return;
-    fragments.current.clear();
-    setNetworks([]);
-    setIsScanning(true);
-    setModalVisible(true);
-    setModalTitle('Escaneando redes WiFi...');
-    setModalMessage('Por favor espera unos segundos...');
-    await sendBLECommand(connectedDevice.id, SERVICE_UUID, CHARACTERISTIC_UUID, { scan: true });
-  };
+
 
   const handleConnect = (network: WifiNetwork) => {
     setSelectedNetwork(network);
@@ -180,49 +127,6 @@ export default function useWifiLogic() {
     setModalMessage(network.open ? 'Red abierta, conectando...' : 'Ingresa la contraseña.');
   };
 
-  const confirmConnection = async () => {
-    if (!connectedDevice || !selectedNetwork) return;
-
-    hasTriedToConnect.current = true; // ✅ Marcar intento
-    startConnection(selectedNetwork.ssid);
-    setIsConnecting(true);
-    setShowPasswordInput(false);
-
-    await sendBLECommand(connectedDevice.id, SERVICE_UUID, CHARACTERISTIC_UUID, {
-      connect: {
-        ssid: selectedNetwork.ssid,
-        pass: selectedNetwork.open ? '' : password,
-      }
-    });
-
-    setPassword('');
-    setSelectedNetwork(null);
-    setModalTitle('Conectando...');
-    setModalMessage('Esperando respuesta del peluche...');
-  };
-
-  const disconnectFromWiFi = async () => {
-    if (!connectedDevice) return;
-    manualDisconnectRef.current = true;
-    await sendBLECommand(connectedDevice.id, SERVICE_UUID, CHARACTERISTIC_UUID, { disconnect: true });
-    setModalTitle('Desconectando...');
-    setModalMessage('Esperando confirmación...');
-    setModalVisible(true);
-    setShowPasswordInput(false);
-  };
-
-  const reconnectToLastWiFi = async () => {
-    if (!connectedDevice) return;
-    await sendBLECommand(connectedDevice.id, SERVICE_UUID, CHARACTERISTIC_UUID, { reconnect: true });
-    setModalTitle('Reconectando...');
-    setModalMessage('Esperando confirmación del peluche...');
-    setModalVisible(true);
-  };
-
-  const checkWiFiStatus = async () => {
-    if (!connectedDevice) return;
-    await sendBLECommand(connectedDevice.id, SERVICE_UUID, CHARACTERISTIC_UUID, { status: true });
-  };
 
   const closeModal = () => {
     setIsConnecting(false);
@@ -239,12 +143,7 @@ export default function useWifiLogic() {
     selectedNetwork,
     password,
     setPassword,
-    startScan,
     handleConnect,
-    confirmConnection,
-    disconnectFromWiFi,
-    reconnectToLastWiFi,
-    checkWiFiStatus,
     closeModal,
     connectedSSID: wifi.currentSSID,
     isConnecting,
