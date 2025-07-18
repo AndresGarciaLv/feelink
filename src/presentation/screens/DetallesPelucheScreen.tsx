@@ -27,7 +27,6 @@ import WifiIcon from '../../shared/components/peluche/WifiIcon';
 import { styles as pelucheStyles } from '../../shared/components/peluche/styles/PelucheStyles';
 
 export default function DetallesPelucheScreen() {
-  const [bluetoothConnected, setBluetoothConnected] = useState(false);
   const [wifiConnected, setWifiConnected] = useState(false);
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
@@ -50,12 +49,6 @@ export default function DetallesPelucheScreen() {
 
         {/* Cards de conexión */}
         <View style={pelucheStyles.cardsContainer}>
-          <ConnectionToggleCard
-            title="Bluetooth"
-            icon={<BluetoothIcon size={24} color="black" />}
-            connected={bluetoothConnected}
-            onToggle={() => setBluetoothConnected(!bluetoothConnected)}
-          />
 
           <WifiStatusCard
             icon={<WifiIcon size={24} color="black" />}
@@ -66,7 +59,7 @@ export default function DetallesPelucheScreen() {
 
           {/* Card del peluche */}
           <PelucheConnectionCard
-            connected={bluetoothConnected || wifiConnected}
+            connected={wifiConnected}
             name="Peluchin"
             batteryLevel={80}
           />
@@ -87,7 +80,7 @@ export default function DetallesPelucheScreen() {
 
       {/* TabBar Posicionado correctamente */}
       <View style={[pelucheStyles.tabBarWrapper, { bottom: insets.bottom || 12 }]}>
-        <TabBar activeTab="Bluetooth" />
+        <TabBar />
       </View>
     </SafeAreaView>
   );

@@ -6,7 +6,7 @@ export default {
     slug: 'feelink',
     version: '1.0.0',
     orientation: 'portrait',
-    "owner": "andresgarciia",
+    owner: 'andresgarciia',
     icon: './src/shared/assets/img/icon.png',
     userInterfaceStyle: 'light',
     newArchEnabled: true,
@@ -25,33 +25,19 @@ export default {
         backgroundColor: '#9BC4E0'
       },
       edgeToEdgeEnabled: true,
-      package: 'com.anonymous.FeeLink',
-      permissions: [
-        'BLUETOOTH',
-        'BLUETOOTH_ADMIN',
-        'BLUETOOTH_CONNECT',
-        'BLUETOOTH_SCAN',
-        'ACCESS_FINE_LOCATION',
-        'android.permission.BLUETOOTH',
-        'android.permission.BLUETOOTH_ADMIN',
-        'android.permission.BLUETOOTH_CONNECT'
-      ]
+      package: 'com.anonymous.FeeLink'
     },
-    plugins: [
-      [
-        '@config-plugins/react-native-ble-plx',
-        {
-          isBackgroundEnabled: false
-        }
-      ]
-    ],
     web: {
       favicon: './src/shared/assets/img/favicon.png'
     },
+    updates: {
+      url: 'https://u.expo.dev/8c1b1a80-ac46-4d1c-9eef-05185f4cceb4'
+    },
+   runtimeVersion: '1.0.0',
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
       eas: {
-        projectId: 'ec910ac9-3490-4b83-8fc0-916c7e94492b'
+        projectId: '8c1b1a80-ac46-4d1c-9eef-05185f4cceb4'
       }
     }
   }
