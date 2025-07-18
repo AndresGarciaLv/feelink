@@ -18,6 +18,7 @@ import {
   EstadoEmocional,
 } from "../../core/types/common/PatientChart";
 
+
 import {
   useGetPatientByIdQuery,
   useGetToyByPatientIdQuery,
@@ -25,13 +26,23 @@ import {
 } from "../../core/http/requests/patientServerApi";
 import { useGetToyReadingsSummaryQuery } from "../../core/http/requests/toyServerApi";
 
+type Toy = {
+  id: string;
+  name: string;
+  macAddress: string;
+  // otros campos si aplica
+};
+
+
+
 type RootStackParamList = {
   Profile: { patientId: string };
   ChartsProfile: {
     data: PacienteGraficas;
     chartType: "stress" | "emotions";
   };
-  DetallesPeluche: undefined;
+  DetallesPeluche: { toy: Toy };
+
 };
 
 type ProfileScreenRouteProp = RouteProp<RootStackParamList, "Profile">;
@@ -335,16 +346,25 @@ export default function ProfileScreen() {
     );
   }
 
-  if (patientError || toyError || activitySummaryError || toyReadingsError) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>
-          Error al cargar el perfil o la actividad:
-        </Text>
-        <Text style={styles.errorText}>{errorMessage}</Text>
-      </View>
-    );
-  }
+const isToyNotFound = toyError && "status" in toyError && toyError.status === 404;
+
+const hasCriticalError =
+  patientError ||
+  activitySummaryError ||
+  toyReadingsError ||
+  (toyError && !isToyNotFound); // ⚠️ Ignora 404
+
+if (hasCriticalError) {
+  return (
+    <View style={styles.errorContainer}>
+      <Text style={styles.errorText}>
+        Error al cargar el perfil o la actividad:
+      </Text>
+      <Text style={styles.errorText}>{errorMessage}</Text>
+    </View>
+  );
+}
+
 
   if (!patientData) {
     return (
@@ -364,12 +384,24 @@ export default function ProfileScreen() {
             style={styles.avatar}
           />
           <TouchableOpacity
-            style={styles.tagButton}
-            onPress={() => navigation.navigate("DetallesPeluche")}
-          >
-            <Text style={styles.tagText}>{patientInfo.tag}</Text>
-          </TouchableOpacity>
+  style={[styles.tagButton, !toyData && styles.disabledButton]}
+  onPress={() => {
+    if (toyData) {
+      navigation.navigate("DetallesPeluche", { toy: toyData });
+    }
+  }}
+  disabled={!toyData}
+>
+  <Text style={[styles.tagText, !toyData && styles.disabledText]}>
+    {toyData ? toyData.name : "Sin peluche asignado"}
+  </Text>
+</TouchableOpacity>
+
+
         </View>
+
+        
+
 
         {/* Información personal */}
         <View style={styles.infoContainer}>
@@ -930,4 +962,13 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     fontStyle: "italic",
   },
+  disabledButton: {
+  backgroundColor: "#eee",
+  borderColor: "#ccc",
+},
+
+disabledText: {
+  color: "#aaa",
+},
+
 });
