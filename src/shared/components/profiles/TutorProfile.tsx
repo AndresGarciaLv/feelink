@@ -2,78 +2,86 @@ import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../../core/types/common/navigation'; 
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HeaderTutor from '../../components/HeaderTutor';
 import PelucheIcon from '../../components/PelucheIcon';
+import TutorTabBar from '../../../presentation/layout/TutorTabBar';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, 'TutorProfile'>;
 
 const ProfileTutor: React.FC = () => {
-  // ⬇️ La llamada a useNavigation DEBE ir dentro del componente
   const navigation = useNavigation<Navigation>();
-   const handleIconPress = () => {
+  const insets = useSafeAreaInsets();
+
+  const handleIconPress = () => {
     navigation.navigate('DetallesPeluche');
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <HeaderTutor />
 
-      <View style={styles.avatarContainer}>
-        <Image
-          source={require('../../assets/img/perfil.png')}
-          style={styles.avatar}
-        />
-        <TouchableOpacity style={styles.tagButton}>
-          <Text style={styles.tagText}>peluchin</Text>
+      <View style={styles.content}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={require('../../assets/img/perfil.png')}
+            style={styles.avatar}
+          />
+          <TouchableOpacity style={styles.tagButton}>
+            <Text style={styles.tagText}>peluchin</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.infoContainer}>
+          <Text style={styles.name}>Álvaro Díaz</Text>
+          <Text style={styles.subText}>3 Años</Text>
+          <Text style={styles.subTextGray}>321000218739812 • Niño</Text>
+        </View>
+
+        <View style={styles.statsContainer}>
+          <View style={styles.statBox}>
+            <Text style={styles.statValueWithUnit}>
+              73 <Text style={styles.statUnit}>cm</Text>
+            </Text>
+            <Text style={styles.statLabel}>Altura</Text>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.statBox}>
+            <Text style={styles.statValueWithUnit}>
+              12 <Text style={styles.statUnit}>kg</Text>
+            </Text>
+            <Text style={styles.statLabel}>Peso</Text>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.statBox}>
+            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statUnit}>IMC</Text>
+          </View>
+        </View>
+
+        <Text style={styles.batteryTitle}>Batería del peluche</Text>
+
+        <TouchableOpacity style={styles.iconWrapper} onPress={handleIconPress}>
+          <PelucheIcon />
         </TouchableOpacity>
+
+        <Text style={styles.batteryStatus}>80% de carga</Text>
       </View>
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.name}>Álvaro Díaz</Text>
-        <Text style={styles.subText}>3 Años</Text>
-        <Text style={styles.subTextGray}>321000218739812 • Niño</Text>
+      {/* Tab Bar Component - Fijo en el fondo con SafeArea */}
+      <View style={{ paddingBottom: insets.bottom }}>
+        <TutorTabBar activeTab='Perfil'/>
       </View>
-
-      <View style={styles.statsContainer}>
-        <View style={styles.statBox}>
-          <Text style={styles.statValueWithUnit}>
-            73 <Text style={styles.statUnit}>cm</Text>
-          </Text>
-          <Text style={styles.statLabel}>Altura</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.statBox}>
-          <Text style={styles.statValueWithUnit}>
-            12 <Text style={styles.statUnit}>kg</Text>
-          </Text>
-          <Text style={styles.statLabel}>Peso</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.statBox}>
-          <Text style={styles.statValue}>12</Text>
-          <Text style={styles.statUnit}>IMC</Text>
-        </View>
-      </View>
-
-      <Text style={styles.batteryTitle}>Batería del peluche</Text>
-
-      <TouchableOpacity style={styles.iconWrapper} onPress={handleIconPress}>
-        <PelucheIcon />
-      </TouchableOpacity>
-
-      <Text style={styles.batteryStatus}>80% de carga</Text>
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default ProfileTutor;
-
-
 
 const styles = StyleSheet.create({
     container: {
@@ -81,9 +89,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF',
         fontFamily: 'sans-serif',
     },
+    content: {
+        flex: 1,
+    },
     avatarContainer: {
         alignItems: 'center',
-        marginTop: -45,
+        marginTop: 20,
     },
     avatar: {
         width: 120,
@@ -201,22 +212,22 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     batteryTitle: {
-    textAlign: 'left',
-    marginTop: 24,
-    marginLeft: 24,
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
-  },
-  iconWrapper: {
-    alignItems: 'center',
-    marginTop: 16,    
-  },
-  batteryStatus: {
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#4BA6F0',
-    marginTop: 8,
-  },
+        textAlign: 'left',
+        marginTop: 24,
+        marginLeft: 24,
+        fontSize: 16,
+        color: '#333',
+        fontWeight: '500',
+    },
+    iconWrapper: {
+        alignItems: 'center',
+        marginTop: 16,    
+    },
+    batteryStatus: {
+        textAlign: 'center',
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#4BA6F0',
+        marginTop: 8,
+    },
 });

@@ -10,7 +10,8 @@ interface NavbarProps {
   onBackPress?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({
+const 
+Navbar: React.FC<NavbarProps> = ({
   doctorName = 'Dr. Ricardo Chi',
   hospitalName = 'Hospital Sunrise',
   profileImage,

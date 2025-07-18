@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useAppSelector } from '../../../core/stores/store';
 import { selectUserData } from '../../../core/stores/auth/authSlice';
+import RealTimeCharts from '../../../shared/components/charts/RealTimeCharts';
 
 import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
 import HeaderProfile from '../../../shared/components/profile/HeaderProfile';
@@ -317,67 +318,12 @@ export default function HomeTutor() {
                         tutorName={`Tutor ${userData?.name}`}
                     />
 
-                    {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
-                    <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('TutorProfile')}>
-                        <View style={styles.profileCard}>
-                            {/* Avatar del niño */}
-                            <Image
-                                source={require('../../../shared/assets/img/Home-tutor.png')}
-                                style={styles.avatar}
-                            />
-
-                            {/* Información básica del perfil */}
-                            <Text style={styles.childName}>Álvaro Díaz</Text>
-                            <Text style={styles.childAge}>3 Años</Text>
-                            <Text style={styles.childId}>321000218739812 • Niño</Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    {/* SECCIÓN: ESTADOS EMOCIONALES DEL DÍA */}
-                    {renderEmotionalStats()}
-
-
-                    {/* SECCIÓN: REGISTRO MENSUAL */}
-                    <Text style={styles.mainSectionTitle}>Registro mensual</Text>
-
-                    {/* NAVEGACIÓN MENSUAL - Tabs para seleccionar meses */}
-                    <View style={styles.monthTabs}>
-                        {['Abril', 'Marzo', 'Febrero', 'Enero'].map((mes, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.monthButton,
-                                    selectedMonth === mes && styles.monthButtonActive
-                                ]}
-                                onPress={() => handleMonthSelect(mes)}
-                            >
-                                <Text style={[
-                                    styles.monthText,
-                                    selectedMonth === mes && styles.monthTextActive
-                                ]}>
-                                    {mes}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-
-                    {/* RESUMEN MENSUAL DETALLADO */}
-                    {renderMonthlySummary()}
-
-                    {/* RECOMENDACIONES PERSONALIZADAS */}
-                    {renderRecommendations()}
-
-                    {/* FRASE MOTIVACIONAL DEL DÍA */}
-                    {renderDailyQuote()}
-
-                    {/* Espacio adicional para scroll */}
-
+                    <RealTimeCharts />
                     <View style={styles.bottomPadding} />
 
                 </ScrollView>
 
-                <TutorTabBar activeTab="Home" />
+                <TutorTabBar activeTab="InfoPeluche" />
             </View>
         </KeyboardAvoidingView>
 
