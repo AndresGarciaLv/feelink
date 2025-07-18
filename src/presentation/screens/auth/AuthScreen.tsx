@@ -36,7 +36,6 @@ const AuthScreen: React.FC = () => {
                 }
             })
             .catch(err => {
-                console.error(err);
                 alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
             })
     }
@@ -53,7 +52,6 @@ const AuthScreen: React.FC = () => {
                 navigation.navigate("Dashboard");
             })
             .catch(err => {
-                console.error(err);
                 alert('Error al registrarse. Por favor, verifica tus datos.');
             })
     }
