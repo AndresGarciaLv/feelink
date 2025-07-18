@@ -159,7 +159,7 @@ export default function PatientsScreen() {
   };
 
   const [genderOptionsVisible, setGenderOptionsVisible] = useState(false);
-  const genderOptions = ['Masculino', 'Femenino']; // Ajusta según lo que tu backend espere para el campo 'gender'
+  const genderOptions = ['Masculino', 'Femenino']; // campo 'gender'
 
   // Si los datos están cargando o hay un error
   if (isLoading) {
@@ -171,9 +171,7 @@ export default function PatientsScreen() {
     return <Text style={styles.errorText}>Error al cargar pacientes. Detalles: {JSON.stringify(error)}</Text>;
   }
 
-  // --- CAMBIO CLAVE AQUÍ: Acceder a 'items' en lugar de 'data' ---
-  const patients = patientsData?.items || []; // <--- ¡Este es el cambio importante!
-
+  const patients = patientsData?.items || []; 
   return (
     <View style={styles.container}>
       <HeaderPatients />

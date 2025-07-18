@@ -14,6 +14,9 @@ import {useListPatientsQuery} from "../../core/http/requests/patientServerApi";
 import MyPatientsSection from '../../shared/components/dashboard/myPatients';
 import { useGetPatientsSummaryQuery, useGetMonthlyActivitySummaryQuery } from "../../core/http/requests/patientServerApi";
 
+// --- NUEVA IMPORTACIÓN ---
+import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
+
 
 const PROFILE_IMAGE = null;
 const PATIENT_AVATAR = null;
@@ -24,9 +27,9 @@ interface PatientData {
     avatar: any;
 }
 interface MonthlyActivity {
-  month: string; // o number
-  daysRegistered: number;
-  stressLevel: number;
+    month: string; // o number
+    daysRegistered: number;
+    stressLevel: number;
 }
 
 
@@ -72,6 +75,9 @@ const {
                     profileImage={require('../../shared/assets/img/perfil.png')}
                     onBackPress={() => navigation.goBack()}
                 />
+
+                {/* --- NUEVA SECCIÓN DE GRÁFICOS EN TIEMPO REAL --- */}
+                <RealTimeCharts />
 
                 {/* My Patients Section */}
                 <MyPatientsSection />
@@ -136,6 +142,7 @@ const {
     );
 };
 
+// ... (tus estilos existentes, no es necesario cambiarlos)
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -361,5 +368,6 @@ const styles = StyleSheet.create({
         height: 20,
     },
 });
+
 
 export default DashboardScreen;

@@ -10,5 +10,8 @@ export type RootStackParamList = {
     Splash: undefined;
     Wifi1: { deviceId: string };
     ProfileChart:undefined;
+    ChartsProfile:undefined;
     DetallesPeluche: { patientId: string };
+    WiFi: { deviceId: string };
+    InfoPeluche:undefined;
 };
