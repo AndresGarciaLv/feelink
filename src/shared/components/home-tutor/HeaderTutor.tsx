@@ -12,12 +12,11 @@ interface NavbarProps {
 
 const HeaderTutor: React.FC<NavbarProps> = ({
   tutorName = 'Andres Garcia',
-  centerName = 'Astra, AC',
+  centerName = 'Astra, AB',
   specialistName = 'Dr. Ricardo Chi',
   profileImage,
 }) => {
   const insets = useSafeAreaInsets();
-
   return (
     <View style={[styles.container, { paddingTop: insets.top + 20 }]}>
       <View style={styles.content}>
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#A8C8E8', // Color base azul suave
     paddingBottom: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     shadowColor: '#000',
@@ -72,6 +71,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 4,
+    marginHorizontal:0 ,
   },
   
   // CONTENIDO PRINCIPAL

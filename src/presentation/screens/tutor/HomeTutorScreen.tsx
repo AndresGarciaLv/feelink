@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     Image
 } from 'react-native';
-
+import { useAppSelector } from '../../../core/stores/store';
+import { selectUserData } from '../../../core/stores/auth/authSlice';
 
 import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
 import HeaderProfile from '../../../shared/components/profile/HeaderProfile';
@@ -35,7 +36,12 @@ const Colors = {
     blueSecondary: '#AED6F1',
 };
 
+
+
 export default function HomeTutor() {
+
+    const userData = useAppSelector(selectUserData);
+
     // ESTADO - Control del mes seleccionado en la navegación mensual
     const [selectedMonth, setSelectedMonth] = useState('Abril');
 
@@ -298,7 +304,8 @@ export default function HomeTutor() {
         <ScrollView style={styles.container}>
 
             {/* NAVIGATION - Barra de navegación principal */}
-            <HeaderTutor />
+            <HeaderTutor
+            tutorName={`Tutor ${userData?.name}`}/>
 
             {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
             <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
@@ -359,6 +366,7 @@ export default function HomeTutor() {
     );
 }
 
+
 // ESTILOS - Definición completa de todos los estilos del componente
 const styles = StyleSheet.create({
     // CONTENEDOR PRINCIPAL
@@ -366,6 +374,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
         padding: 16,
+        paddingHorizontal: 0,
+        paddingTop: 0,
     },
 
     // TÍTULOS DE SECCIÓN
@@ -375,6 +385,7 @@ const styles = StyleSheet.create({
         color: Colors.textPrimary,
         marginBottom: 12,
         marginTop: 8,
+        padding: 16,
     },
     sectionTitle: {
         fontSize: 16,
@@ -385,6 +396,7 @@ const styles = StyleSheet.create({
 
     // ESTILOS DE LA CARD DE PERFIL PRINCIPAL
     profileCard: {
+        marginHorizontal: 16,
         backgroundColor: Colors.cardBackground,
         borderRadius: 20,
         padding: 20,
@@ -395,6 +407,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
+        
     },
     avatar: {
         width: 80,
@@ -422,6 +435,7 @@ const styles = StyleSheet.create({
 
     // ESTILOS DE LAS ESTADÍSTICAS FÍSICAS
     physicalStatsContainer: {
+        marginHorizontal: 16,
         flexDirection: 'row',
         justifyContent: 'space-around',
         width: '100%',
@@ -449,6 +463,7 @@ const styles = StyleSheet.create({
 
     // ESTILOS PARA ESTADOS EMOCIONALES DEL DÍA
     emotionalStatsCard: {
+        marginHorizontal: 16,
         backgroundColor: Colors.cardBackground,
         borderRadius: 20,
         padding: 20,
@@ -458,8 +473,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
+        
     },
     emotionalStatsContainer: {
+        
         flexDirection: 'row',
         justifyContent: 'space-around',
     },
@@ -479,18 +496,21 @@ const styles = StyleSheet.create({
         fontSize: 24,
     },
     emotionalLabel: {
+        marginHorizontal: 16,
         fontSize: 14,
         fontWeight: '600',
         color: Colors.textPrimary,
         marginBottom: 4,
     },
     emotionalPercentage: {
+        marginHorizontal: 16,
         fontSize: 12,
         color: Colors.textSecondary,
     },
 
     // ESTILOS DE LA NAVEGACIÓN MENSUAL
     monthTabs: {
+        marginHorizontal: 16,
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginBottom: 16,
@@ -526,6 +546,7 @@ const styles = StyleSheet.create({
 
     // ESTILOS DEL RESUMEN MENSUAL
     monthlySummaryCard: {
+        marginHorizontal: 16,
         backgroundColor: Colors.blueSecondary,
         borderRadius: 15,
         padding: 16,
@@ -607,10 +628,13 @@ const styles = StyleSheet.create({
 
     // ESTILOS DE LAS RECOMENDACIONES
     recommendationsSection: {
+        display: 'flex',
+        marginHorizontal:16,
         marginBottom: 20,
     },
     recommendationsCarousel: {
         paddingVertical: 8,
+        display: 'flex',
     },
     recommendationCard: {
         backgroundColor: Colors.cardBackground,
@@ -632,6 +656,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     recommendationText: {
+        
         fontSize: 14,
         color: Colors.textPrimary,
         textAlign: 'center',
@@ -641,6 +666,7 @@ const styles = StyleSheet.create({
     // ESTILOS DE LA FRASE DEL DÍA
     dailyQuoteSection: {
         marginBottom: 20,
+        marginHorizontal:16,
     },
     dailyQuoteCard: {
         backgroundColor: Colors.cardBackground,
