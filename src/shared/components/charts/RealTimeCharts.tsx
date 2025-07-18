@@ -92,7 +92,6 @@ const RealTimeCharts: React.FC = () => {
       {/* Gráfico de Batería */}
       <View style={styles.chartCard}>
         <View style={styles.chartHeader}>
-          {/* <Text style={styles.chartIcon}>🔋</Text> */}
           <Text style={styles.chartTitle}>Nivel de Batería</Text>
         </View>
         <View style={styles.batteryContainer}>
@@ -118,7 +117,6 @@ const RealTimeCharts: React.FC = () => {
       {/* Gráfico de Presión (Abrazos) */}
       <View style={styles.chartCard}>
         <View style={styles.chartHeader}>
-          {/* <Text style={styles.chartIcon}>🤗</Text> */}
           <Text style={styles.chartTitle}>Intensidad de Abrazos</Text>
         </View>
         <View style={styles.pressureInfo}>
@@ -150,7 +148,6 @@ const RealTimeCharts: React.FC = () => {
       {/* Gráfico de Barras para Acelerómetro */}
       <View style={styles.chartCard}>
         <View style={styles.chartHeader}>
-          {/* <Text style={styles.chartIcon}>📱</Text> */}
           <Text style={styles.chartTitle}>Movimiento del Peluche</Text>
         </View>
         <Text style={styles.chartSubtitle}>Aceleración en tres dimensiones</Text>
@@ -176,7 +173,6 @@ const RealTimeCharts: React.FC = () => {
       {/* Gráfico de Línea para Giroscopio */}
       <View style={styles.chartCard}>
         <View style={styles.chartHeader}>
-          {/* <Text style={styles.chartIcon}>🔄</Text> */}
           <Text style={styles.chartTitle}>Rotación del Peluche</Text>
         </View>
         <Text style={styles.chartSubtitle}>Movimiento rotacional (últimas 20 lecturas)</Text>
