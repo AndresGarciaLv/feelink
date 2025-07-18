@@ -46,6 +46,6 @@ yarn-error.log*
 .idea/
 .vscode/
 
-/android
-/ios
+android
+ios
 
