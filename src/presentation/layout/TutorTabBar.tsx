@@ -55,6 +55,8 @@ const TutorTabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
 
 const styles = StyleSheet.create({
   tabBar: {
+    position: 'absolute',
+    bottom: 0,
     flexDirection: 'row',
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
@@ -68,6 +70,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'space-between',
+    height: '8%',
+    width: '100%',
   },
   tabButton: {
     alignItems: 'center',

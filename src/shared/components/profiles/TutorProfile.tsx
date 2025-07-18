@@ -5,6 +5,7 @@ import { RootStackParamList } from '../../../core/types/common/navigation';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import HeaderTutor from '../../components/HeaderTutor';
 import PelucheIcon from '../../components/PelucheIcon';
+import TutorTabBar from '../../../presentation/layout/TutorTabBar';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, 'TutorProfile'>;
 
@@ -67,6 +68,7 @@ const ProfileTutor: React.FC = () => {
       </TouchableOpacity>
 
       <Text style={styles.batteryStatus}>80% de carga</Text>
+      <TutorTabBar activeTab='Perfil'/>
     </View>
   );
 };

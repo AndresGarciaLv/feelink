@@ -6,14 +6,16 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
-    Image
+    Image,
+    KeyboardAvoidingView,
+    Platform
 } from 'react-native';
 import { useAppSelector } from '../../../core/stores/store';
 import { selectUserData } from '../../../core/stores/auth/authSlice';
 
 import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
 import HeaderProfile from '../../../shared/components/profile/HeaderProfile';
-
+import TutorTabBar from '../../../presentation/layout/TutorTabBar';
 // PALETA DE COLORES - Basada en el diseño de referencia
 const Colors = {
     white: '#FFFFFF',
@@ -301,68 +303,88 @@ export default function HomeTutor() {
 
     // COMPONENTE PRINCIPAL - Estructura completa de la pantalla
     return (
-        <ScrollView style={styles.container}>
 
-            {/* NAVIGATION - Barra de navegación principal */}
-            <HeaderTutor
-            tutorName={`Tutor ${userData?.name}`}/>
 
-            {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
-            <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('TutorProfile')}>
-            <View style={styles.profileCard}>
-                {/* Avatar del niño */}
-                <Image
-                    source={require('../../../shared/assets/img/Home-tutor.png')}
-                    style={styles.avatar}
-                />
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            style={{ flex: 1 }}
+        >
+            <View style={{ flex: 1 }}>
+                <ScrollView style={styles.container}>
 
-                {/* Información básica del perfil */}
-                <Text style={styles.childName}>Álvaro Díaz</Text>
-                <Text style={styles.childAge}>3 Años</Text>
-                <Text style={styles.childId}>321000218739812 • Niño</Text>
-            </View>
-            </TouchableOpacity>
+                    {/* NAVIGATION - Barra de navegación principal */}
+                    <HeaderTutor
+                        tutorName={`Tutor ${userData?.name}`}
+                    />
 
-            {/* SECCIÓN: ESTADOS EMOCIONALES DEL DÍA */}
-            {renderEmotionalStats()}
+                    {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
+                    <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('TutorProfile')}>
+                        <View style={styles.profileCard}>
+                            {/* Avatar del niño */}
+                            <Image
+                                source={require('../../../shared/assets/img/Home-tutor.png')}
+                                style={styles.avatar}
+                            />
 
-            {/* SECCIÓN: REGISTRO MENSUAL */}
-            <Text style={styles.mainSectionTitle}>Registro mensual</Text>
-
-            {/* NAVEGACIÓN MENSUAL - Tabs para seleccionar meses */}
-            <View style={styles.monthTabs}>
-                {['Abril', 'Marzo', 'Febrero', 'Enero'].map((mes, index) => (
-                    <TouchableOpacity
-                        key={index}
-                        style={[
-                            styles.monthButton,
-                            selectedMonth === mes && styles.monthButtonActive
-                        ]}
-                        onPress={() => handleMonthSelect(mes)}
-                    >
-                        <Text style={[
-                            styles.monthText,
-                            selectedMonth === mes && styles.monthTextActive
-                        ]}>
-                            {mes}
-                        </Text>
+                            {/* Información básica del perfil */}
+                            <Text style={styles.childName}>Álvaro Díaz</Text>
+                            <Text style={styles.childAge}>3 Años</Text>
+                            <Text style={styles.childId}>321000218739812 • Niño</Text>
+                        </View>
                     </TouchableOpacity>
-                ))}
+
+                    {/* SECCIÓN: ESTADOS EMOCIONALES DEL DÍA */}
+                    {renderEmotionalStats()}
+
+                    {/* SECCIÓN: REGISTRO MENSUAL */}
+                    <Text style={styles.mainSectionTitle}>Registro mensual</Text>
+
+                    {/* NAVEGACIÓN MENSUAL - Tabs para seleccionar meses */}
+                    <View style={styles.monthTabs}>
+                        {['Abril', 'Marzo', 'Febrero', 'Enero'].map((mes, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={[
+                                    styles.monthButton,
+                                    selectedMonth === mes && styles.monthButtonActive
+                                ]}
+                                onPress={() => handleMonthSelect(mes)}
+                            >
+                                <Text style={[
+                                    styles.monthText,
+                                    selectedMonth === mes && styles.monthTextActive
+                                ]}>
+                                    {mes}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    {/* RESUMEN MENSUAL DETALLADO */}
+                    {renderMonthlySummary()}
+
+                    {/* RECOMENDACIONES PERSONALIZADAS */}
+                    {renderRecommendations()}
+
+                    {/* FRASE MOTIVACIONAL DEL DÍA */}
+                    {renderDailyQuote()}
+
+                    {/* Espacio adicional para scroll */}
+
+                    <View style={styles.bottomPadding} />
+
+                </ScrollView>
+
+                <TutorTabBar activeTab="Home" />
             </View>
+        </KeyboardAvoidingView>
 
-            {/* RESUMEN MENSUAL DETALLADO */}
-            {renderMonthlySummary()}
 
-            {/* RECOMENDACIONES PERSONALIZADAS */}
-            {renderRecommendations()}
 
-            {/* FRASE MOTIVACIONAL DEL DÍA */}
-            {renderDailyQuote()}
 
-            {/* Espacio adicional para scroll */}
-            <View style={styles.bottomPadding} />
-        </ScrollView>
+
+
     );
 }
 
@@ -407,7 +429,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        
+
     },
     avatar: {
         width: 80,
@@ -473,10 +495,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        
+
     },
     emotionalStatsContainer: {
-        
+
         flexDirection: 'row',
         justifyContent: 'space-around',
     },
@@ -629,7 +651,7 @@ const styles = StyleSheet.create({
     // ESTILOS DE LAS RECOMENDACIONES
     recommendationsSection: {
         display: 'flex',
-        marginHorizontal:16,
+        marginHorizontal: 16,
         marginBottom: 20,
     },
     recommendationsCarousel: {
@@ -656,7 +678,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     recommendationText: {
-        
+
         fontSize: 14,
         color: Colors.textPrimary,
         textAlign: 'center',
@@ -666,7 +688,7 @@ const styles = StyleSheet.create({
     // ESTILOS DE LA FRASE DEL DÍA
     dailyQuoteSection: {
         marginBottom: 20,
-        marginHorizontal:16,
+        marginHorizontal: 16,
     },
     dailyQuoteCard: {
         backgroundColor: Colors.cardBackground,
