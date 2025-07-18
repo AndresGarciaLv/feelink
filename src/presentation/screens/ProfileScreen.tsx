@@ -17,7 +17,7 @@ import {
   PacienteGraficas,
   EstadoEmocional,
 } from "../../core/types/common/PatientChart";
-
+import { Modal } from "react-native";
 
 import {
   useGetPatientByIdQuery,
@@ -25,6 +25,7 @@ import {
   useGetPatientActivitySummaryQuery,
 } from "../../core/http/requests/patientServerApi";
 import { useGetToyReadingsSummaryQuery } from "../../core/http/requests/toyServerApi";
+import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
 
 type Toy = {
   id: string;
@@ -51,7 +52,7 @@ type NavigationProp = StackNavigationProp<RootStackParamList>;
 export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ProfileScreenRouteProp>();
-
+const [isModalVisible, setIsModalVisible] = useState(false);
   const { patientId } = route.params;
 
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(
@@ -440,12 +441,12 @@ if (hasCriticalError) {
 
         {/* BOTONES CON NAVEGACIÓN */}
         <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={styles.stressButton}
-            onPress={handleStressChart}
-          >
-            <Text style={styles.stressText}>Gráfica de estrés</Text>
-          </TouchableOpacity>
+     <TouchableOpacity
+  style={styles.stressButton}
+  onPress={() => setIsModalVisible(true)}
+>
+  <Text style={styles.stressText}>Ver gráficas</Text>
+</TouchableOpacity>
         </View>
 
         {/* NAVEGACIÓN MENSUAL */}
@@ -570,6 +571,27 @@ if (hasCriticalError) {
           )}
         </View>
       </View>
+<Modal
+  visible={isModalVisible}
+  animationType="slide"
+  presentationStyle="pageSheet"
+  onRequestClose={() => setIsModalVisible(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalHeader}>
+      <Text style={styles.modalTitle}>Gráficas en Tiempo Real</Text>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => setIsModalVisible(false)}
+      >
+        <Text style={styles.closeButtonText}>✕</Text>
+      </TouchableOpacity>
+    </View>
+    <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+      <RealTimeCharts />
+    </ScrollView>
+  </View>
+</Modal>
     </ScrollView>
   );
 }
@@ -581,6 +603,41 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     fontFamily: "sans-serif",
   },
+  modalContainer: {
+  flex: 1,
+  backgroundColor: Colors.white,
+},
+modalHeader: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: 20,
+  paddingTop: 60,
+  borderBottomWidth: 1,
+  borderBottomColor: "#eee",
+},
+modalTitle: {
+  fontSize: 18,
+  fontWeight: "600",
+  color: Colors.textPrimary,
+},
+closeButton: {
+  width: 30,
+  height: 30,
+  borderRadius: 15,
+  backgroundColor: "#f0f0f0",
+  justifyContent: "center",
+  alignItems: "center",
+},
+closeButtonText: {
+  fontSize: 16,
+  color: Colors.textPrimary,
+  fontWeight: "600",
+},modalContent: {
+  flex: 1,
+  paddingHorizontal: 20,
+  paddingBottom: 20,
+},
   avatarContainer: {
     alignItems: "center",
     marginTop: -45,
