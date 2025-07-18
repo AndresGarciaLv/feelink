@@ -3,7 +3,7 @@ import {StyleSheet,TouchableOpacity, SafeAreaView} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../navigation/types';
+import type { RootStackParamList } from '../../core/types/common/navigation';
 import { LinearGradient } from 'expo-linear-gradient';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TutorProfile'>;
@@ -11,9 +11,6 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TutorProfil
 const HeaderPatients = () => {
   const navigation = useNavigation<NavigationProp>();
 
-  const handleGoBack = () => {
-    navigation.navigate('Bluetooth');
-  };
 
   return (
     <SafeAreaView>
@@ -23,9 +20,6 @@ const HeaderPatients = () => {
         end={{ x: 0, y: 1 }}
         style={styles.container}
       >
-        <TouchableOpacity onPress={handleGoBack}>
-          <Ionicons name="arrow-back" size={28} color="white" />
-        </TouchableOpacity>
       </LinearGradient>
     </SafeAreaView>
   );
