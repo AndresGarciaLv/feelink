@@ -2,7 +2,21 @@
 import { serverApi } from "../serverApi";
 import { buildQueryParams } from "../../composables/httpComposables";
 
-// --- NUEVO DTO PARA EL RESUMEN DE LECTURAS DEL JUGUETE ---
+// --- DTOs PARA JUGUETES ---
+export interface ToyDto {
+  id: string;
+  name: string;
+  macAddress: string;
+  patientId: string;
+  // Agrega otros campos que devuelva tu API
+}
+
+export interface ToyCreateDto {
+  name: string;
+  macAddress: string;
+  patientId: string;
+}
+
 // Ajusta esta interfaz para que coincida con la respuesta real de tu backend
 export interface ToyReadingsSummary {
   macAddress: string;
@@ -19,8 +33,6 @@ export interface DailyToyReading {
   emotions: string[]; // Ejemplo: ["Feliz", "Neutro"]
   // ... cualquier otro detalle diario que tu API devuelva
 }
-// --- FIN DEL NUEVO DTO ---
-
 
 // Interfaz para los parámetros de la consulta de resumen de lecturas del juguete
 interface GetToyReadingsSummaryParams {
@@ -32,7 +44,32 @@ interface GetToyReadingsSummaryParams {
 
 export const toyServerApi = serverApi.injectEndpoints({
   endpoints: (builder) => ({
-    // --- NUEVO ENDPOINT PARA EL RESUMEN DE LECTURAS DEL JUGUETE ---
+    // --- ENDPOINT PARA CREAR JUGUETES ---
+    createToy: builder.mutation<ToyDto, ToyCreateDto>({
+      query: (body) => ({
+        url: "Toys",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Toy"],
+    }),
+    
+    // --- ENDPOINT PARA LISTAR JUGUETES--
+    listToys: builder.query<ToyDto[], void>({
+      query: () => "Toys",
+      providesTags: ["Toy"],
+    }),
+    
+    // --- ENDPOINT PARA ELIMINAR JUGUETES ---
+    deleteToy: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `Toys/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Toy"],
+    }),
+    
+    // --- ENDPOINT EXISTENTE PARA EL RESUMEN DE LECTURAS DEL JUGUETE ---
     getToyReadingsSummary: builder.query<ToyReadingsSummary, GetToyReadingsSummaryParams>({
       query: ({ macAddress, from, to, dummy }) => {
         const params = buildQueryParams({ From: from, To: to, Dummy: dummy });
@@ -46,5 +83,8 @@ export const toyServerApi = serverApi.injectEndpoints({
 });
 
 export const {
-  useGetToyReadingsSummaryQuery, // Exporta el nuevo hook
+  useCreateToyMutation, // juguetes
+  useListToysQuery,     // listar juguetes
+  useDeleteToyMutation, // eliminar juguetes
+  useGetToyReadingsSummaryQuery, // Hook existente
 } = toyServerApi;
