@@ -69,12 +69,7 @@ const patientsStats = {
     isLoading: isActivityLoading
     } = useGetMonthlyActivitySummaryQuery({ month: currentMonth, dummy: true}); // ← Junio
 
-    //mapeo de datos de estres por mes
-    const monthlyStress = activitySummary?.items.map(item => ({
-    month: item.month,
-    days: item.daysRegistered,
-    stressLevel: item.stressLevel
-    })) ?? [];
+ 
 // Acciones rápidas
 const quickActions: QuickAction[] = [
     {
@@ -196,14 +191,6 @@ const styles = StyleSheet.create({
     withActivityStatBox: {
         flex: 1,
         backgroundColor: '#A8C7E5',
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 120,
-    },
-    withoutActivityStatBox: {
-        flex: 1,
-        backgroundColor: '#E5A4C0',
         padding: 20,
         alignItems: 'center',
         justifyContent: 'center',
@@ -335,22 +322,6 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 14,
         fontWeight: '600',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginTop: 8,
-    },
-    withActivityStatBox: {
-        flex: 1,
-        backgroundColor: '#A8C7E5',
-        borderTopLeftRadius: 12,
-        borderBottomLeftRadius: 12,
-        borderTopRightRadius: 0, // esquina interior cuadrada
-        borderBottomRightRadius: 0,
-        padding: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 100,
     },
     withoutActivityStatBox: {
         flex: 1,

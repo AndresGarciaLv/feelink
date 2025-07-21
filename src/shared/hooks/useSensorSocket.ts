@@ -109,7 +109,7 @@ export const useSensorSocket = () => {
       setAllToysData(toyDataMap);
       setConnectedToys(Object.keys(toyDataMap).length);
     } catch (error) {
-      console.error('Error fetching toys data:', error);
+      console.log('Error fetching toys data:', error);
     }
   };
 
@@ -125,7 +125,7 @@ export const useSensorSocket = () => {
     };
 
     socket.current.onerror = (error) => {
-      console.error('❌ Error en WebSocket:', error);
+      console.log('❌ Error en WebSocket:', error);
     };
 
     socket.current.onmessage = (event) => {
@@ -146,10 +146,10 @@ export const useSensorSocket = () => {
             gyroZ: [...prevData.gyroZ.slice(-19), sensors.g?.z ?? 0],
           }));
         } else {
-          console.warn('⚠️ Formato inesperado de Sensors:', sensors);
+          console.log('⚠️ Formato inesperado de Sensors:', sensors);
         }
       } catch (e) {
-        console.error('❌ Error al parsear el JSON del WebSocket', e);
+        console.log('❌ Error al parsear el JSON del WebSocket', e);
       }
     };
 

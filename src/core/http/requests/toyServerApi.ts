@@ -1,6 +1,7 @@
 // src/core/http/requests/toyServerApi.ts
 import { serverApi } from "../serverApi";
 import { buildQueryParams } from "../../composables/httpComposables";
+import BaseListResponse from "../../contracts/BaseListResponse";
 
 // --- DTOs PARA JUGUETES ---
 export interface ToyDto {
@@ -57,10 +58,13 @@ export const toyServerApi = serverApi.injectEndpoints({
     }),
     
     // --- ENDPOINT PARA LISTAR JUGUETES--
-    listToys: builder.query<ToyDto[], void>({
-      query: () => "Toys",
-      providesTags: ["Toy"],
-    }),
+listToys: builder.query<BaseListResponse<ToyDto>, { page?: number; pageSize?: number }>({
+  query: ({ page = 1, pageSize = 100 }) => {
+    const params = buildQueryParams({ page, pageSize });
+    return `Toys?${params}`;
+  },
+  providesTags: ["Toy"],
+}),
     
     // --- ENDPOINT PARA ELIMINAR JUGUETES ---
     deleteToy: builder.mutation<void, string>({
