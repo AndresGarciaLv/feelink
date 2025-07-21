@@ -13,6 +13,8 @@ import {selectUserData} from "../../core/stores/auth/authSlice";
 import {useListPatientsQuery} from "../../core/http/requests/patientServerApi";
 import MyPatientsSection from '../../shared/components/dashboard/myPatients';
 import { useGetPatientsSummaryQuery, useGetMonthlyActivitySummaryQuery } from "../../core/http/requests/patientServerApi";
+import DashboardCharts from '../../shared/components/charts/DashboardCharts';
+
 
 // --- NUEVA IMPORTACIÓN ---
 import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
@@ -93,7 +95,7 @@ const quickActions: QuickAction[] = [
             <ScrollView style={styles.scrollView}>
                 <NavBar
                     doctorName={`Dr. ${userData?.name}`}
-                    profileImage={require('../../shared/assets/img/perfil.png')}
+                    profileImage={undefined}
                     onBackPress={() => navigation.goBack()}
                 />
 
@@ -144,33 +146,11 @@ const quickActions: QuickAction[] = [
     
 </View>
 
-                {/* Monthly Stress Section */}
-                <View style={styles.sectionContainer}>
-                    <Text style={styles.sectionTitle}>Promedio de estrés por mes</Text>
-                    <Text style={styles.sectionSubtitle}>Comparación de los últimos meses</Text>
+                        <View style={{ flex: 1 }}>
+            <DashboardCharts />
+            </View>
 
-                    <View style={styles.stressContainer}>
-                        {monthlyStress.map((item, index) => (
-                            <View key={index} style={styles.monthStressCard}>
-                                <View style={styles.monthLabelContainer}>
-                                    <Text style={styles.monthLabel}>{item.month}</Text>
-                                </View>
-                                <View style={styles.stressContent}>
-                                    <Text style={styles.stressDays}>Días registrados: {item.days}</Text>
-                                    <View style={styles.progressContainer}>
-                                        <View
-                                            style={[
-                                                styles.progressBar,
-                                                {width: `${item.stressLevel}%`}
-                                            ]}
-                                        />
-                                    </View>
-                                    <Text style={styles.stressPercentage}>{item.stressLevel}% / 100%</Text>
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                </View>
+                   
 
                 {/* Spacer for bottom navigation */}
                 <View style={styles.bottomSpacer}/>
