@@ -56,12 +56,10 @@ const {
 
     // Stats niños
 const patientsStats = {
-    withActivity: patientSummary?.registeredCount ?? 0,
-    withoutActivity: patientSummary?.unregisteredCount ?? 0,
-    total: (patientSummary?.registeredCount ?? 0) + (patientSummary?.unregisteredCount ?? 0),
+    withActivity: patientSummary?.patientsWithActivity ?? 0,
+    withoutActivity: patientSummary?.patientsWithoutActivity ?? 0,
+    total: (patientSummary?.patientsWithActivity ?? 0) + (patientSummary?.patientsWithoutActivity ?? 0),
 };
-
-
     //Obtener el mes
     const currentMonth = new Date().getMonth() + 1; // +1 porque getMonth() devuelve 0-11
 
@@ -71,12 +69,7 @@ const patientsStats = {
     isLoading: isActivityLoading
     } = useGetMonthlyActivitySummaryQuery({ month: currentMonth, dummy: true}); // ← Junio
 
-    //mapeo de datos de estres por mes
-    const monthlyStress = activitySummary?.items.map(item => ({
-    month: item.month,
-    days: item.daysRegistered,
-    stressLevel: item.stressLevel
-    })) ?? [];
+ 
 // Acciones rápidas
 const quickActions: QuickAction[] = [
     {

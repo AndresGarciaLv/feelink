@@ -13,7 +13,7 @@ import {
 } from '../../../core/http/requests/toyServerApi';
 import { useListPatientsQuery } from '../../../core/http/requests/patientServerApi';
 
-const ToyItem = ({ data, onEdit, onDelete }) => {
+const ToyItem = ({ data }) => {
 
     // Estados para el modal
 const [modalVisible, setModalVisible] = useState(false);

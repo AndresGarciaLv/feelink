@@ -15,6 +15,7 @@ import {
   useListAvailablePatientsQuery,
 } from '../../core/http/requests/patientServerApi';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import BaseListResponse from '../../core/contracts/BaseListResponse';
 
 import { Patient } from '../../core/contracts/patient/patientsDto';
 import { PatientCreateDto } from '../../core/contracts/patient/patientCreateDto';
@@ -92,34 +93,7 @@ export default function PatientsScreen() {
   };
   
   const { data: toysData, isLoading: isLoadingToys } = useListToysQuery({ page: 1, pageSize: 100 });
-const handleEditToy = (id) => {
-  // Implementar lógica de edición de peluches
-  console.log('Editar peluche:', id);
-};
 
-  const handleDeleteToy = (id) => {
-    Alert.alert(
-      'Eliminar peluche',
-      '¿Deseas eliminar este peluche de la lista?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Usar tu mutation de eliminar peluche aquí
-              // await deleteToy(id).unwrap();
-              Alert.alert('Éxito', 'Peluche eliminado correctamente.');
-            } catch (error) {
-              console.error('Error al eliminar peluche:', error);
-              Alert.alert('Error', 'No se pudo eliminar el peluche.');
-            }
-          },
-        },
-      ]
-    );
-  };
   const resetToyForm = () => {
     setToyName('');
     setToyMacAddress('');
@@ -143,12 +117,16 @@ const handleEditToy = (id) => {
   }, [isLoading, isError, patientsData, error]);
   // --- END DEBUGGING LOGS ---
 
+useEffect(() => {
+  // Refrescar la lista después de una operación exitosa
+  if (!isUpdating && !isCreating && !selectedPatientId) {
+    refetch();
+  }
+}, [isUpdating, isCreating, selectedPatientId, refetch]);
 
   useEffect(() => {
     if (shouldOpenModal) {
       setModalVisible(true);
-      // Limpia los parámetros de ruta para que no se abra el modal cada vez que se navega
-      navigation.setParams({ openAddModal: false });
     }
   }, [shouldOpenModal, navigation]);
 
@@ -163,7 +141,11 @@ const handleEditToy = (id) => {
       setModalVisible(true);
     }
   }, [selectedPatientDetails]);
+  const patients = patientsData?.items || []; 
 
+    useEffect(() => {
+    console.log("Pacientes actualizados:", patients.length);
+  }, [patients]);
   const handleEdit = (id: string) => {
     setSelectedPatientId(id);
   };
@@ -203,6 +185,7 @@ const handleEditToy = (id) => {
     setModalVisible(false);
   };
 
+
   const handleSave = async () => {
     if (!newName.trim() || !newLastName.trim() || !newAge.trim() || !newGender.trim() || !newHeight.trim() || !newWeight.trim()) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
@@ -231,6 +214,8 @@ const handleEditToy = (id) => {
         Alert.alert('Éxito', 'Paciente creado correctamente.');
       }
       resetForm();
+      // Forzar refresh de la lista
+      await refetch();
     } catch (error) {
       console.error('Error al guardar paciente:', error);
       Alert.alert('Error', 'Hubo un problema al guardar el paciente. Por favor, revisa los datos y tu conexión.');
@@ -250,7 +235,7 @@ const handleEditToy = (id) => {
     return <Text style={styles.errorText}>Error al cargar pacientes. Detalles: {JSON.stringify(error)}</Text>;
   }
 
-  const patients = patientsData?.items || []; 
+
   return (
     <View style={styles.container}>
       <HeaderPatients />
@@ -308,9 +293,9 @@ const handleEditToy = (id) => {
 
       <View style={{ height: 10 }} />
     {showToys ? (
-      // Mostrar lista de peluches
-      toysData?.items?.length > 0 ? (
-      <ToyItem data={toysData.items} />
+      // Mostrar lista de peluches - Corregir aquí
+      toysData?.items && toysData.items.length > 0 ? (
+        <ToyItem data={toysData.items} />
       ) : (
         <Text style={styles.noPatientsText}>No hay peluches registrados. ¡Agrega uno!</Text>
       )

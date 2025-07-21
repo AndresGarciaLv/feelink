@@ -31,7 +31,13 @@ export interface DailyPatientActivitySummary {
 }
 // --- FIN DEL NUEVO DTO ---
 
-
+// Agregar esta interfaz al inicio del archivo patientServerApi.ts
+export interface MonthlyActivity {
+  id: string;
+  month: number;
+  year: number;
+  totalActivities: number;
+}
 interface ListPatientsParams {
   page?: number;
   pageSize?: number;
@@ -52,8 +58,8 @@ interface GetPatientSummaryParams {
   dummy?: boolean;
 }
 export interface PatientSummaryResponse {
-    registeredCount: number;
-    unregisteredCount: number;
+    patientsWithActivity: number;
+    patientsWithoutActivity: number;
 }
 
 
@@ -96,7 +102,11 @@ export const patientServerApi = serverApi.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: (_result, _error, arg) => [{ type: "Patient", id: arg.id }],
+      // Cambia esta línea:
+      invalidatesTags: (_result, _error, arg) => [
+        { type: "Patient", id: arg.id },
+        "Patient" 
+      ],
     }),
 
     deletePatient: builder.mutation<void, string>({ // <--- NUEVO ENDPOINT DE ELIMINACIÓN
