@@ -1,23 +1,50 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-// Definimos los tipos para los datos que esperamos
-interface Sensor {
-    Value: number;
-    Metric: string;
+// --- JSON de entrada ---
+interface PressureData {
+    pc: number; // Pressure Percent
+    gr: number; // Pressure Gram
 }
 
-interface WebSocketData {
+interface AxisData {
+    x: number;
+    y: number;
+    z: number;
+}
+
+interface SensorsData {
+    p: PressureData; // Pressure
+    b: number;       // Battery
+    m: AxisData;     // Accelerometer
+    g: AxisData;     // Gyroscope
+    w: boolean;      // Unknown boolean, potentially a status
+    ssid: string;    // WiFi SSID
+}
+
+interface WebSocketResponse {
     Message: string;
-    Sensors: Sensor[];
+    Sensors: SensorsData;
 }
 
-// La URL de tu WebSocket
+// --- Types para los datos procesados que el hook devolverá ---
+interface ProcessedSensorData {
+    pressurePercent: number[];
+    pressureGram: number[];
+    battery: number[];
+    accelX: number[];
+    accelY: number[];
+    accelZ: number[];
+    gyroX: number[];
+    gyroY: number[];
+    gyroZ: number[];
+    lastWifiSsid: string | null; 
+    lastMessage: string | null; 
+}
 
-const WEBSOCKET_URL = "ws://feelink-api.runasp.net/ws/sensor-data?device=esp32&identifier=F8:B3:B7:30:34:80";
+const MAX_HISTORY_LENGTH = 86400; // Constante para la longitud del historial, fácil de ajustar
 
 export const useSensorSocket = () => {
-    // Estado para almacenar los datos de los sensores ya procesados
-    const [sensorData, setSensorData] = useState<Record<string, number[]>>({
+    const [sensorData, setSensorData] = useState<ProcessedSensorData>({
         pressurePercent: [],
         pressureGram: [],
         battery: [],
@@ -27,16 +54,56 @@ export const useSensorSocket = () => {
         gyroX: [],
         gyroY: [],
         gyroZ: [],
+        lastWifiSsid: null,
+        lastMessage: null,
     });
     const [isConnected, setIsConnected] = useState(false);
     const socket = useRef<WebSocket | null>(null);
 
+    // Construimos la URL del WebSocket de forma dinámica
+    const websocketUrl = `${process.env.EXPO_PUBLIC_WS_BASE_URL}?device=esp32&identifier=${process.env.EXPO_PUBLIC_DEVICE_MAC_ADDRESS}`;
+
+    // Usamos useCallback para memoizar la función de procesamiento,
+    const processWebSocketMessage = useCallback((event: MessageEvent) => {
+        try {
+            // console.log("📥 Datos recibidos:", event.data);
+            const rawData: WebSocketResponse = JSON.parse(event.data);
+
+            setSensorData(prevData => ({
+                // Actualizamos los valores de presión, limitando el historial
+                pressurePercent: [...prevData.pressurePercent.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.p.pc],
+                pressureGram: [...prevData.pressureGram.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.p.gr],
+                // Actualizamos la batería
+                battery: [...prevData.battery.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.b],
+                // Actualizamos los valores del acelerómetro
+                accelX: [...prevData.accelX.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.m.x],
+                accelY: [...prevData.accelY.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.m.y],
+                accelZ: [...prevData.accelZ.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.m.z],
+                // Actualizamos los valores del giroscopio
+                gyroX: [...prevData.gyroX.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.g.x],
+                gyroY: [...prevData.gyroY.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.g.y],
+                gyroZ: [...prevData.gyroZ.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.g.z],
+                // Guardamos el último SSID y mensaje
+                lastWifiSsid: rawData.Sensors.ssid,
+                lastMessage: rawData.Message,
+            }));
+
+        } catch (e) {
+            // console.error("❌ Error al parsear o procesar JSON del WebSocket:", e);
+        }
+    }, []); 
+
     useEffect(() => {
+        // Aseguramos que solo haya una instancia del socket
+        if (socket.current) {
+            socket.current.close();
+        }
+
         // Conexión al WebSocket
-        socket.current = new WebSocket(WEBSOCKET_URL);
+        socket.current = new WebSocket(websocketUrl);
 
         socket.current.onopen = () => {
-            console.log("✅ WebSocket Conectado");
+            console.log(`✅ WebSocket Conectado a: ${websocketUrl}`);
             setIsConnected(true);
         };
 
@@ -47,53 +114,19 @@ export const useSensorSocket = () => {
 
         socket.current.onerror = (error) => {
             console.error("❌ Error en WebSocket:", error);
+            setIsConnected(false); // Asumimos desconexión o estado de error
         };
 
-        socket.current.onmessage = (event) => {
-            try {
-                        console.log("📥 Datos recibidos:", event.data); // <---- Agrega esto
+        // Asignamos el handler memoizado
+        socket.current.onmessage = processWebSocketMessage;
 
-                const rawData: WebSocketData = JSON.parse(event.data);
-                
-                // Procesamos los datos para que sean fáciles de usar en los gráficos
-                const newAccelValues: number[] = [];
-                const newGyroValues: number[] = [];
-
-                const updates: Record<string, number> = {};
-
-                rawData.Sensors.forEach(sensor => {
-                    if (sensor.Metric === 'accel') {
-                        newAccelValues.push(sensor.Value);
-                    } else if (sensor.Metric === 'gyro') {
-                        newGyroValues.push(sensor.Value);
-                    } else {
-                        updates[sensor.Metric] = sensor.Value;
-                    }
-                });
-
-                // Actualizamos el estado. Guardamos un historial de los últimos 20 valores para las gráficas de línea.
-                setSensorData(prevData => ({
-                    pressurePercent: [...prevData.pressurePercent.slice(-19), updates.pressurePercent ?? 0],
-                    pressureGram: [...prevData.pressureGram.slice(-19), updates.pressureGram ?? 0],
-                    battery: [...prevData.battery.slice(-19), updates.battery ?? 0],
-                    accelX: [...prevData.accelX.slice(-19), newAccelValues[0] ?? 0],
-                    accelY: [...prevData.accelY.slice(-19), newAccelValues[1] ?? 0],
-                    accelZ: [...prevData.accelZ.slice(-19), newAccelValues[2] ?? 0],
-                    gyroX: [...prevData.gyroX.slice(-19), newGyroValues[0] ?? 0],
-                    gyroY: [...prevData.gyroY.slice(-19), newGyroValues[1] ?? 0],
-                    gyroZ: [...prevData.gyroZ.slice(-19), newGyroValues[2] ?? 0],
-                }));
-
-            } catch (e) {
-                console.error("Error al parsear el JSON del WebSocket", e);
-            }
-        };
-
-        // Limpieza: Cerramos la conexión cuando el componente se desmonte
+        // Limpieza: Cerramos la conexión cuando el componente se desmonte o el hook se re-ejecute
         return () => {
+            // console.log("🧹 Limpiando conexión WebSocket...");
             socket.current?.close();
+            socket.current = null; // Limpiamos la referencia
         };
-    }, []); // El array vacío asegura que esto se ejecute solo una vez
+    }, [websocketUrl, processWebSocketMessage]); // Re-ejecutar si la URL o el handler cambian (aunque el handler está memoizado)
 
     return { sensorData, isConnected };
 };
