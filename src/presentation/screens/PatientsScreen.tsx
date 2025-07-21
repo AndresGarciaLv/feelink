@@ -255,31 +255,56 @@ const handleEditToy = (id) => {
     <View style={styles.container}>
       <HeaderPatients />
 
-  <View style={styles.buttonsContainer}>
-    <TouchableOpacity style={styles.addButton} onPress={() => { setSelectedPatientId(null); resetForm(); setModalVisible(true); }}>
-      <Text style={styles.addText}>Agregar paciente</Text>
+ <View style={styles.buttonsContainer}>
+  {userRole === 'SuperAdmin' ? (
+  <>
+    {/* Botón dinámico para agregar */}
+    <TouchableOpacity
+      style={styles.addButton}
+      onPress={() => {
+        if (showToys) {
+          setToyModalVisible(true); // agregar peluche
+        } else {
+          setSelectedPatientId(null);
+          resetForm();
+          setModalVisible(true); // agregar paciente
+        }
+      }}
+    >
+      <Text style={styles.addText}>
+        {showToys ? 'Agregar peluche' : 'Agregar paciente'}
+      </Text>
     </TouchableOpacity>
-    
-    {userRole === 'SuperAdmin' && (
-      <>
-        <TouchableOpacity 
-          style={styles.addToyButton} 
-          onPress={() => setToyModalVisible(true)}
-        >
-          <Text style={styles.addText}>Agregar peluche</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.addButton, { backgroundColor: showToys ? Colors.lightsteelblue : Colors.softPurple }]} 
-          onPress={() => setShowToys(!showToys)}
-        >
-          <Text style={styles.addText}>
-            {showToys ? 'Ver Pacientes' : 'Ver Peluches'}
-          </Text>
-        </TouchableOpacity>
-      </>
-    )}
-  </View>
+
+    {/* Botón para alternar vistas */}
+    <TouchableOpacity
+      style={[
+        styles.addButton,
+        { backgroundColor: showToys ? Colors.lightsteelblue : Colors.lightsteelblue },
+      ]}
+      onPress={() => setShowToys(!showToys)}
+    >
+      <Text style={styles.addText}>
+        {showToys ? 'Ver Pacientes' : 'Ver Peluches'}
+      </Text>
+    </TouchableOpacity>
+  </>
+) : (
+  <TouchableOpacity
+    style={[styles.addButton, styles.therapistOnly]}
+    onPress={() => {
+      setSelectedPatientId(null);
+      resetForm();
+      setModalVisible(true);
+    }}
+  >
+    <Text style={styles.addText}>Agregar paciente</Text>
+  </TouchableOpacity>
+)}
+
+</View>
+
+
 
       <View style={{ height: 10 }} />
     {showToys ? (
@@ -494,33 +519,47 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
    
-  },  buttonsContainer: {
+  }, buttonsContainer: {
   flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'flex-start',
+  gap: 10,
   marginHorizontal: 15,
   marginBottom: 20,
   marginTop: 20,
-  gap: 10,
+},
 
-}, addToyButton: {
-  backgroundColor: Colors.lightsteelblue, 
+addButton: {
+  backgroundColor: Colors.softPurple,
   borderRadius: 15,
   paddingVertical: 10,
   paddingHorizontal: 20,
-  flex: 1, 
+  alignItems: 'center',
+  alignSelf: 'flex-start', // importante para Therapist
+  minWidth: 140,
 },
-  addToyText: {
-    color: Colors.white,
-    fontWeight: 'bold',
-  },
-  addButton: {
-    backgroundColor: Colors.softPurple,
-    borderRadius: 15,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignSelf: 'flex-start',
-      flex: 1, // Para que ocupe el espacio disponible
-  marginRight: 0, // Remover el margen ya que ahora usamos gap
-  },
+
+therapistOnly: {
+  width: 'auto', // elimina expansión forzada
+  alignSelf: 'flex-start',
+  minWidth: undefined,
+},
+
+
+addToyButton: {
+  backgroundColor: Colors.lightsteelblue,
+  borderRadius: 15,
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  minWidth: 140,
+  alignItems: 'center',
+},
+
+therapistButton: {
+  alignSelf: 'flex-start',
+  minWidth: undefined,
+},
+
   addText: {
     color: Colors.white,
     fontWeight: 'bold',
