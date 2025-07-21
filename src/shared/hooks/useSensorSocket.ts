@@ -41,7 +41,7 @@ interface ProcessedSensorData {
     lastMessage: string | null; 
 }
 
-const MAX_HISTORY_LENGTH = 86400; // Constante para la longitud del historial, fácil de ajustar
+const MAX_HISTORY_LENGTH = 600; // Constante para la longitud del historial, fácil de ajustar
 
 export const useSensorSocket = () => {
     const [sensorData, setSensorData] = useState<ProcessedSensorData>({
