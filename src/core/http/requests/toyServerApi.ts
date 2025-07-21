@@ -18,7 +18,7 @@ export interface ToyCreateDto {
 }
 export interface ToyUpdateDto {
   name: string;
-  //incluir mac addees cuando se tenga
+  macAddress: string; 
 }
 
 export interface ToyReadingsSummary {
@@ -81,14 +81,17 @@ export const toyServerApi = serverApi.injectEndpoints({
     }),
 
     // ENDPOINT  EDITAR:
-    updateToy: builder.mutation<ToyDto, { id: string; name: string }>({
-      query: ({ id, name }) => ({
-        url: `Toys/${id}`,
-        method: "PUT",
-        body: { name },
+      updateToy: builder.mutation<ToyDto, { id: string; name: string; macAddress: string }>({
+        query: ({ id, name, macAddress }) => ({
+          url: `Toys/${id}`,
+          method: "PUT",
+          body: { 
+            name,
+            macAddress 
+          },
+        }),
+        invalidatesTags: ["Toy"],
       }),
-      invalidatesTags: ["Toy"],
-    }),
   }),
   overrideExisting: false,
 });

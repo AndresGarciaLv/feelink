@@ -46,8 +46,8 @@ const patients = patientsData?.items || [];
 const handleEdit = (toy) => {
   setEditingToyId(toy.id);
   setToyName(toy.name);
-  // ELIMINAR: setToyMacAddress(toy.macAddress);
-  // ELIMINAR: setSelectedPatientId(toy.patientId);
+  setToyMacAddress(toy.macAddress);
+  setSelectedPatientId(toy.patientId);
   setModalVisible(true);
 };
 
@@ -79,16 +79,24 @@ const handleSave = async () => {
     return;
   }
 
+  // AGREGAR validación para MAC Address al editar
+  if (editingToyId && !toyMacAddress.trim()) {
+    Alert.alert('Error', 'Por favor, ingresa la dirección MAC.');
+    return;
+  }
+
   try {
     if (editingToyId) {
-      // Al editar envia el nombre
-      await updateToy({ 
+      // Al editar, enviamos nombre y macAddress
+      const result = await updateToy({ 
         id: editingToyId, 
-        name: toyName 
+        name: toyName,
+        macAddress: toyMacAddress 
       }).unwrap();
+      
       Alert.alert('Éxito', 'Peluche actualizado correctamente.');
     } else {
-      // Al crear validar y emnviar todos los campos
+      // Al crear, validamos y enviamos todos los campos
       if (!toyMacAddress.trim() || !selectedPatientId) {
         Alert.alert('Error', 'Por favor, completa todos los campos.');
         return;
@@ -105,9 +113,8 @@ const handleSave = async () => {
     }
     resetForm();
   } catch (error) {
+    console.error('Error:', error);
     Alert.alert('Error', 'Hubo un problema al guardar el peluche.');
-        console.error('Error completo:', error);
-
   }
 };
 const resetForm = () => {
@@ -181,23 +188,23 @@ const resetForm = () => {
       <Text style={styles.modalTitle}>
         {editingToyId ? 'Editar Peluche' : 'Nuevo Peluche'}
       </Text>
-      
+      <Text style={styles.infoLabel}>Nombre del peluche:</Text>
       <TextInput
         style={styles.input}
         placeholder="Nombre del peluche"
         value={toyName}
         onChangeText={setToyName}
       />
+      <Text style={styles.infoLabel}>Dirección MAC:</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Dirección MAC"
+        value={toyMacAddress}
+        onChangeText={setToyMacAddress}
+      />
       
       {!editingToyId && (
         <>
-          <TextInput
-            style={styles.input}
-            placeholder="Dirección MAC"
-            value={toyMacAddress}
-            onChangeText={setToyMacAddress}
-          />
-          
           <TouchableOpacity
             style={styles.patientSelector}
             onPress={() => setPatientSelectorVisible(true)}
@@ -233,12 +240,9 @@ const resetForm = () => {
           </Modal>
         </>
       )}
-
+      
       {editingToyId && (
         <View style={styles.infoContainer}>
-          <Text style={styles.infoLabel}>Dirección MAC:</Text>
-          <Text style={styles.infoValue}>{toyMacAddress}</Text>
-          
           <Text style={styles.infoLabel}>Paciente asignado:</Text>
           <Text style={styles.infoValue}>
             {selectedPatientId ? 

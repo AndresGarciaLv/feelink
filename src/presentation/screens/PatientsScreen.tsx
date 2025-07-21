@@ -12,6 +12,7 @@ import {
   useUpdatePatientMutation,
   useDeletePatientMutation,
   useGetPatientByIdQuery,
+  useListAvailablePatientsQuery,
 } from '../../core/http/requests/patientServerApi';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -39,6 +40,7 @@ export default function PatientsScreen() {
   // RTK Query hooks
   // Puedes ajustar page y pageSize si necesitas paginación en la UI
   const { data: patientsData, isLoading, isError, error, refetch } = useListPatientsQuery({ page: 1, pageSize: 100 }); // Añadido 'error' para mejor depuración
+  const { data: availablePatientsData } = useListAvailablePatientsQuery({ page: 1, pageSize: 100 });
   const [createPatient, { isLoading: isCreating }] = useCreatePatientMutation();
   const [updatePatient, { isLoading: isUpdating }] = useUpdatePatientMutation();
   const [deletePatient, { isLoading: isDeleting }] = useDeletePatientMutation();
@@ -424,8 +426,8 @@ const handleEditToy = (id) => {
             >
               <Text style={{ color: selectedPatientForToy ? Colors.textPrimary : '#888' }}>
                 {selectedPatientForToy ? 
-                  patients.find(p => p.id === selectedPatientForToy)?.name + ' ' + 
-                  patients.find(p => p.id === selectedPatientForToy)?.lastName 
+                  (availablePatientsData?.items || []).find(p => p.id === selectedPatientForToy)?.name + ' ' + 
+                  (availablePatientsData?.items || []).find(p => p.id === selectedPatientForToy)?.lastName
                   : 'Seleccionar paciente'}
               </Text>
               <Text style={styles.arrow}>▼</Text>
@@ -439,7 +441,7 @@ const handleEditToy = (id) => {
                 activeOpacity={1}
               >
                 <View style={styles.pickerContainer}>
-                  {patients.map((patient) => (
+                  {(availablePatientsData?.items || []).map((patient) => (
                     <TouchableOpacity
                       key={patient.id}
                       style={styles.pickerOption}
