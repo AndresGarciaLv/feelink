@@ -19,7 +19,8 @@ import { PatientCreateDto } from '../../core/contracts/patient/patientCreateDto'
 import { PatientUpdateDto } from '../../core/contracts/patient/patientUpdateDto';
 import { selectRole } from "../../core/stores/auth/authSlice";
 import { useSelector } from 'react-redux';
-import { useCreateToyMutation, ToyCreateDto } from '../../core/http/requests/toyServerApi';
+import { useCreateToyMutation, ToyCreateDto, useListToysQuery} from '../../core/http/requests/toyServerApi';
+import ToyItem from '../../shared/components/peluche/ToyItem';
 
 export default function PatientsScreen() {
   const navigation = useNavigation();
@@ -54,7 +55,8 @@ export default function PatientsScreen() {
       skip: !selectedPatientId, // Solo ejecuta la query si hay un patientId seleccionado
     }
   );
-
+  // Estados para manejar peluches
+  const [showToys, setShowToys] = useState(false);
   const route = useRoute<RouteProp<RootStackParamList, 'Patients'>>();
   const shouldOpenModal = route.params?.openAddModal ?? false;
   const handleSaveToy = async () => {
@@ -73,12 +75,47 @@ export default function PatientsScreen() {
       await createToy(toyData).unwrap();
       Alert.alert('Éxito', 'Peluche creado correctamente.');
       resetToyForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al crear peluche:', error);
-      Alert.alert('Error', 'Hubo un problema al crear el peluche.');
+      
+      // Verificar si el error es porque el paciente ya tiene un peluche
+      if (error?.data?.errorCodes?.includes('Toy.PatientAlreadyHasOne')) {
+        Alert.alert('Peluche ya asignado', 'Este paciente ya tiene un peluche asignado.');
+      } else {
+        Alert.alert('Error', 'Hubo un problema al crear el peluche.');
+      }
     }
   };
+  
+  const { data: toysData, isLoading: isLoadingToys } = useListToysQuery({ page: 1, pageSize: 100 });
+const handleEditToy = (id) => {
+  // Implementar lógica de edición de peluches
+  console.log('Editar peluche:', id);
+};
 
+  const handleDeleteToy = (id) => {
+    Alert.alert(
+      'Eliminar peluche',
+      '¿Deseas eliminar este peluche de la lista?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Usar tu mutation de eliminar peluche aquí
+              // await deleteToy(id).unwrap();
+              Alert.alert('Éxito', 'Peluche eliminado correctamente.');
+            } catch (error) {
+              console.error('Error al eliminar peluche:', error);
+              Alert.alert('Error', 'No se pudo eliminar el peluche.');
+            }
+          },
+        },
+      ]
+    );
+  };
   const resetToyForm = () => {
     setToyName('');
     setToyMacAddress('');
@@ -214,31 +251,51 @@ export default function PatientsScreen() {
     <View style={styles.container}>
       <HeaderPatients />
 
-    <View style={styles.buttonsContainer}>
-      <TouchableOpacity style={styles.addButton} onPress={() => { setSelectedPatientId(null); resetForm(); setModalVisible(true); }}>
-        <Text style={styles.addText}>Agregar paciente</Text>
-      </TouchableOpacity>
-      
-      {userRole === 'SuperAdmin' && (
+  <View style={styles.buttonsContainer}>
+    <TouchableOpacity style={styles.addButton} onPress={() => { setSelectedPatientId(null); resetForm(); setModalVisible(true); }}>
+      <Text style={styles.addText}>Agregar paciente</Text>
+    </TouchableOpacity>
+    
+    {userRole === 'SuperAdmin' && (
+      <>
         <TouchableOpacity 
           style={styles.addToyButton} 
           onPress={() => setToyModalVisible(true)}
         >
           <Text style={styles.addText}>Agregar peluche</Text>
         </TouchableOpacity>
-      )}
-    </View>
+        
+        <TouchableOpacity 
+          style={[styles.addButton, { backgroundColor: showToys ? Colors.lightsteelblue : Colors.softPurple }]} 
+          onPress={() => setShowToys(!showToys)}
+        >
+          <Text style={styles.addText}>
+            {showToys ? 'Ver Pacientes' : 'Ver Peluches'}
+          </Text>
+        </TouchableOpacity>
+      </>
+    )}
+  </View>
 
       <View style={{ height: 10 }} />
-
-      {/* Condición para mostrar la lista o un mensaje si no hay pacientes */}
-      {patients.length > 0 ? (
+    {showToys ? (
+      // Mostrar lista de peluches
+      toysData?.items?.length > 0 ? (
+      <ToyItem data={toysData.items} />
+      ) : (
+        <Text style={styles.noPatientsText}>No hay peluches registrados. ¡Agrega uno!</Text>
+      )
+    ) : (
+      // Mostrar lista de pacientes (código existente)
+      patients.length > 0 ? (
         <PatientList data={patients} onEdit={handleEdit} onDelete={handleDelete} />
       ) : (
         <Text style={styles.noPatientsText}>No hay pacientes registrados. ¡Agrega uno!</Text>
-      )}
+      )
+    )}
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
+
+<Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>

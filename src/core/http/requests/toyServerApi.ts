@@ -16,8 +16,11 @@ export interface ToyCreateDto {
   macAddress: string;
   patientId: string;
 }
+export interface ToyUpdateDto {
+  name: string;
+  //incluir mac addees cuando se tenga
+}
 
-// Ajusta esta interfaz para que coincida con la respuesta real de tu backend
 export interface ToyReadingsSummary {
   macAddress: string;
   from: string; // "YYYY-MM-DD"
@@ -31,7 +34,6 @@ export interface DailyToyReading {
   date: string; // "YYYY-MM-DD"
   value: number; // Ejemplo: un valor de métrica diaria
   emotions: string[]; // Ejemplo: ["Feliz", "Neutro"]
-  // ... cualquier otro detalle diario que tu API devuelva
 }
 
 // Interfaz para los parámetros de la consulta de resumen de lecturas del juguete
@@ -77,7 +79,16 @@ export const toyServerApi = serverApi.injectEndpoints({
       },
       providesTags: ["Toy"], // Considera una etiqueta más específica, ej: "ToyReadingsSummary"
     }),
-    // --- FIN NUEVO ENDPOINT ---
+
+    // ENDPOINT  EDITAR:
+    updateToy: builder.mutation<ToyDto, { id: string; name: string }>({
+      query: ({ id, name }) => ({
+        url: `Toys/${id}`,
+        method: "PUT",
+        body: { name },
+      }),
+      invalidatesTags: ["Toy"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -87,4 +98,5 @@ export const {
   useListToysQuery,     // listar juguetes
   useDeleteToyMutation, // eliminar juguetes
   useGetToyReadingsSummaryQuery, // Hook existente
+  useUpdateToyMutation
 } = toyServerApi;
