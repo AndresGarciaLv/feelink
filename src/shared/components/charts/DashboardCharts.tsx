@@ -2,24 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { LineChart, BarChart } from "react-native-gifted-charts";
 import { useSensorSocket } from '../../hooks/useSensorSocket';
-import { useListToysQuery } from '../../../core/http/requests/toyServerApi'; // Agregar import
-
-const Colors = {
-  primary: '#CBE0F4',
-  secondary: '#9BC4E0',
-  background: '#F8FAFC',
-  lightBlue: '#E8F3F7',
-  lightsteelblue: '#B0C4DE',
-  palevioletred: '#DB7093',
-  lightPurple: '#E3D7E6',
-  softPurple: '#E0C7DB',
-  textPrimary: '#333',
-  textSecundary: '#868C95',
-  white: '#FFF',
-  success: '#10B981',
-  warning: '#F59E0B',
-  danger: '#EF4444',
-};
+import { useListToysQuery } from '../../../core/http/requests/toyServerApi';
+import ClinicalColors from '../constants/clinicalcolors';
+import ClinicalInfoCard from '../chart-cards/ClinicalInfoCard';
+import { getPressureState, getMovementState, getBatteryColor } from '../../../core/utils/clinicalUtils';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -36,269 +22,382 @@ const DashboardCharts: React.FC = () => {
     return toy ? toy.name : `Peluche ${toyId.slice(-4)}`;
   };
 
-  // Función para obtener el color según el estado del juguete
-  const getToyStatusColor = (isActive: boolean) => {
-    return isActive ? Colors.success : Colors.danger;
+  // Función para obtener el estado clínico del sistema
+  const getSystemClinicalState = () => {
+    const totalToys = Object.keys(allToysData).length;
+    if (connectedToys === 0) {
+      return { state: 'crisis', label: 'Sin Conexión', color: ClinicalColors.crisis };
+    }
+    if (connectedToys === totalToys && totalToys > 0) {
+      return { state: 'stable', label: 'Óptimo', color: ClinicalColors.stable };
+    }
+    return { state: 'anxious', label: 'Parcial', color: ClinicalColors.anxious };
   };
 
-  // Función para obtener el color de la batería según el nivel
-  const getBatteryColor = (level: number) => {
-    if (level > 60) return Colors.success;
-    if (level > 30) return Colors.warning;
-    return Colors.danger;
-  };
-
-  // Preparar datos agregados para gráficas generales
-  const getAggregatedData = () => {
+  // Preparar datos agregados para análisis clínico
+  const getAggregatedClinicalData = () => {
     const toyIds = Object.keys(allToysData);
     
     if (toyIds.length === 0) {
       return {
-        totalHugs: 0,
-        totalMovements: 0,
-        averageBattery: 0,
-        averagePressure: 0,
+        totalTherapeuticInteractions: 0,
+        significantMovements: 0,
+        averageBatteryHealth: 0,
+        averageTherapeuticIntensity: 0,
+        crisisEpisodes: 0,
+        anxiousEpisodes: 0,
+        stableEpisodes: 0,
       };
     }
 
-    let totalHugs = 0;
-    let totalMovements = 0;
+    let totalInteractions = 0;
+    let significantMovements = 0;
     let totalBattery = 0;
     let totalPressure = 0;
     let activeToys = 0;
+    let crisisEpisodes = 0;
+    let anxiousEpisodes = 0;
+    let stableEpisodes = 0;
 
     toyIds.forEach(toyId => {
       const toyData = allToysData[toyId];
       if (toyData && toyData.pressurePercent.length > 0) {
         activeToys++;
-        totalHugs += toyData.pressurePercent.filter(p => p > 10).length;
-        totalMovements += toyData.accelX.filter(a => Math.abs(a) > 0.5).length;
+        
+        // Contar interacciones terapéuticas (presión > 10%)
+        const interactions = toyData.pressurePercent.filter(p => p > 10).length;
+        totalInteractions += interactions;
+        
+        // Contar movimientos significativos
+        significantMovements += toyData.accelX.filter(a => Math.abs(a) > 0.5).length;
+        
+        // Batería y presión promedio
         totalBattery += toyData.battery[toyData.battery.length - 1] || 0;
         totalPressure += toyData.pressurePercent[toyData.pressurePercent.length - 1] || 0;
+        
+        // Análisis de episodios por estado clínico
+        toyData.pressurePercent.forEach(pressure => {
+          if (pressure >= 88) crisisEpisodes++;
+          else if (pressure >= 61) anxiousEpisodes++;
+          else stableEpisodes++;
+        });
       }
     });
 
     return {
-      totalHugs,
-      totalMovements,
-      averageBattery: activeToys > 0 ? totalBattery / activeToys : 0,
-      averagePressure: activeToys > 0 ? totalPressure / activeToys : 0,
+      totalTherapeuticInteractions: totalInteractions,
+      significantMovements,
+      averageBatteryHealth: activeToys > 0 ? totalBattery / activeToys : 0,
+      averageTherapeuticIntensity: activeToys > 0 ? totalPressure / activeToys : 0,
+      crisisEpisodes,
+      anxiousEpisodes,
+      stableEpisodes,
     };
   };
 
-  const aggregatedData = getAggregatedData();
+  const aggregatedData = getAggregatedClinicalData();
+  const systemState = getSystemClinicalState();
 
-  // Preparar datos para gráfica de actividad por juguete
-  const getToyActivityData = () => {
-    return Object.keys(allToysData).map((toyId, index) => {
+  // Preparar datos clínicos para gráfica de actividad terapéutica por peluche
+  const getTherapeuticActivityData = () => {
+    return Object.keys(allToysData).map((toyId) => {
       const toyData = allToysData[toyId];
-      const hugs = toyData ? toyData.pressurePercent.filter(p => p > 10).length : 0;
+      const interactions = toyData ? toyData.pressurePercent.filter(p => p > 10).length : 0;
+      const currentPressure = toyData ? toyData.pressurePercent[toyData.pressurePercent.length - 1] || 0 : 0;
+      const pressureState = getPressureState(currentPressure);
       
       return {
-        value: hugs,
-        label: getToyName(toyId), // Usar el nombre real del peluche
-        frontColor: Colors.secondary,
-        gradientColor: Colors.primary,
-        spacing: 10,
-        labelTextStyle: { color: Colors.textPrimary, fontSize: 10 }
+        value: interactions,
+        label: getToyName(toyId),
+        frontColor: pressureState.color,
+        spacing: 6,
+        labelTextStyle: { color: ClinicalColors.textSecondary, fontSize: 10 }
       };
     });
   };
 
-  // Preparar datos para gráfica de línea de presión promedio
-  const getAveragePressureData = () => {
+  // Preparar datos para gráfica de intensidad terapéutica promedio
+  const getAverageTherapeuticIntensityData = () => {
     const maxLength = 20;
-    const pressureData: number[] = [];
+    const intensityData: number[] = [];
     
     for (let i = 0; i < maxLength; i++) {
       const toyIds = Object.keys(allToysData);
-      let totalPressure = 0;
+      let totalIntensity = 0;
       let activeToys = 0;
       
       toyIds.forEach(toyId => {
         const toyData = allToysData[toyId];
         if (toyData && toyData.pressurePercent[i] !== undefined) {
-          totalPressure += toyData.pressurePercent[i];
+          totalIntensity += toyData.pressurePercent[i];
           activeToys++;
         }
       });
       
-      pressureData.push(activeToys > 0 ? totalPressure / activeToys : 0);
+      intensityData.push(activeToys > 0 ? totalIntensity / activeToys : 0);
     }
     
-    return pressureData.map((value, index) => ({
+    return intensityData.map((value, index) => ({
       value: value,
       label: `${index + 1}`,
-      labelTextStyle: { color: Colors.textSecundary, fontSize: 10 }
+      labelTextStyle: { color: ClinicalColors.textSecondary, fontSize: 10 }
     }));
   };
 
-  const toyActivityData = getToyActivityData();
-  const averagePressureData = getAveragePressureData();
+  const therapeuticActivityData = getTherapeuticActivityData();
+  const averageIntensityData = getAverageTherapeuticIntensityData();
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.sectionTitle}>Dashboard del Terapeuta</Text>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Text style={styles.mainTitle}>Dashboard Terapéutico TEA</Text>
+      <Text style={styles.subtitle}>Centro de Control y Monitoreo Multi-Paciente</Text>
       
-      {/* Estado General del Sistema */}
-      <View style={[styles.statusCard, { backgroundColor: isConnected ? Colors.lightBlue : Colors.softPurple }]}>
-        <Text style={styles.statusIcon}>{isConnected ? '🟢' : '🔴'}</Text>
-        <Text style={styles.statusText}>
-          {isConnected ? `Sistema Activo - ${connectedToys} peluches conectados` : 'Sistema Desconectado'}
-        </Text>
-      </View>
-
-      {/* Resumen General */}
-      <View style={styles.summaryCard}>
-        <Text style={styles.summaryTitle}>Resumen General de Actividad</Text>
-        <View style={styles.summaryGrid}>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>{Object.keys(allToysData).length}</Text>
-            <Text style={styles.summaryLabel}>Peluches Registrados</Text>
-          </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>{connectedToys}</Text>
-            <Text style={styles.summaryLabel}>Conectados</Text>
-          </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>{aggregatedData.totalHugs}</Text>
-            <Text style={styles.summaryLabel}>Abrazos Totales</Text>
-          </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>{aggregatedData.averageBattery.toFixed(0)}%</Text>
-            <Text style={styles.summaryLabel}>Batería Promedio</Text>
+      {/* Estado de Conexión Clínico */}
+      <View style={[styles.connectionCard, { backgroundColor: systemState.color }]}>
+        <View style={styles.connectionContent}>
+          <Text style={styles.connectionIcon}>{isConnected ? '🏥' : '⚠️'}</Text>
+          <View>
+            <Text style={styles.connectionStatus}>
+              Estado del Sistema: {systemState.label}
+            </Text>
+            <Text style={styles.connectionSubtext}>
+              {connectedToys} de {Object.keys(allToysData).length} peluches terapéuticos activos
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* Gráfica de Actividad por Peluche */}
-      {toyActivityData.length > 0 && (
-        <View style={styles.chartCard}>
-          <View style={styles.chartHeader}>
-            <Text style={styles.chartTitle}>Actividad por Peluche</Text>
+      {/* Resumen Clínico General */}
+      <View style={styles.overviewCard}>
+        <Text style={styles.overviewTitle}>Resumen de Sesiones Terapéuticas</Text>
+        <View style={styles.overviewGrid}>
+          <View style={styles.overviewItem}>
+            <View style={[styles.overviewIndicator, { backgroundColor: ClinicalColors.primary }]} />
+            <Text style={styles.overviewLabel}>Peluches</Text>
+            <Text style={styles.overviewValue}>{Object.keys(allToysData).length}</Text>
           </View>
-          <Text style={styles.chartSubtitle}>Número de abrazos detectados por cada peluche</Text>
+          <View style={styles.overviewItem}>
+            <View style={[styles.overviewIndicator, { backgroundColor: ClinicalColors.stable }]} />
+            <Text style={styles.overviewLabel}>Conectados</Text>
+            <Text style={styles.overviewValue}>{connectedToys}</Text>
+          </View>
+          <View style={styles.overviewItem}>
+            <View style={[styles.overviewIndicator, { backgroundColor: ClinicalColors.secondary }]} />
+            <Text style={styles.overviewLabel}>Interacciones</Text>
+            <Text style={styles.overviewValue}>{aggregatedData.totalTherapeuticInteractions}</Text>
+          </View>
+          <View style={styles.overviewItem}>
+            <View style={[styles.overviewIndicator, { backgroundColor: getBatteryColor(aggregatedData.averageBatteryHealth) }]} />
+            <Text style={styles.overviewLabel}>Batería Prom.</Text>
+            <Text style={styles.overviewValue}>{aggregatedData.averageBatteryHealth.toFixed(0)}%</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Gráfica de Actividad Terapéutica por Peluche */}
+      {therapeuticActivityData.length > 0 && (
+        <ClinicalInfoCard
+          title="Actividad Terapéutica por Dispositivo"
+          description="Número de interacciones terapéuticas registradas por cada peluche sensorial. Facilita la identificación de preferencias de pacientes y eficacia terapéutica."
+          clinicalValue={{
+            state: aggregatedData.totalTherapeuticInteractions > 50 ? 'stable' : 
+                   aggregatedData.totalTherapeuticInteractions > 20 ? 'anxious' : 'crisis',
+            label: aggregatedData.totalTherapeuticInteractions > 50 ? 'Alta Actividad' :
+                   aggregatedData.totalTherapeuticInteractions > 20 ? 'Actividad Moderada' : 'Baja Actividad',
+            color: aggregatedData.totalTherapeuticInteractions > 50 ? ClinicalColors.stable :
+                   aggregatedData.totalTherapeuticInteractions > 20 ? ClinicalColors.anxious : ClinicalColors.crisis
+          }}
+        >
+          <View style={styles.currentValueContainer}>
+            <Text style={[styles.currentValue, { color: ClinicalColors.primary }]}>
+              {aggregatedData.totalTherapeuticInteractions}
+            </Text>
+            <Text style={styles.currentLabel}>Interacciones Totales</Text>
+          </View>
+
           <BarChart
-            data={toyActivityData}
+            data={therapeuticActivityData}
             width={screenWidth - 80}
             height={140}
-            barWidth={35}
-            spacing={15}
+            barWidth={25}
+            spacing={6}
             roundedTop
             roundedBottom
-            showGradient
-            yAxisThickness={0}
+            yAxisThickness={1}
             xAxisThickness={1}
-            xAxisColor={Colors.lightsteelblue}
-            hideYAxisText
+            xAxisColor={ClinicalColors.cardBorder}
+            yAxisColor={ClinicalColors.cardBorder}
+            yAxisTextStyle={{ color: ClinicalColors.textSecondary }}
             noOfSections={4}
             isAnimated
             animationDuration={1000}
+            showLine
+            lineColor={ClinicalColors.anxious}
+            lineThickness={2}
           />
-        </View>
+        </ClinicalInfoCard>
       )}
 
-      {/* Gráfica de Presión Promedio */}
-      {averagePressureData.length > 0 && (
-        <View style={styles.chartCard}>
-          <View style={styles.chartHeader}>
-            <Text style={styles.chartTitle}>Intensidad Promedio de Abrazos</Text>
+      {/* Gráfica de Intensidad Terapéutica Promedio */}
+      {averageIntensityData.length > 0 && (
+        <ClinicalInfoCard
+          title="Intensidad Terapéutica Promedio"
+          description="Monitoreo de la intensidad promedio de contacto terapéutico. Permite evaluar patrones de autorregulación y necesidades sensoriales del grupo de pacientes."
+          clinicalValue={getPressureState(aggregatedData.averageTherapeuticIntensity)}
+        >
+          <View style={styles.currentValueContainer}>
+            <Text style={[styles.currentValue, { color: getPressureState(aggregatedData.averageTherapeuticIntensity).color }]}>
+              {aggregatedData.averageTherapeuticIntensity.toFixed(1)}%
+            </Text>
+            <Text style={styles.currentLabel}>Intensidad Actual Promedio</Text>
           </View>
-          <Text style={styles.chartSubtitle}>Presión promedio de todos los peluches (últimas 20 lecturas)</Text>
-          <View style={styles.pressureInfo}>
-            <Text style={styles.pressureValue}>{aggregatedData.averagePressure.toFixed(1)}%</Text>
-            <Text style={styles.pressureLabel}>Presión actual promedio</Text>
+
+          <View style={styles.pressureScale}>
+            <View style={styles.scaleItem}>
+              <View style={[styles.scaleIndicator, { backgroundColor: ClinicalColors.stable }]} />
+              <Text style={styles.scaleText}>0-60% Estable</Text>
+            </View>
+            <View style={styles.scaleItem}>
+              <View style={[styles.scaleIndicator, { backgroundColor: ClinicalColors.anxious }]} />
+              <Text style={styles.scaleText}>61-87% Ansioso</Text>
+            </View>
+            <View style={styles.scaleItem}>
+              <View style={[styles.scaleIndicator, { backgroundColor: ClinicalColors.crisis }]} />
+              <Text style={styles.scaleText}>88-100% Crisis</Text>
+            </View>
           </View>
+
           <LineChart
-            data={averagePressureData}
+            data={averageIntensityData}
             width={screenWidth - 80}
             height={120}
-            color={Colors.secondary}
+            color={ClinicalColors.primary}
             thickness={3}
-            yAxisThickness={0}
+            yAxisThickness={1}
             xAxisThickness={1}
-            xAxisColor={Colors.lightsteelblue}
-            hideYAxisText
+            xAxisColor={ClinicalColors.cardBorder}
+            yAxisColor={ClinicalColors.cardBorder}
+            yAxisTextStyle={{ color: ClinicalColors.textSecondary }}
             isAnimated
             curved
             showDataPoints
-            dataPointsColor={Colors.palevioletred}
+            dataPointsColor={ClinicalColors.secondary}
             dataPointsRadius={4}
             focusEnabled
             showStripOnFocus
-            stripColor={Colors.lightPurple}
-            stripOpacity={0.3}
+            stripColor={ClinicalColors.anxious}
+            stripOpacity={0.2}
             areaChart
-            startFillColor={Colors.primary}
-            endFillColor={Colors.white}
-            startOpacity={0.4}
-            endOpacity={0.1}
+            startFillColor={ClinicalColors.primary}
+            endFillColor={ClinicalColors.white}
+            startOpacity={0.3}
+            endOpacity={0.05}
+            maxValue={100}
+            noOfSections={4}
           />
-        </View>
+        </ClinicalInfoCard>
       )}
 
-      {/* Lista de Estado de Peluches */}
-      <View style={styles.chartCard}>
-        <View style={styles.chartHeader}>
-          <Text style={styles.chartTitle}>Estado de Peluches</Text>
-        </View>
+      {/* Estado Clínico de Dispositivos */}
+      <ClinicalInfoCard
+        title="Estado Clínico de Dispositivos Terapéuticos"
+        description="Monitoreo en tiempo real del estado operativo y nivel de batería de cada peluche sensorial. Crítico para mantener la continuidad terapéutica."
+        clinicalValue={systemState}
+      >
         {Object.keys(allToysData).length > 0 ? (
           Object.keys(allToysData).map((toyId) => {
             const toyData = allToysData[toyId];
             const isActive = toyData && toyData.battery.length > 0;
             const batteryLevel = isActive ? toyData.battery[toyData.battery.length - 1] : 0;
             const lastPressure = isActive ? toyData.pressurePercent[toyData.pressurePercent.length - 1] : 0;
+            const pressureState = getPressureState(lastPressure);
+            const batteryState = {
+              color: getBatteryColor(batteryLevel),
+              label: batteryLevel > 60 ? 'Óptimo' : batteryLevel > 30 ? 'Medio' : 'Crítico'
+            };
             
             return (
               <View key={toyId} style={styles.toyStatusItem}>
                 <View style={styles.toyInfo}>
                   <View style={styles.toyHeader}>
                     <Text style={styles.toyName}>{getToyName(toyId)}</Text>
-                    <View style={[styles.statusDot, { backgroundColor: getToyStatusColor(isActive) }]} />
+                    <View style={[styles.statusDot, { backgroundColor: isActive ? ClinicalColors.stable : ClinicalColors.crisis }]} />
                   </View>
-                  <Text style={styles.toyId}>ID: {toyId.slice(-8)}</Text>
+                  <Text style={styles.toyId}>Dispositivo: {toyId.slice(-8)}</Text>
+                  <Text style={styles.toyStatus}>
+                    Estado: <Text style={{ color: pressureState.color }}>{pressureState.label}</Text>
+                  </Text>
                 </View>
                 <View style={styles.toyMetrics}>
                   <View style={styles.metric}>
-                    <Text style={[styles.metricValue, { color: getBatteryColor(batteryLevel) }]}>
+                    <Text style={[styles.metricValue, { color: batteryState.color }]}>
                       {batteryLevel}%
                     </Text>
                     <Text style={styles.metricLabel}>Batería</Text>
+                    <Text style={[styles.metricStatus, { color: batteryState.color }]}>
+                      {batteryState.label}
+                    </Text>
                   </View>
                   <View style={styles.metric}>
-                    <Text style={styles.metricValue}>{lastPressure.toFixed(1)}%</Text>
+                    <Text style={[styles.metricValue, { color: pressureState.color }]}>
+                      {lastPressure.toFixed(1)}%
+                    </Text>
                     <Text style={styles.metricLabel}>Presión</Text>
+                    <Text style={[styles.metricStatus, { color: pressureState.color }]}>
+                      {pressureState.label}
+                    </Text>
                   </View>
                 </View>
               </View>
             );
           })
         ) : (
-          <Text style={styles.noDataText}>No hay peluches registrados</Text>
+          <View style={styles.noDataContainer}>
+            <Text style={styles.noDataText}>No hay dispositivos terapéuticos registrados</Text>
+            <Text style={styles.noDataSubtext}>Conecte al menos un peluche sensorial para comenzar el monitoreo</Text>
+          </View>
         )}
-      </View>
+      </ClinicalInfoCard>
 
-      {/* Estadísticas Detalladas */}
-      <View style={styles.statsCard}>
-        <Text style={styles.statsTitle}>Estadísticas Detalladas</Text>
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{aggregatedData.totalMovements}</Text>
-            <Text style={styles.statLabel}>Movimientos{'\n'}Detectados</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{aggregatedData.totalHugs}</Text>
-            <Text style={styles.statLabel}>Interacciones{'\n'}de Abrazo</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>
-              {Object.keys(allToysData).filter(toyId => {
-                const toyData = allToysData[toyId];
-                return toyData && toyData.battery[toyData.battery.length - 1] > 30;
-              }).length}
+      {/* Análisis Clínico Detallado */}
+      <View style={styles.diagnosticSummary}>
+        <Text style={styles.diagnosticTitle}>Análisis Clínico del Sistema</Text>
+        <View style={styles.diagnosticGrid}>
+          <View style={styles.diagnosticItem}>
+            <Text style={styles.diagnosticLabel}>Episodios de Crisis</Text>
+            <Text style={[styles.diagnosticNumber, { color: ClinicalColors.crisis }]}>
+              {aggregatedData.crisisEpisodes}
             </Text>
-            <Text style={styles.statLabel}>Batería{'\n'}OK (>30%)</Text>
+            <Text style={styles.diagnosticUnit}>eventos</Text>
           </View>
+          <View style={styles.diagnosticItem}>
+            <Text style={styles.diagnosticLabel}>Estados de Ansiedad</Text>
+            <Text style={[styles.diagnosticNumber, { color: ClinicalColors.anxious }]}>
+              {aggregatedData.anxiousEpisodes}
+            </Text>
+            <Text style={styles.diagnosticUnit}>eventos</Text>
+          </View>
+          <View style={styles.diagnosticItem}>
+            <Text style={styles.diagnosticLabel}>Períodos Estables</Text>
+            <Text style={[styles.diagnosticNumber, { color: ClinicalColors.stable }]}>
+              {aggregatedData.stableEpisodes}
+            </Text>
+            <Text style={styles.diagnosticUnit}>eventos</Text>
+          </View>
+        </View>
+        
+        {/* Recomendaciones del Sistema */}
+        <View style={styles.recommendationsCard}>
+          <Text style={styles.recommendationsTitle}>Recomendaciones del Sistema</Text>
+          <Text style={styles.recommendationText}>
+            {aggregatedData.crisisEpisodes > 10 ? 
+              "⚠️ Alto número de episodios de crisis detectados. Considere ajustar protocolos terapéuticos y aumentar supervisión clínica." :
+              aggregatedData.anxiousEpisodes > aggregatedData.stableEpisodes ?
+              "📊 Se observa predominancia de estados ansiosos. Recomiende técnicas de relajación y revisar plan terapéutico individual." :
+              "✅ El sistema muestra un funcionamiento estable. Continúe con el protocolo actual y mantenga monitoreo regular."
+            }
+            {aggregatedData.averageBatteryHealth < 30 && " 🔋 Atención: Varios dispositivos requieren recarga urgente para mantener continuidad terapéutica."}
+          </Text>
         </View>
       </View>
     </ScrollView>
@@ -308,120 +407,143 @@ const DashboardCharts: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+  },
+  contentContainer: {
     paddingHorizontal: 16,
     paddingTop: 20,
+    paddingBottom: 40,
   },
-  sectionTitle: {
+  mainTitle: {
     fontSize: 24,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: 16,
+    fontWeight: '800',
+    color: ClinicalColors.textPrimary,
     textAlign: 'center',
-  },
-  statusCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 20,
-    marginBottom: 20,
-  },
-  statusIcon: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  statusText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-  },
-  chartCard: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: Colors.secondary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  chartHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 8,
   },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-  },
-  chartSubtitle: {
-    fontSize: 14,
-    color: Colors.textSecundary,
-    marginBottom: 16,
+  subtitle: {
+    fontSize: 16,
+    color: ClinicalColors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 20,
     fontStyle: 'italic',
   },
-  summaryCard: {
-    backgroundColor: Colors.lightBlue,
+  connectionCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  connectionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  connectionIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  connectionStatus: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: ClinicalColors.white,
+  },
+  connectionSubtext: {
+    fontSize: 14,
+    color: ClinicalColors.white,
+    opacity: 0.9,
+  },
+  overviewCard: {
+    backgroundColor: ClinicalColors.white,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: ClinicalColors.cardBorder,
   },
-  summaryTitle: {
+  overviewTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: ClinicalColors.textPrimary,
     marginBottom: 16,
     textAlign: 'center',
   },
-  summaryGrid: {
+  overviewGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
-  summaryItem: {
+  overviewItem: {
     alignItems: 'center',
-    width: '48%',
-    marginBottom: 12,
   },
-  summaryValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: Colors.secondary,
+  overviewIndicator: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    marginBottom: 8,
   },
-  summaryLabel: {
+  overviewLabel: {
     fontSize: 12,
-    color: Colors.textSecundary,
-    marginTop: 4,
-    textAlign: 'center',
+    color: ClinicalColors.textSecondary,
+    marginBottom: 4,
   },
-  pressureInfo: {
+  overviewValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: ClinicalColors.textPrimary,
+  },
+  currentValueContainer: {
     alignItems: 'center',
     marginBottom: 16,
   },
-  pressureValue: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: Colors.secondary,
+  currentValue: {
+    fontSize: 32,
+    fontWeight: '800',
+    marginBottom: 4,
   },
-  pressureLabel: {
+  currentLabel: {
     fontSize: 14,
-    color: Colors.textSecundary,
-    marginTop: 4,
+    color: ClinicalColors.textSecondary,
+  },
+  pressureScale: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+    paddingVertical: 12,
+    backgroundColor: ClinicalColors.background,
+    borderRadius: 8,
+  },
+  scaleItem: {
+    alignItems: 'center',
+  },
+  scaleIndicator: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  scaleText: {
+    fontSize: 10,
+    color: ClinicalColors.textSecondary,
+    textAlign: 'center',
   },
   toyStatusItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
+    alignItems: 'flex-start',
+    paddingVertical: 16,
     paddingHorizontal: 16,
-    backgroundColor: Colors.background,
+    backgroundColor: ClinicalColors.background,
     borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: ClinicalColors.cardBorder,
   },
   toyInfo: {
     flex: 1,
@@ -429,11 +551,12 @@ const styles = StyleSheet.create({
   toyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 4,
   },
   toyName: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: ClinicalColors.textPrimary,
     marginRight: 8,
   },
   statusDot: {
@@ -443,72 +566,112 @@ const styles = StyleSheet.create({
   },
   toyId: {
     fontSize: 12,
-    color: Colors.textSecundary,
-    marginTop: 2,
+    color: ClinicalColors.textSecondary,
+    marginBottom: 4,
+  },
+  toyStatus: {
+    fontSize: 12,
+    color: ClinicalColors.textSecondary,
   },
   toyMetrics: {
     flexDirection: 'row',
   },
   metric: {
     alignItems: 'center',
-    marginLeft: 16,
+    marginLeft: 20,
   },
   metricValue: {
     fontSize: 16,
-    fontWeight: '600',
-    color: Colors.textPrimary,
+    fontWeight: '700',
   },
   metricLabel: {
     fontSize: 10,
-    color: Colors.textSecundary,
+    color: ClinicalColors.textSecondary,
     marginTop: 2,
   },
-  noDataText: {
-    textAlign: 'center',
-    color: Colors.textSecundary,
-    fontStyle: 'italic',
-    paddingVertical: 20,
+  metricStatus: {
+    fontSize: 9,
+    fontWeight: '500',
+    marginTop: 2,
   },
-  statsCard: {
-    backgroundColor: Colors.softPurple,
+  noDataContainer: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  noDataText: {
+    fontSize: 16,
+    color: ClinicalColors.textSecondary,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  noDataSubtext: {
+    fontSize: 14,
+    color: ClinicalColors.textSecondary,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  diagnosticSummary: {
+    backgroundColor: ClinicalColors.white,
     borderRadius: 16,
     padding: 20,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: ClinicalColors.primary,
   },
-  statsTitle: {
+  diagnosticTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.textPrimary,
-    marginBottom: 16,
+    color: ClinicalColors.textPrimary,
     textAlign: 'center',
+    marginBottom: 20,
   },
-  statsGrid: {
+  diagnosticGrid: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    marginBottom: 20,
   },
-statsContainer: { 
-  flexDirection: 'row',
-  justifyContent: 'space-between', 
-  alignItems: 'flex-start', 
-  paddingHorizontal: 10, 
-},
-  statItem: {
+  diagnosticItem: {
     alignItems: 'center',
-      flex: 1,
-  paddingHorizontal: 5, 
+    flex: 1,
   },
-statValue: {
-  fontSize: 22,
-  fontWeight: '700',
-  color: Colors.palevioletred,
-  marginBottom: 4, 
-},
-statLabel: {
-  fontSize: 11, 
-  color: Colors.textSecundary,
-  textAlign: 'center',
-  lineHeight: 14,
-  paddingHorizontal: 2, 
+  diagnosticLabel: {
+    fontSize: 12,
+    color: ClinicalColors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  diagnosticNumber: {
+    fontSize: 28,
+    fontWeight: '800',
+    marginBottom: 4,
+  },
+  diagnosticUnit: {
+    fontSize: 11,
+    color: ClinicalColors.textSecondary,
+  },
+  recommendationsCard: {
+    backgroundColor: ClinicalColors.background,
+    borderRadius: 12,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: ClinicalColors.secondary,
+  },
+  recommendationsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: ClinicalColors.textPrimary,
+    marginBottom: 12,
+  },
+  recommendationText: {
+    fontSize: 14,
+    color: ClinicalColors.textSecondary,
+    lineHeight: 20,
   },
 });
 
