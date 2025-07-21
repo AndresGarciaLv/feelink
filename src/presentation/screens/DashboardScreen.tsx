@@ -56,10 +56,12 @@ const {
 
     // Stats niños
 const patientsStats = {
-    withActivity: patientSummary?.patientsWithActivity ?? 0,
-    withoutActivity: patientSummary?.patientsWithoutActivity ?? 0,
-    total: (patientSummary?.patientsWithActivity ?? 0) + (patientSummary?.patientsWithoutActivity ?? 0),
+    withActivity: patientSummary?.registeredCount ?? 0,
+    withoutActivity: patientSummary?.unregisteredCount ?? 0,
+    total: (patientSummary?.registeredCount ?? 0) + (patientSummary?.unregisteredCount ?? 0),
 };
+
+
     //Obtener el mes
     const currentMonth = new Date().getMonth() + 1; // +1 porque getMonth() devuelve 0-11
 
@@ -201,14 +203,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         minHeight: 120,
     },
-    withoutActivityStatBox: {
-        flex: 1,
-        backgroundColor: '#E5A4C0',
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 120,
-    },
     statIcon: {
         marginBottom: 8,
     },
@@ -335,22 +329,6 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 14,
         fontWeight: '600',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginTop: 8,
-    },
-    withActivityStatBox: {
-        flex: 1,
-        backgroundColor: '#A8C7E5',
-        borderTopLeftRadius: 12,
-        borderBottomLeftRadius: 12,
-        borderTopRightRadius: 0, // esquina interior cuadrada
-        borderBottomRightRadius: 0,
-        padding: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 100,
     },
     withoutActivityStatBox: {
         flex: 1,
