@@ -103,7 +103,7 @@ export const useSensorSocket = () => {
         socket.current = new WebSocket(websocketUrl);
 
         socket.current.onopen = () => {
-            console.log(✅ WebSocket Conectado a: ${websocketUrl});
+            console.log(`✅ WebSocket Conectado a: ${websocketUrl}`);
             setIsConnected(true);
         };
 
