@@ -29,7 +29,7 @@ const AuthScreen: React.FC = () => {
                     role: authState.role!
                 }));
 
-                if (authState.role === "SuperAdmin" || authState.role === "ClinicAdmin") {
+                if (authState.role === "SuperAdmin" || authState.role === "ClinicAdmin" || authState.role === "Therapist") {
                     navigation.navigate("Dashboard");
                 } else {
                     navigation.navigate("HomeTutor")
