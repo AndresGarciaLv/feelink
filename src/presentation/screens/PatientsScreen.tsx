@@ -81,7 +81,7 @@ export default function PatientsScreen() {
       Alert.alert('Éxito', 'Peluche creado correctamente.');
       resetToyForm();
     } catch (error: any) {
-      console.error('Error al crear peluche:', error);
+      console.log('Error al crear peluche:', error);
       
       // Verificar si el error es porque el paciente ya tiene un peluche
       if (error?.data?.errorCodes?.includes('Toy.PatientAlreadyHasOne')) {
@@ -100,22 +100,6 @@ export default function PatientsScreen() {
     setSelectedPatientForToy('');
     setToyModalVisible(false);
   };
-  // --- DEBUGGING LOGS ---
-  useEffect(() => {
-    console.log("Estado de la lista de pacientes:");
-    console.log("isLoading:", isLoading);
-    console.log("isError:", isError);
-    if (isError) {
-      console.log("Error detalles:", error); // Esto te dará más info sobre el error de la API
-    }
-    console.log("patientsData (RAW):", patientsData);
-    if (patientsData?.items) { // Ahora verificando 'items'
-      console.log("Número de pacientes (de items):", patientsData.items.length);
-    } else {
-      console.log("patientsData.items es undefined o nulo.");
-    }
-  }, [isLoading, isError, patientsData, error]);
-  // --- END DEBUGGING LOGS ---
 
 useEffect(() => {
   // Refrescar la lista después de una operación exitosa
@@ -165,7 +149,7 @@ useEffect(() => {
               Alert.alert('Éxito', 'Paciente eliminado correctamente.');
               refetch(); // Opcional: Refetchear la lista después de eliminar para asegurar que se actualice
             } catch (error) {
-              console.error('Error al eliminar paciente:', error);
+              console.log('Error al eliminar paciente:', error);
               Alert.alert('Error', 'No se pudo eliminar el paciente.');
             }
           },
@@ -217,7 +201,7 @@ useEffect(() => {
       // Forzar refresh de la lista
       await refetch();
     } catch (error) {
-      console.error('Error al guardar paciente:', error);
+      console.log('Error al guardar paciente:', error);
       Alert.alert('Error', 'Hubo un problema al guardar el paciente. Por favor, revisa los datos y tu conexión.');
     }
   };

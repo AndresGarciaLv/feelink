@@ -33,7 +33,7 @@ const TabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
               routes: [{ name: 'Auth' }], // Cambia 'Login' si tu pantalla tiene otro nombre
             });
           } catch (e) {
-            console.error('Error limpiando sesión:', e);
+            console.log('Error limpiando sesión:', e);
           }
         },
       },

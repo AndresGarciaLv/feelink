@@ -17,10 +17,9 @@ import {AuthResponse} from "../contracts/auth/authResponse";
 export function extractRoleFromToken(token: string): string {
     try {
         const payload = jwtDecode<AuthPayLoad>(token);
-        console.log("Payload:", payload);
         return payload.role;
     } catch (error) {
-        console.error("Error decoding token:", error);
+        console.log("Error decoding token:", error);
         return '';
     }
 }

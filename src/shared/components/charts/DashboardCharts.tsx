@@ -60,9 +60,8 @@ const DashboardCharts: React.FC = () => {
   };
 
   const getSystemState = (): SystemState => {
-    const totalToys = Object.keys(allToysData).length;
-    const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
-    
+  const totalToys = toys.length; // Usar el total de pacientes registrados
+const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;    
     if (connectivityRate >= 95) {
       return { state: 'optimal', label: 'Sistema Operativo', color: '#2E7D57' };
     } else if (connectivityRate >= 80) {
@@ -134,7 +133,7 @@ const DashboardCharts: React.FC = () => {
     });
 
     return {
-      totalChildren: toyIds.length,
+      totalChildren: toys.length,
       activeChildren,
       stableChildren,
       anxiousChildren,
@@ -283,7 +282,7 @@ const DashboardCharts: React.FC = () => {
       <View style={styles.metricsGrid}>
         <View style={[styles.metricCard, styles.primaryMetric]}>
           <Text style={styles.metricValue}>{aggregatedData.totalChildren}</Text>
-          <Text style={styles.metricLabel}>PACIENTES</Text>
+          <Text style={styles.metricLabel}>PELUCHES</Text>
           <Text style={styles.metricSublabel}>Registrados</Text>
         </View>
         

@@ -17,9 +17,9 @@ const PressureProgressBar: React.FC<Props> = ({ identifier }) => {
     const wsUrl = `ws://feelink-api.runasp.net/ws/sensor-data?device=esp32&identifier=${identifier}`;
     ws.current = new WebSocket(wsUrl);
 
-    ws.current.onopen = () => {
-      console.log("✅ WebSocket conectado");
-    };
+    // ws.current.onopen = () => {
+    //   console.log("✅ WebSocket conectado");
+    // };
 
     ws.current.onmessage = (event) => {
       try {
@@ -33,16 +33,16 @@ const PressureProgressBar: React.FC<Props> = ({ identifier }) => {
           setPressureGrams(gr);
         }
       } catch (error) {
-        console.error("❌ Error parseando mensaje WebSocket", error);
+        // console.error("❌ Error parseando mensaje WebSocket", error);
       }
     };
 
     ws.current.onerror = (error) => {
-      console.error("🚨 Error en WebSocket:", error);
+      console.log("🚨 Error en WebSocket:", error);
     };
 
     ws.current.onclose = () => {
-      console.log("🔌 WebSocket cerrado");
+      // console.log("🔌 WebSocket cerrado");
     };
 
     return () => {

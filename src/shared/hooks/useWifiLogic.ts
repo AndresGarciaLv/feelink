@@ -41,16 +41,16 @@ export default function useWifiLogic() {
     const keys = Array.from(fragments.current.keys()).sort((a, b) => a - b);
     const complete = keys.every((k, i) => k === i + 1);
     if (!complete) {
-      console.warn('❌ Fragmentos incompletos, esperando más...');
+      console.log('❌ Fragmentos incompletos, esperando más...');
       return;
     }
 
     const cleanFragments = keys.map(k => fragments.current.get(k) ?? '');
     const jsonStr = cleanFragments.join('').trim();
-    console.log('📦 JSON ensamblado:', jsonStr);
+    // console.log('📦 JSON ensamblado:', jsonStr);
 
     if (!jsonStr || jsonStr.length < 5) {
-      console.warn('⚠️ Fragmentos vacíos o incompletos. No se puede procesar.');
+      console.log('⚠️ Fragmentos vacíos o incompletos. No se puede procesar.');
       return;
     }
 
@@ -58,7 +58,7 @@ export default function useWifiLogic() {
       !(jsonStr.startsWith('[') && jsonStr.endsWith(']')) &&
       !(jsonStr.startsWith('{') && jsonStr.endsWith('}'))
     ) {
-      console.warn('⚠️ JSON ensamblado no tiene formato esperado:', jsonStr);
+      console.log('⚠️ JSON ensamblado no tiene formato esperado:', jsonStr);
       return;
     }
 
@@ -110,7 +110,7 @@ export default function useWifiLogic() {
         }
       }
     } catch (err) {
-      console.error('❌ Error al parsear JSON:', err);
+      console.log('❌ Error al parsear JSON:', err);
     } finally {
       fragments.current.clear();
     }

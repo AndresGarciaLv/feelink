@@ -104,7 +104,7 @@ export default function WifiConfigScreen({ route }: any) {
                 const parsed = parsedStrings.map(ssid => ({ ssid }));
                 setNetworks(parsed);
               } catch (err) {
-                console.warn('Timeout parse error:', err);
+                console.log('Timeout parse error:', err);
               }
             }
             isParsingScan.current = false;
@@ -128,7 +128,7 @@ export default function WifiConfigScreen({ route }: any) {
     );
     setTimeout(() => {
       if (isParsingScan.current) {
-        console.warn('Scan timeout, cancelling');
+        // console.log('Scan timeout, cancelling');
         isParsingScan.current = false;
         setLoading(false);
       }

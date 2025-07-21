@@ -113,7 +113,7 @@ const handleSave = async () => {
     }
     resetForm();
   } catch (error) {
-    console.error('Error:', error);
+    console.log('Error:', error);
     Alert.alert('Error', 'Hubo un problema al guardar el peluche.');
   }
 };
@@ -128,9 +128,6 @@ const resetForm = () => {
 
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => {
-        console.log('Toy pressed:', item.id);
-      }}
       style={styles.rowFront}
     >
       <View style={styles.card}>
