@@ -12,11 +12,17 @@ import {
   useUpdatePatientMutation,
   useDeletePatientMutation,
   useGetPatientByIdQuery,
+  useListAvailablePatientsQuery,
 } from '../../core/http/requests/patientServerApi';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import { Patient } from '../../core/contracts/patient/patientsDto';
 import { PatientCreateDto } from '../../core/contracts/patient/patientCreateDto';
 import { PatientUpdateDto } from '../../core/contracts/patient/patientUpdateDto';
+import { selectRole } from "../../core/stores/auth/authSlice";
+import { useSelector } from 'react-redux';
+import { useCreateToyMutation, ToyCreateDto, useListToysQuery} from '../../core/http/requests/toyServerApi';
+import ToyItem from '../../shared/components/peluche/ToyItem';
 
 export default function PatientsScreen() {
   const navigation = useNavigation();
@@ -28,14 +34,24 @@ export default function PatientsScreen() {
   const [newHeight, setNewHeight] = useState('');
   const [newWeight, setNewWeight] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const userRole = useSelector(selectRole);
+  const insets = useSafeAreaInsets();
 
   // RTK Query hooks
   // Puedes ajustar page y pageSize si necesitas paginación en la UI
   const { data: patientsData, isLoading, isError, error, refetch } = useListPatientsQuery({ page: 1, pageSize: 100 }); // Añadido 'error' para mejor depuración
+  const { data: availablePatientsData } = useListAvailablePatientsQuery({ page: 1, pageSize: 100 });
   const [createPatient, { isLoading: isCreating }] = useCreatePatientMutation();
   const [updatePatient, { isLoading: isUpdating }] = useUpdatePatientMutation();
   const [deletePatient, { isLoading: isDeleting }] = useDeletePatientMutation();
-
+  // estados para peluches
+  const [toyModalVisible, setToyModalVisible] = useState(false);
+  const [toyName, setToyName] = useState('');
+  const [toyMacAddress, setToyMacAddress] = useState('');
+  const [selectedPatientForToy, setSelectedPatientForToy] = useState('');
+  const [patientSelectorVisible, setPatientSelectorVisible] = useState(false);
+    // Hook para crear toy
+  const [createToy, { isLoading: isCreatingToy }] = useCreateToyMutation();
   // Hook para obtener los detalles del paciente seleccionado para edición
   const { data: selectedPatientDetails, isLoading: isLoadingSelectedPatient } = useGetPatientByIdQuery(
     selectedPatientId || '',
@@ -43,10 +59,73 @@ export default function PatientsScreen() {
       skip: !selectedPatientId, // Solo ejecuta la query si hay un patientId seleccionado
     }
   );
-
+  // Estados para manejar peluches
+  const [showToys, setShowToys] = useState(false);
   const route = useRoute<RouteProp<RootStackParamList, 'Patients'>>();
   const shouldOpenModal = route.params?.openAddModal ?? false;
+  const handleSaveToy = async () => {
+    if (!toyName.trim() || !toyMacAddress.trim() || !selectedPatientForToy) {
+      Alert.alert('Error', 'Por favor, completa todos los campos.');
+      return;
+    }
 
+    const toyData: ToyCreateDto = {
+      name: toyName,
+      macAddress: toyMacAddress,
+      patientId: selectedPatientForToy,
+    };
+
+    try {
+      await createToy(toyData).unwrap();
+      Alert.alert('Éxito', 'Peluche creado correctamente.');
+      resetToyForm();
+    } catch (error: any) {
+      console.error('Error al crear peluche:', error);
+      
+      // Verificar si el error es porque el paciente ya tiene un peluche
+      if (error?.data?.errorCodes?.includes('Toy.PatientAlreadyHasOne')) {
+        Alert.alert('Peluche ya asignado', 'Este paciente ya tiene un peluche asignado.');
+      } else {
+        Alert.alert('Error', 'Hubo un problema al crear el peluche.');
+      }
+    }
+  };
+  
+  const { data: toysData, isLoading: isLoadingToys } = useListToysQuery({ page: 1, pageSize: 100 });
+const handleEditToy = (id) => {
+  // Implementar lógica de edición de peluches
+  console.log('Editar peluche:', id);
+};
+
+  const handleDeleteToy = (id) => {
+    Alert.alert(
+      'Eliminar peluche',
+      '¿Deseas eliminar este peluche de la lista?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Usar tu mutation de eliminar peluche aquí
+              // await deleteToy(id).unwrap();
+              Alert.alert('Éxito', 'Peluche eliminado correctamente.');
+            } catch (error) {
+              console.error('Error al eliminar peluche:', error);
+              Alert.alert('Error', 'No se pudo eliminar el peluche.');
+            }
+          },
+        },
+      ]
+    );
+  };
+  const resetToyForm = () => {
+    setToyName('');
+    setToyMacAddress('');
+    setSelectedPatientForToy('');
+    setToyModalVisible(false);
+  };
   // --- DEBUGGING LOGS ---
   useEffect(() => {
     console.log("Estado de la lista de pacientes:");
@@ -175,20 +254,52 @@ export default function PatientsScreen() {
   return (
     <View style={styles.container}>
       <HeaderPatients />
-      <View style={{ height: 20 }} />
-      <TouchableOpacity style={styles.addButton} onPress={() => { setSelectedPatientId(null); resetForm(); setModalVisible(true); }}>
-        <Text style={styles.addText}>Agregar paciente</Text>
-      </TouchableOpacity>
-      <View style={{ height: 10 }} />
 
-      {/* Condición para mostrar la lista o un mensaje si no hay pacientes */}
-      {patients.length > 0 ? (
+  <View style={styles.buttonsContainer}>
+    <TouchableOpacity style={styles.addButton} onPress={() => { setSelectedPatientId(null); resetForm(); setModalVisible(true); }}>
+      <Text style={styles.addText}>Agregar paciente</Text>
+    </TouchableOpacity>
+    
+    {userRole === 'SuperAdmin' && (
+      <>
+        <TouchableOpacity 
+          style={styles.addToyButton} 
+          onPress={() => setToyModalVisible(true)}
+        >
+          <Text style={styles.addText}>Agregar peluche</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.addButton, { backgroundColor: showToys ? Colors.lightsteelblue : Colors.softPurple }]} 
+          onPress={() => setShowToys(!showToys)}
+        >
+          <Text style={styles.addText}>
+            {showToys ? 'Ver Pacientes' : 'Ver Peluches'}
+          </Text>
+        </TouchableOpacity>
+      </>
+    )}
+  </View>
+
+      <View style={{ height: 10 }} />
+    {showToys ? (
+      // Mostrar lista de peluches
+      toysData?.items?.length > 0 ? (
+      <ToyItem data={toysData.items} />
+      ) : (
+        <Text style={styles.noPatientsText}>No hay peluches registrados. ¡Agrega uno!</Text>
+      )
+    ) : (
+      // Mostrar lista de pacientes (código existente)
+      patients.length > 0 ? (
         <PatientList data={patients} onEdit={handleEdit} onDelete={handleDelete} />
       ) : (
         <Text style={styles.noPatientsText}>No hay pacientes registrados. ¡Agrega uno!</Text>
-      )}
+      )
+    )}
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
+
+<Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>
@@ -282,7 +393,98 @@ export default function PatientsScreen() {
           </View>
         </View>
       </Modal>
+
+
+      {/* Modal para crear peluche */}
+      <Modal visible={toyModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Nuevo Peluche</Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre del peluche"
+              value={toyName}
+              onChangeText={setToyName}
+            />
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Dirección MAC (ej: AA:BB:CC:DD:EE:FF)"
+              value={toyMacAddress}
+              onChangeText={setToyMacAddress}
+            />
+            
+            {/* Selector de paciente */}
+            <TouchableOpacity
+              style={[styles.input, {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }]}
+              onPress={() => setPatientSelectorVisible(true)}
+            >
+              <Text style={{ color: selectedPatientForToy ? Colors.textPrimary : '#888' }}>
+                {selectedPatientForToy ? 
+                  (availablePatientsData?.items || []).find(p => p.id === selectedPatientForToy)?.name + ' ' + 
+                  (availablePatientsData?.items || []).find(p => p.id === selectedPatientForToy)?.lastName
+                  : 'Seleccionar paciente'}
+              </Text>
+              <Text style={styles.arrow}>▼</Text>
+            </TouchableOpacity>
+            
+            {/* Modal del selector de pacientes */}
+            <Modal visible={patientSelectorVisible} transparent animationType="fade">
+              <TouchableOpacity
+                style={styles.modalOverlay}
+                onPress={() => setPatientSelectorVisible(false)}
+                activeOpacity={1}
+              >
+                <View style={styles.pickerContainer}>
+                  {(availablePatientsData?.items || []).map((patient) => (
+                    <TouchableOpacity
+                      key={patient.id}
+                      style={styles.pickerOption}
+                      onPress={() => {
+                        setSelectedPatientForToy(patient.id);
+                        setPatientSelectorVisible(false);
+                      }}
+                    >
+                      <Text style={styles.pickerText}>
+                        {patient.name} {patient.lastName}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </TouchableOpacity>
+            </Modal>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.cancelButton, { marginRight: 10 }]}
+                onPress={resetToyForm}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.saveButton}
+                onPress={handleSaveToy}
+                disabled={isCreatingToy}
+              >
+                <Text style={styles.buttonText}>
+                  {isCreatingToy ? 'Creando...' : 'Crear Peluche'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+            {/* Tab Bar Component */}
+            <View style={{paddingBottom: insets.bottom}}>
       <TabBar activeTab="Patients" />
+      </View>
     </View>
   );
 }
@@ -291,7 +493,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    paddingVertical: 20,
+   
+  },  buttonsContainer: {
+  flexDirection: 'row',
+  marginHorizontal: 15,
+  marginBottom: 20,
+  marginTop: 20,
+  gap: 10,
+
+}, addToyButton: {
+  backgroundColor: Colors.lightsteelblue, 
+  borderRadius: 15,
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  flex: 1, 
+},
+  addToyText: {
+    color: Colors.white,
+    fontWeight: 'bold',
   },
   addButton: {
     backgroundColor: Colors.softPurple,
@@ -299,8 +518,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignSelf: 'flex-start',
-    marginBottom: 20,
-    marginLeft: 15,
+      flex: 1, // Para que ocupe el espacio disponible
+  marginRight: 0, // Remover el margen ya que ahora usamos gap
   },
   addText: {
     color: Colors.white,

@@ -50,7 +50,7 @@ const {
     data: patientSummary,
     isFetching: isFetchingSummary,
     error: summaryError
-} = useGetPatientsSummaryQuery({date: today, dummy: true });
+} = useGetPatientsSummaryQuery({date: today, dummy: false });
 
     // Stats niños
 const patientsStats = {

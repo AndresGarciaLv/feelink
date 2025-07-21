@@ -56,6 +56,15 @@ export interface PatientSummaryResponse {
     unregisteredCount: number;
 }
 
+
+// Nueva interfaz para pacientes disponibles (pacientes sin peluche)
+interface ListAvailablePatientsParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  therapistId?: string;
+  tutorId?: string;
+}
 export const patientServerApi = serverApi.injectEndpoints({
   endpoints: (builder) => ({
 
@@ -148,6 +157,14 @@ export const patientServerApi = serverApi.injectEndpoints({
       providesTags: ["Patient"],
     }),
 
+    listAvailablePatients: builder.query<BaseListResponse<Patient>, ListAvailablePatientsParams>({
+  query: ({ page = 1, pageSize = 10, search, therapistId, tutorId }) => {
+    const params = buildQueryParams({ page, pageSize, search, therapistId, tutorId });
+    return `Patients/available?${params}`;
+  },
+  providesTags: ["Patient"],
+}),
+
   }),
   overrideExisting: false,
 });
@@ -164,5 +181,6 @@ export const {
   useGetPatientSummaryQuery, // Exporta el hook para el resumen general de pacientes
   useGetToyByPatientIdQuery,
   useGetPatientsSummaryQuery,
-  useGetMonthlyActivitySummaryQuery
+  useGetMonthlyActivitySummaryQuery,
+  useListAvailablePatientsQuery
 } = patientServerApi;
