@@ -1,132 +1,173 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-// --- JSON de entrada ---
-interface PressureData {
-    pc: number; // Pressure Percent
-    gr: number; // Pressure Gram
+interface ToyData {
+  pressurePercent: number[];
+  pressureGram: number[];
+  battery: number[];
+  accelX: number[];
+  accelY: number[];
+  accelZ: number[];
+  gyroX: number[];
+  gyroY: number[];
+  gyroZ: number[];
+  lastUpdate: Date;
 }
 
-interface AxisData {
-    x: number;
-    y: number;
-    z: number;
+interface ReadingItem {
+  id: string;
+  toyId: string;
+  createDate: string;
+  value: number;
+  metric: string;
 }
 
-interface SensorsData {
-    p: PressureData; // Pressure
-    b: number;       // Battery
-    m: AxisData;     // Accelerometer
-    g: AxisData;     // Gyroscope
-    w: boolean;      // Unknown boolean, potentially a status
-    ssid: string;    // WiFi SSID
+interface ReadingsResponse {
+  items: ReadingItem[];
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
-interface WebSocketResponse {
-    Message: string;
-    Sensors: SensorsData;
-}
+// Variables de entorno
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const WS_BASE_URL = process.env.EXPO_PUBLIC_WS_BASE_URL;
+const MAC_ADDRESS = process.env.EXPO_PUBLIC_DEVICE_MAC_ADDRESS;
 
-// --- Types para los datos procesados que el hook devolverá ---
-interface ProcessedSensorData {
-    pressurePercent: number[];
-    pressureGram: number[];
-    battery: number[];
-    accelX: number[];
-    accelY: number[];
-    accelZ: number[];
-    gyroX: number[];
-    gyroY: number[];
-    gyroZ: number[];
-    lastWifiSsid: string | null; 
-    lastMessage: string | null; 
-}
-
-const MAX_HISTORY_LENGTH = 600; // Constante para la longitud del historial, fácil de ajustar
+// Construcción de la URL completa del WebSocket
+const WEBSOCKET_URL = `${WS_BASE_URL}?device=esp32&identifier=${MAC_ADDRESS}`;
 
 export const useSensorSocket = () => {
-    const [sensorData, setSensorData] = useState<ProcessedSensorData>({
-        pressurePercent: [],
-        pressureGram: [],
-        battery: [],
-        accelX: [],
-        accelY: [],
-        accelZ: [],
-        gyroX: [],
-        gyroY: [],
-        gyroZ: [],
-        lastWifiSsid: null,
-        lastMessage: null,
-    });
-    const [isConnected, setIsConnected] = useState(false);
-    const socket = useRef<WebSocket | null>(null);
+  const [sensorData, setSensorData] = useState<Record<string, number[]>>({
+    pressurePercent: [],
+    pressureGram: [],
+    battery: [],
+    accelX: [],
+    accelY: [],
+    accelZ: [],
+    gyroX: [],
+    gyroY: [],
+    gyroZ: [],
+  });
 
-    // Construimos la URL del WebSocket de forma dinámica
-    const websocketUrl = `${process.env.EXPO_PUBLIC_WS_BASE_URL}?device=esp32&identifier=${process.env.EXPO_PUBLIC_DEVICE_MAC_ADDRESS}`;
+  const [allToysData, setAllToysData] = useState<Record<string, ToyData>>({});
+  const [connectedToys, setConnectedToys] = useState(0);
+  const [isConnected, setIsConnected] = useState(false);
+  const socket = useRef<WebSocket | null>(null);
 
-    // Usamos useCallback para memoizar la función de procesamiento,
-    const processWebSocketMessage = useCallback((event: MessageEvent) => {
-        try {
-            // console.log("📥 Datos recibidos:", event.data);
-            const rawData: WebSocketResponse = JSON.parse(event.data);
+  const fetchAllToysData = async () => {
+    try {
+      const response = await fetch(`${API_URL}Readings`);
+      const data: ReadingsResponse = await response.json();
 
-            setSensorData(prevData => ({
-                // Actualizamos los valores de presión, limitando el historial
-                pressurePercent: [...prevData.pressurePercent.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.p.pc],
-                pressureGram: [...prevData.pressureGram.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.p.gr],
-                // Actualizamos la batería
-                battery: [...prevData.battery.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.b],
-                // Actualizamos los valores del acelerómetro
-                accelX: [...prevData.accelX.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.m.x],
-                accelY: [...prevData.accelY.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.m.y],
-                accelZ: [...prevData.accelZ.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.m.z],
-                // Actualizamos los valores del giroscopio
-                gyroX: [...prevData.gyroX.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.g.x],
-                gyroY: [...prevData.gyroY.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.g.y],
-                gyroZ: [...prevData.gyroZ.slice(-(MAX_HISTORY_LENGTH - 1)), rawData.Sensors.g.z],
-                // Guardamos el último SSID y mensaje
-                lastWifiSsid: rawData.Sensors.ssid,
-                lastMessage: rawData.Message,
-            }));
+      const toyDataMap: Record<string, ToyData> = {};
 
-        } catch (e) {
-            // console.error("❌ Error al parsear o procesar JSON del WebSocket:", e);
-        }
-    }, []); 
-
-    useEffect(() => {
-        // Aseguramos que solo haya una instancia del socket
-        if (socket.current) {
-            socket.current.close();
+      data.items.forEach((item) => {
+        if (!toyDataMap[item.toyId]) {
+          toyDataMap[item.toyId] = {
+            pressurePercent: [],
+            pressureGram: [],
+            battery: [],
+            accelX: [],
+            accelY: [],
+            accelZ: [],
+            gyroX: [],
+            gyroY: [],
+            gyroZ: [],
+            lastUpdate: new Date(item.createDate),
+          };
         }
 
-        // Conexión al WebSocket
-        socket.current = new WebSocket(websocketUrl);
+        const toyData = toyDataMap[item.toyId];
 
-        socket.current.onopen = () => {
-            console.log(`✅ WebSocket Conectado a: ${websocketUrl}`);
-            setIsConnected(true);
-        };
+        switch (item.metric.toLowerCase()) {
+          case 'pressurepercent':
+            toyData.pressurePercent.unshift(item.value);
+            break;
+          case 'pressuregram':
+            toyData.pressureGram.unshift(item.value);
+            break;
+          case 'battery':
+            toyData.battery.unshift(item.value);
+            break;
+          case 'accel':
+            toyData.accelX.unshift(item.value);
+            break;
+          case 'gyro':
+            toyData.gyroX.unshift(item.value);
+            break;
+        }
 
-        socket.current.onclose = () => {
-            console.log("🔌 WebSocket Desconectado");
-            setIsConnected(false);
-        };
+        // Limita a 20 lecturas por métrica
+        Object.keys(toyData).forEach((key) => {
+          if (key !== 'lastUpdate' && Array.isArray(toyData[key as keyof ToyData])) {
+            (toyData[key as keyof ToyData] as number[]).splice(20);
+          }
+        });
+      });
 
-        socket.current.onerror = (error) => {
-            console.error("❌ Error en WebSocket:", error);
-            setIsConnected(false); // Asumimos desconexión o estado de error
-        };
+      setAllToysData(toyDataMap);
+      setConnectedToys(Object.keys(toyDataMap).length);
+    } catch (error) {
+      console.error('Error fetching toys data:', error);
+    }
+  };
 
-        // Asignamos el handler memoizado
-        socket.current.onmessage = processWebSocketMessage;
+  useEffect(() => {
+    socket.current = new WebSocket(WEBSOCKET_URL);
 
-        // Limpieza: Cerramos la conexión cuando el componente se desmonte o el hook se re-ejecute
-        return () => {
-            // console.log("🧹 Limpiando conexión WebSocket...");
-            socket.current?.close();
-            socket.current = null; // Limpiamos la referencia
-        };
-    }, [websocketUrl, processWebSocketMessage]); // Re-ejecutar si la URL o el handler cambian (aunque el handler está memoizado)
+    socket.current.onopen = () => {
+      setIsConnected(true);
+    };
 
-    return { sensorData, isConnected };
+    socket.current.onclose = () => {
+      setIsConnected(false);
+    };
+
+    socket.current.onerror = (error) => {
+      console.error('❌ Error en WebSocket:', error);
+    };
+
+    socket.current.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        const sensors = parsed.Sensors;
+
+        if (sensors && typeof sensors === 'object') {
+          setSensorData((prevData) => ({
+            pressurePercent: [...prevData.pressurePercent.slice(-19), sensors.p?.pc ?? 0],
+            pressureGram: [...prevData.pressureGram.slice(-19), sensors.p?.gr ?? 0],
+            battery: [...prevData.battery.slice(-19), sensors.b ?? 0],
+            accelX: [...prevData.accelX.slice(-19), sensors.m?.x ?? 0],
+            accelY: [...prevData.accelY.slice(-19), sensors.m?.y ?? 0],
+            accelZ: [...prevData.accelZ.slice(-19), sensors.m?.z ?? 0],
+            gyroX: [...prevData.gyroX.slice(-19), sensors.g?.x ?? 0],
+            gyroY: [...prevData.gyroY.slice(-19), sensors.g?.y ?? 0],
+            gyroZ: [...prevData.gyroZ.slice(-19), sensors.g?.z ?? 0],
+          }));
+        } else {
+          console.warn('⚠️ Formato inesperado de Sensors:', sensors);
+        }
+      } catch (e) {
+        console.error('❌ Error al parsear el JSON del WebSocket', e);
+      }
+    };
+
+    return () => {
+      socket.current?.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchAllToysData();
+    const interval = setInterval(fetchAllToysData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return {
+    sensorData,
+    isConnected,
+    allToysData,
+    connectedToys,
+  };
 };
