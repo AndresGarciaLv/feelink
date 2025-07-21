@@ -8,6 +8,7 @@ import {
   Dimensions,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Image 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useListPatientsQuery } from '../../../core/http/requests/patientServerApi';
@@ -35,7 +36,10 @@ const MyPatientsSection: React.FC = () => {
   const renderItem = ({ item }: any) => (
     <View style={styles.patientItem}>
       <View style={styles.patientAvatarContainer}>
-        <Ionicons name={'person'} size={40} color="#8D99AE" />
+      <Image 
+        source={require('../../../shared/assets/img/perfil.png')}
+        style={styles.patientImage}
+      />
       </View>
       <Text style={styles.patientName}>{item.name}</Text>
     </View>
@@ -163,6 +167,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  patientImage: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  resizeMode: 'cover',
+},
+
 });
 
 export default MyPatientsSection;
