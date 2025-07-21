@@ -1,6 +1,7 @@
 import {jwtDecode} from "jwt-decode";
 import {AuthPayLoad, AuthState} from "../types/auth";
 import {AuthResponse} from "../contracts/auth/authResponse";
+import type { UserData } from '../types/auth'; // ajusta según la ruta real
 
 /**
  * Extrae los permisos del token, se reciben en formato de objeto agrupado por modulo, tienen la sig estructura:
@@ -18,6 +19,7 @@ export function extractRoleFromToken(token: string): string {
     try {
         const payload = jwtDecode<AuthPayLoad>(token);
         console.log("Payload:", payload);
+        
         return payload.role;
     } catch (error) {
         console.error("Error decoding token:", error);
@@ -25,16 +27,36 @@ export function extractRoleFromToken(token: string): string {
     }
 }
 
-export function buildAuthStateFromResponse(response: AuthResponse) : AuthState {
-    return {
-        userData: {
-            id: response.id,
-            name: response.name,
-            email: response.email,
-        },
-        isAuthenticated: true,
-        accessToken: response.accessToken,
-        role: extractRoleFromToken(response.accessToken),
-        isAuthLoading: false
-    };
+export function extractPayloadFromToken(token: string): AuthPayLoad | null {
+  try {
+    const payload = jwtDecode<AuthPayLoad>(token);
+    console.log("Payload decodificado:", payload);
+    return payload;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+  
+}
+
+
+
+
+export function buildAuthStateFromResponse(response: AuthResponse): AuthState {
+  const payload = extractPayloadFromToken(response.accessToken);
+
+  const userData: UserData = {
+    id: payload?.["nameid"] || "",
+    name: response.name,
+    email: response.email,
+    picture: response.picture,
+  };
+
+  return {
+    userData,
+    isAuthenticated: true,
+    accessToken: response.accessToken,
+    role: payload?.role ?? null,
+    isAuthLoading: false,
+  };
 }

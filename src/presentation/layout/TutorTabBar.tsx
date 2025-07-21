@@ -127,8 +127,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 60,
+    height: 90,
     width: '100%',
+    paddingBottom: 30, 
   },
   tabButton: {
     alignItems: 'center',

@@ -11,6 +11,8 @@ import {useLoginMutation, useRegisterMutation} from "../../../core/http/requests
 import {useAppDispatch} from "../../../core/stores/store";
 import {login} from "../../../core/stores/auth/authSlice";
 import {buildAuthStateFromResponse} from "../../../core/composables/authComposables";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const AuthScreen: React.FC = () => {
     const [formState, setFormState] = useState<null | 'login' | 'register'>(null);
@@ -21,8 +23,13 @@ const AuthScreen: React.FC = () => {
 
     const handleLogin = async (email: string, password: string) => {
         loginRequest({email, password}).unwrap()
-            .then((res) => {
+            .then(async (res) => {
                 const authState = buildAuthStateFromResponse(res);
+
+                await AsyncStorage.setItem('accessToken', authState.accessToken!);
+                await AsyncStorage.setItem('userData', JSON.stringify(authState.userData));
+                await AsyncStorage.setItem('role', authState.role!);
+
                 dispatch(login({
                     user: authState.userData!,
                     accessToken: authState.accessToken!,
@@ -37,6 +44,7 @@ const AuthScreen: React.FC = () => {
             })
             .catch(err => {
                 alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
+                alert(err?.data?.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.');
             })
     }
 

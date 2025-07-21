@@ -1,19 +1,64 @@
-import React from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../../core/types/common/navigation'; 
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import HeaderTutor from '../../components/HeaderTutor';
 import PelucheIcon from '../../components/PelucheIcon';
 import TutorTabBar from '../../../presentation/layout/TutorTabBar';
-
-type Navigation = NativeStackNavigationProp<RootStackParamList, 'TutorProfile'>;
+import { useAppSelector } from '../../../core/stores/store';
+import { selectAccessToken, selectUserData } from '../../../core/stores/auth/authSlice';
+import { TutorData } from '../../../core/types/tutor';
+import { PatientData } from '../../../core/types/patient';
 
 const ProfileTutor: React.FC = () => {
-  // ⬇️ La llamada a useNavigation DEBE ir dentro del componente
-  const navigation = useNavigation<Navigation>();
-   const handleIconPress = () => {
-    navigation.navigate('DetallesPeluche');
+  const userData = useAppSelector(selectUserData);
+  const accessToken = useAppSelector(selectAccessToken);
+
+  const [tutorData, setTutorData] = useState<TutorData | null>(null);
+  const [patientData, setPatientData] = useState<PatientData | null>(null);
+
+useEffect(() => {
+  const fetchTutorData = async () => {
+    if (!userData?.id || !accessToken) return;
+
+    try {
+      const res = await fetch(`http://feelink-api.runasp.net/api/Users/${userData.id}/data`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data: TutorData = await res.json();
+      console.log('👤 Tutor cargado:', data);
+      setTutorData(data);
+    } catch (error) {
+      console.error('❌ Error al obtener datos del tutor:', error);
+    }
+  };
+
+  fetchTutorData();
+}, [userData?.id, accessToken]);
+
+useEffect(() => {
+  const fetchPatient = async () => {
+    if (!tutorData?.patientId || !accessToken) return;
+
+    try {
+      const res = await fetch(`http://feelink-api.runasp.net/api/Patients/${tutorData.patientId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data: PatientData = await res.json();
+      console.log('🧒 Paciente cargado:', data);
+      
+      setPatientData(data);
+    } catch (error) {
+      console.error('❌ Error al obtener datos del paciente:', error);
+    }
+  };
+
+  fetchPatient();
+}, [tutorData?.patientId, accessToken]);
+
+
+  const calculateIMC = () => {
+    if (!patientData?.height || !patientData?.weight) return '--';
+    const imc = patientData.weight / (patientData.height / 100) ** 2;
+    return imc.toFixed(1);
   };
 
   return (
@@ -21,25 +66,30 @@ const ProfileTutor: React.FC = () => {
       <HeaderTutor />
 
       <View style={styles.avatarContainer}>
-        <Image
-          source={require('../../assets/img/perfil.png')}
-          style={styles.avatar}
-        />
+        <Image source={require('../../assets/img/perfil.png')} style={styles.avatar} />
         <TouchableOpacity style={styles.tagButton}>
-          <Text style={styles.tagText}>peluchin</Text>
+          <Text style={styles.tagText}>
+            {patientData?.stuffedToyName ?? 'Peluchín'}
+          </Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.infoContainer}>
-        <Text style={styles.name}>Álvaro Díaz</Text>
-        <Text style={styles.subText}>3 Años</Text>
-        <Text style={styles.subTextGray}>321000218739812 • Niño</Text>
+        <Text style={styles.name}>
+          {`Tutor ${userData?.name}`}
+        </Text>
+        <Text style={styles.subText}>
+          {patientData ? `${patientData.name} ${patientData.lastName}` : 'Cargando...'} • {patientData ? `${patientData.age} Años` : ''}
+        </Text>
+        <Text style={styles.subTextGray}>
+          {patientData ? `${tutorData?.patientId} • ${patientData.gender}` : ''}
+        </Text>
       </View>
 
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
           <Text style={styles.statValueWithUnit}>
-            73 <Text style={styles.statUnit}>cm</Text>
+            {patientData?.height ?? '--'} <Text style={styles.statUnit}>cm</Text>
           </Text>
           <Text style={styles.statLabel}>Altura</Text>
         </View>
@@ -48,7 +98,7 @@ const ProfileTutor: React.FC = () => {
 
         <View style={styles.statBox}>
           <Text style={styles.statValueWithUnit}>
-            12 <Text style={styles.statUnit}>kg</Text>
+            {patientData?.weight ?? '--'} <Text style={styles.statUnit}>kg</Text>
           </Text>
           <Text style={styles.statLabel}>Peso</Text>
         </View>
@@ -56,169 +106,122 @@ const ProfileTutor: React.FC = () => {
         <View style={styles.divider} />
 
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>12</Text>
+          <Text style={styles.statValue}>{calculateIMC()}</Text>
           <Text style={styles.statUnit}>IMC</Text>
         </View>
       </View>
 
       <Text style={styles.batteryTitle}>Batería del peluche</Text>
 
-      <TouchableOpacity style={styles.iconWrapper} onPress={handleIconPress}>
+      <View style={styles.iconWrapper}>
         <PelucheIcon />
-      </TouchableOpacity>
+      </View>
 
       <Text style={styles.batteryStatus}>80% de carga</Text>
-      <TutorTabBar activeTab='Perfil'/>
+      <TutorTabBar activeTab="Perfil" />
     </View>
   );
 };
 
+
 export default ProfileTutor;
 
-
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#FFF',
-        fontFamily: 'sans-serif',
-    },
-    avatarContainer: {
-        alignItems: 'center',
-        marginTop: -45,
-    },
-    avatar: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-    },
-    tagButton: {
-        borderColor: '#9BC4E0',
-        borderWidth: 1,
-        borderRadius: 50,
-        paddingHorizontal: 12,
-        paddingVertical: 4,
-    },
-    subTextGray: {
-        fontSize: 14,
-        color: '#666',
-        lineHeight: 20,
-        textAlign: 'center',
-    },
-    tagText: {
-        color: '#9BC4E0',
-        fontSize: 12,
-    },
-    infoContainer: {
-        alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 20,
-        color: '#333',
-    },
-    name: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 6,
-    },
-    subText: {
-        fontSize: 14,
-        color: '#333',
-        marginBottom: 6,
-    },
-    statValueWithUnit: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        textAlign: 'center',
-    },
-    verticalDivider: {
-        width: 1,
-        backgroundColor: '#CCC',
-        marginHorizontal: 8,
-        height: '100%',
-        alignSelf: 'center',
-    },
-    subTextSpacer: {
-        fontSize: 14,
-        color: '#333',
-        marginTop: 6,
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginHorizontal: 24,
-        marginTop: 24,
-        backgroundColor: '#FFF',
-        padding: 16,
-        borderRadius: 20,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-        alignItems: 'center',
-    },
-    statBox: {
-        alignItems: 'center',
-        flex: 1,
-        backgroundColor: '#FFFF',
-    },
-    divider: {
-        width: 1,
-        height: '100%',
-        backgroundColor: '#DDD',
-        marginHorizontal: 8,
-    },
-    statValue: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    statUnit: {
-        fontSize: 14,
-        color: '#666',
-    },
-    statLabel: {
-        fontSize: 12,
-        marginTop: 4,
-    },
-    buttonGroup: {
-        marginTop: 24,
-        marginHorizontal: 24,
-        gap: 12,
-    },
-    wifiButton: {
-        backgroundColor: '#9BC4E0',
-        padding: 12,
-        borderRadius: 16,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
-    },
-    wifiText: {
-        color: '#FFF',
-        fontWeight: '500',
-        fontSize: 16,
-    },
-    batteryTitle: {
-    textAlign: 'left',
+  container: {
+    flex: 1,
+    backgroundColor: '#F6F8FC',
+  },
+  avatarContainer: {
+    alignItems: 'center',
     marginTop: 24,
-    marginLeft: 24,
-    fontSize: 16,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  tagButton: {
+    backgroundColor: '#D1E7DD',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginTop: 8,
+  },
+  tagText: {
+    color: '#0F5132',
+    fontWeight: 'bold',
+  },
+  infoContainer: {
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: '700',
     color: '#333',
-    fontWeight: '500',
+  },
+  subText: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 4,
+  },
+  subTextGray: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 2,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 24,
+    marginHorizontal: 20,
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 16,
+    elevation: 2,
+  },
+  statBox: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  statValueWithUnit: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  statUnit: {
+    fontSize: 12,
+    color: '#666',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#777',
+    marginTop: 4,
+  },
+  divider: {
+    width: 1,
+    backgroundColor: '#ccc',
+    marginHorizontal: 8,
+  },
+  batteryTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 24,
+    textAlign: 'center',
+    color: '#333',
   },
   iconWrapper: {
     alignItems: 'center',
-    marginTop: 16,    
+    marginVertical: 16,
   },
   batteryStatus: {
     textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#4BA6F0',
-    marginTop: 8,
+    fontSize: 14,
+    color: '#555',
   },
 });

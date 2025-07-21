@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
     View,
@@ -11,11 +11,15 @@ import {
     Platform
 } from 'react-native';
 import { useAppSelector } from '../../../core/stores/store';
-import { selectUserData } from '../../../core/stores/auth/authSlice';
-
+import { selectUserData, selectAccessToken } from '../../../core/stores/auth/authSlice';
+import { TutorData } from '../../../core/types/tutor';
+import { PatientData } from '../../../core/types/patient';
 import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
 import HeaderProfile from '../../../shared/components/profile/HeaderProfile';
 import TutorTabBar from '../../../presentation/layout/TutorTabBar';
+import DetallesPatient from '../../../shared/components/tutor/DetallesPatient';
+import ResumenEmocional from '../../../shared/components/tutor/ResumenEmocional';
+
 // PALETA DE COLORES - Basada en el diseño de referencia
 const Colors = {
     white: '#FFFFFF',
@@ -40,9 +44,70 @@ const Colors = {
 
 
 
+
+
 export default function HomeTutor() {
 
     const userData = useAppSelector(selectUserData);
+    const accessToken = useAppSelector(selectAccessToken);
+    const [tutorData, setTutorData] = useState<TutorData | null>(null);
+    const [patientData, setPatientData] = useState<PatientData | null>(null);
+
+    console.log("userData completo:", userData);
+
+    useEffect(() => {
+        if (!accessToken || !userData || !userData.id) {
+            console.warn('ID del usuario no definido');
+            return;
+        }
+
+        console.log("ID extraído:", userData?.id);
+        const fetchTutorData = async () => {
+            try {
+                const res = await fetch(
+                    `http://feelink-api.runasp.net/api/Users/${userData.id}/data`,
+                    {
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                    }
+                );
+
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+                const json = await res.json();
+                setTutorData(json);
+            } catch (err) {
+                console.error('Error al obtener datos del tutor:', err);
+            }
+        };
+
+        fetchTutorData();
+    }, [accessToken, userData]);
+
+
+    useEffect(() => {
+        if (!tutorData?.patientId || !accessToken) return;
+
+        const fetchPatientData = async () => {
+            try {
+                const res = await fetch(`http://feelink-api.runasp.net/api/Patients/${tutorData.patientId}`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+                const json = await res.json();
+                setPatientData(json);
+            } catch (err) {
+                console.error('Error al obtener datos del paciente:', err);
+            }
+        };
+
+        fetchPatientData();
+    }, [tutorData, accessToken]);
+
+
 
     // ESTADO - Control del mes seleccionado en la navegación mensual
     const [selectedMonth, setSelectedMonth] = useState('Abril');
@@ -172,52 +237,7 @@ export default function HomeTutor() {
         }
     };
 
-    // Función para obtener el icono según el tipo de emoción
-    const getEmotionIcon = (type) => {
-        switch (type) {
-            case 'estable':
-                return '😊';
-            case 'ansioso':
-                return '😐';
-            case 'crisis':
-                return '😰';
-            default:
-                return '😊';
-        }
-    };
-
-    // COMPONENTES DE RENDERIZADO
-
-    // Renderiza las estadísticas emocionales del día actual
-    const renderEmotionalStats = () => {
-        const todayStats = [
-            { type: 'estable', label: 'Estable', percentage: '60%' },
-            { type: 'ansioso', label: 'Ansioso', percentage: '30%' },
-            { type: 'crisis', label: 'Crisis', percentage: '10%' }
-        ];
-
-        return (
-            <View style={styles.emotionalStatsCard}>
-                <Text style={styles.sectionTitle}>Estados emocionales del día</Text>
-                <View style={styles.emotionalStatsContainer}>
-                    {todayStats.map((stat, index) => (
-                        <View key={index} style={styles.emotionalStatItem}>
-                            <View style={[
-                                styles.emotionalIcon,
-                                { backgroundColor: getEmotionColor(stat.type) }
-                            ]}>
-                                <Text style={styles.emotionalIconText}>
-                                    {getEmotionIcon(stat.type)}
-                                </Text>
-                            </View>
-                            <Text style={styles.emotionalLabel}>{stat.label}</Text>
-                            <Text style={styles.emotionalPercentage}>{stat.percentage}</Text>
-                        </View>
-                    ))}
-                </View>
-            </View>
-        );
-    };
+    
 
     // Renderiza el resumen mensual con información detallada
     const renderMonthlySummary = () => {
@@ -315,65 +335,19 @@ export default function HomeTutor() {
                     {/* NAVIGATION - Barra de navegación principal */}
                     <HeaderTutor
                         tutorName={`Tutor ${userData?.name}`}
+                        centerName={tutorData?.companyName || 'Centro no disponible'}
+                        specialistName={tutorData?.therapistName || 'Especialista no disponible'}
                     />
 
-                    {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
-                    <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('TutorProfile')}>
-                        <View style={styles.profileCard}>
-                            {/* Avatar del niño */}
-                            <Image
-                                source={require('../../../shared/assets/img/Home-tutor.png')}
-                                style={styles.avatar}
-                            />
 
-                            {/* Información básica del perfil */}
-                            <Text style={styles.childName}>Álvaro Díaz</Text>
-                            <Text style={styles.childAge}>3 Años</Text>
-                            <Text style={styles.childId}>321000218739812 • Niño</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <DetallesPatient />
 
-                    {/* SECCIÓN: ESTADOS EMOCIONALES DEL DÍA */}
-                    {renderEmotionalStats()}
+                    {tutorData?.patientId && accessToken && (
+  <ResumenEmocional patientId={tutorData.patientId} accessToken={accessToken} />
+)}
 
 
-                    {/* SECCIÓN: REGISTRO MENSUAL */}
-                    <Text style={styles.mainSectionTitle}>Registro mensual</Text>
 
-                    {/* NAVEGACIÓN MENSUAL - Tabs para seleccionar meses */}
-                    <View style={styles.monthTabs}>
-                        {['Abril', 'Marzo', 'Febrero', 'Enero'].map((mes, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.monthButton,
-                                    selectedMonth === mes && styles.monthButtonActive
-                                ]}
-                                onPress={() => handleMonthSelect(mes)}
-                            >
-                                <Text style={[
-                                    styles.monthText,
-                                    selectedMonth === mes && styles.monthTextActive
-                                ]}>
-                                    {mes}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-
-                    {/* RESUMEN MENSUAL DETALLADO */}
-                    {renderMonthlySummary()}
-
-                    {/* RECOMENDACIONES PERSONALIZADAS */}
-                    {renderRecommendations()}
-
-                    {/* FRASE MOTIVACIONAL DEL DÍA */}
-                    {renderDailyQuote()}
-
-                    {/* Espacio adicional para scroll */}
-
-                    <View style={styles.bottomPadding} />
 
                 </ScrollView>
 

@@ -1,22 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform, Image } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-interface NavbarProps {
+interface HeaderTutorProps {
   tutorName?: string;
   centerName?: string;
   specialistName?: string;
   profileImage?: any;
 }
 
-const HeaderTutor: React.FC<NavbarProps> = ({
+const HeaderTutor: React.FC<HeaderTutorProps> = ({
   tutorName = 'Andres Garcia',
   centerName = 'Astra, AB',
   specialistName = 'Dr. Ricardo Chi',
   profileImage,
 }) => {
   const insets = useSafeAreaInsets();
+
   return (
     <View style={[styles.container, { paddingTop: insets.top + 20 }]}>
       <View style={styles.content}>
@@ -41,13 +42,11 @@ const HeaderTutor: React.FC<NavbarProps> = ({
 
         {/* SECCIÓN INFERIOR - Cards separadas para Centro de atención y Especialista */}
         <View style={styles.cardsContainer}>
-          {/* CARD IZQUIERDA - Centro de atención */}
           <View style={[styles.infoCard, styles.leftCard]}>
             <Text style={styles.cardTitle}>Centro de atención</Text>
             <Text style={styles.cardSubtitle}>{centerName}</Text>
           </View>
 
-          {/* CARD DERECHA - Especialista */}
           <View style={[styles.infoCard, styles.rightCard]}>
             <Text style={styles.cardTitle}>Especialista</Text>
             <Text style={styles.cardSubtitle}>{specialistName}</Text>
@@ -57,6 +56,7 @@ const HeaderTutor: React.FC<NavbarProps> = ({
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   // CONTENEDOR PRINCIPAL - Fondo con degradado azul-rosa

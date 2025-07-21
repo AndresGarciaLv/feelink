@@ -41,7 +41,7 @@ const Colors = {
 
 
 
-export default function HomeTutor() {
+export default function InfoPeluche() {
 
     const userData = useAppSelector(selectUserData);
 
@@ -326,11 +326,6 @@ export default function HomeTutor() {
                 <TutorTabBar activeTab="InfoPeluche" />
             </View>
         </KeyboardAvoidingView>
-
-
-
-
-
 
     );
 }
