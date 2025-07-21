@@ -55,9 +55,9 @@ export default function PatientList({ data, onEdit, onDelete }: Props) {
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
       renderHiddenItem={renderHiddenItem}
-      rightOpenValue={-145}
+      rightOpenValue={-170}
       disableRightSwipe
-      stopRightSwipe={-145}
+      stopRightSwipe={-170}
       previewRowKey={'0'}
       previewOpenValue={-40}
       previewOpenDelay={3000}

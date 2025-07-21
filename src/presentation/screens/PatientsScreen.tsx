@@ -13,6 +13,7 @@ import {
   useDeletePatientMutation,
   useGetPatientByIdQuery,
 } from '../../core/http/requests/patientServerApi';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import { Patient } from '../../core/contracts/patient/patientsDto';
 import { PatientCreateDto } from '../../core/contracts/patient/patientCreateDto';
@@ -33,6 +34,7 @@ export default function PatientsScreen() {
   const [newWeight, setNewWeight] = useState('');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const userRole = useSelector(selectRole);
+  const insets = useSafeAreaInsets();
 
   // RTK Query hooks
   // Puedes ajustar page y pageSize si necesitas paginación en la UI
@@ -477,8 +479,10 @@ const handleEditToy = (id) => {
         </View>
       </Modal>
 
-
+            {/* Tab Bar Component */}
+            <View style={{paddingBottom: insets.bottom}}>
       <TabBar activeTab="Patients" />
+      </View>
     </View>
   );
 }
@@ -487,7 +491,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    paddingVertical: 20,
    
   },  buttonsContainer: {
   flexDirection: 'row',
