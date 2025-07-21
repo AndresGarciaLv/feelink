@@ -7,52 +7,55 @@ import { useAppSelector } from '../../../core/stores/store';
 import { selectAccessToken, selectUserData } from '../../../core/stores/auth/authSlice';
 import { TutorData } from '../../../core/types/tutor';
 import { PatientData } from '../../../core/types/patient';
+import { useSensorSocket } from '../../hooks/useSensorSocket';
 
 const ProfileTutor: React.FC = () => {
   const userData = useAppSelector(selectUserData);
   const accessToken = useAppSelector(selectAccessToken);
-
+  const { sensorData, isConnected } = useSensorSocket();
   const [tutorData, setTutorData] = useState<TutorData | null>(null);
   const [patientData, setPatientData] = useState<PatientData | null>(null);
 
-useEffect(() => {
-  const fetchTutorData = async () => {
-    if (!userData?.id || !accessToken) return;
+  const battery = sensorData.battery.at(-1) ?? 100;
 
-    try {
-      const res = await fetch(`http://feelink-api.runasp.net/api/Users/${userData.id}/data`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const data: TutorData = await res.json();
-      console.log('👤 Tutor cargado:', data);
-      setTutorData(data);
-    } catch (error) {
-      console.error('❌ Error al obtener datos del tutor:', error);
-    }
-  };
+  useEffect(() => {
+    const fetchTutorData = async () => {
+      if (!userData?.id || !accessToken) return;
 
-  fetchTutorData();
-}, [userData?.id, accessToken]);
+      try {
+        const res = await fetch(`http://feelink-api.runasp.net/api/Users/${userData.id}/data`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data: TutorData = await res.json();
+        console.log(' Tutor cargado:', data);
+        setTutorData(data);
+      } catch (error) {
+        console.error(' Error al obtener datos del tutor:', error);
+      }
+    };
 
-useEffect(() => {
-  const fetchPatient = async () => {
-    if (!tutorData?.patientId || !accessToken) return;
+    fetchTutorData();
+  }, [userData?.id, accessToken]);
 
-    try {
-      const res = await fetch(`http://feelink-api.runasp.net/api/Patients/${tutorData.patientId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      const data: PatientData = await res.json();
-      console.log('🧒 Paciente cargado:', data);
-      
-      setPatientData(data);
-    } catch (error) {
-      console.error('❌ Error al obtener datos del paciente:', error);
-    }
-  };
+  useEffect(() => {
+    const fetchPatient = async () => {
+      if (!tutorData?.patientId || !accessToken) return;
 
-  fetchPatient();
-}, [tutorData?.patientId, accessToken]);
+      try {
+        const res = await fetch(`http://feelink-api.runasp.net/api/Patients/${tutorData.patientId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data: PatientData = await res.json();
+        console.log(' Paciente cargado:', data);
+
+        setPatientData(data);
+      } catch (error) {
+        console.error(' Error al obtener datos del paciente:', error);
+      }
+    };
+
+    fetchPatient();
+  }, [tutorData?.patientId, accessToken]);
 
 
   const calculateIMC = () => {
@@ -114,10 +117,17 @@ useEffect(() => {
       <Text style={styles.batteryTitle}>Batería del peluche</Text>
 
       <View style={styles.iconWrapper}>
-        <PelucheIcon />
+        <PelucheIcon battery={battery} />
       </View>
+      <Text style={styles.batteryStatus}>
+        {battery !== undefined
+          ? `${battery}% de carga`
+          : isConnected
+            ? 'Obteniendo batería...'
+            : 'Desconectado'}
+      </Text>
 
-      <Text style={styles.batteryStatus}>80% de carga</Text>
+
       <TutorTabBar activeTab="Perfil" />
     </View>
   );
