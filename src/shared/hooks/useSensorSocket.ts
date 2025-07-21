@@ -57,10 +57,6 @@ export const useSensorSocket = () => {
         lastWifiSsid: null,
         lastMessage: null,
     });
-
-    // Estados para datos de todos los juguetes
-    const [allToysData, setAllToysData] = useState<Record<string, ToyData>>({});
-    const [connectedToys, setConnectedToys] = useState(0);
     const [isConnected, setIsConnected] = useState(false);
     const socket = useRef<WebSocket | null>(null);
 
@@ -107,7 +103,7 @@ export const useSensorSocket = () => {
         socket.current = new WebSocket(websocketUrl);
 
         socket.current.onopen = () => {
-            console.log(`✅ WebSocket Conectado a: ${websocketUrl}`);
+            console.log(✅ WebSocket Conectado a: ${websocketUrl});
             setIsConnected(true);
         };
 
