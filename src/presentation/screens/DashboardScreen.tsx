@@ -14,7 +14,7 @@ import {useListPatientsQuery} from "../../core/http/requests/patientServerApi";
 import MyPatientsSection from '../../shared/components/dashboard/myPatients';
 import { useGetPatientsSummaryQuery, useGetMonthlyActivitySummaryQuery } from "../../core/http/requests/patientServerApi";
 import DashboardCharts from '../../shared/components/charts/DashboardCharts';
-
+import WifiStepGuide from '../screens/WifiStepGuide';
 
 // --- NUEVA IMPORTACIÓN ---
 import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
@@ -84,6 +84,13 @@ const quickActions: QuickAction[] = [
         color: '#C7A8E5',
         onPress: () => navigation.navigate('TherapistProfile')
     }
+    ,
+    {
+        title: 'Conectar Peluche',
+        icon: 'wifi',
+        color: '#E5A4C0',
+        onPress: () => navigation.navigate('WifiStepGuide')
+    },
 ];
     return (
         <View style={styles.container}>

@@ -555,7 +555,7 @@ therapistButton: {
 },
 
   addText: {
-    color: Colors.textSecundary,
+    color: Colors.white,
     fontWeight: 'bold',
   },
   avatar: {
@@ -613,7 +613,7 @@ therapistButton: {
     fontWeight: 'bold',
   },
   pickerContainer: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.white,
     marginHorizontal: 30,
     borderRadius: 10,
     padding: 10,

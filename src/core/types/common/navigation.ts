@@ -14,4 +14,5 @@ export type RootStackParamList = {
     DetallesPeluche: { patientId: string };
     WiFi: { deviceId: string };
     InfoPeluche:undefined;
+    WifiStepGuide: undefined;
 };
