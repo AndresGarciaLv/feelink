@@ -175,14 +175,32 @@ useEffect(() => {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
       return;
     }
-
+    const ageNum = parseInt(newAge, 10);
+   if (isNaN(ageNum) || ageNum < 3 || ageNum > 15) {
+    Alert.alert('La edad debe estar entre 3 y 15 años.');
+    return;
+  }
+  if (newHeight.includes('.')) {
+    Alert.alert('error','La altura no debe contener puntos decimales.');
+    return;
+  }
+const heightNum = parseInt(newHeight, 10);
+  if (isNaN(heightNum) || heightNum < 30 || heightNum > 250) {
+    Alert.alert('Error','La altura debe estar entre 30 y 250 cm.');
+    return;
+  }
+   const weightNum = parseInt(newWeight, 10);
+  if (isNaN(weightNum) || weightNum < 1 || weightNum > 200) {
+    Alert.alert('El peso debe estar entre 1 y 200 kg.');
+    return;
+  }
     const patientData = {
       name: newName,
       lastName: newLastName,
-      age: parseInt(newAge),
+      age:ageNum,
       gender: newGender,
-      height: parseFloat(newHeight),
-      weight: parseFloat(newWeight),
+      height:heightNum,
+      weight: weightNum,
     };
 
     try {
@@ -208,6 +226,13 @@ useEffect(() => {
 
   const [genderOptionsVisible, setGenderOptionsVisible] = useState(false);
   const genderOptions = ['Masculino', 'Femenino']; // campo 'gender'
+
+  const handleHeightChange = (text: string) => {
+  const filtered = text.replace(/[^0-9]/g, '');
+  setNewHeight(filtered);
+};
+
+
 
   // Si los datos están cargando o hay un error
   if (isLoading) {
@@ -334,9 +359,9 @@ useEffect(() => {
             <TextInput
               style={styles.input}
               placeholder="Altura (cm)"
-              keyboardType="numeric"
+              keyboardType="number-pad"
               value={newHeight}
-              onChangeText={setNewHeight}
+              onChangeText={handleHeightChange}
             />
             <TextInput
               style={styles.input}
@@ -530,7 +555,7 @@ therapistButton: {
 },
 
   addText: {
-    color: Colors.white,
+    color: Colors.textSecundary,
     fontWeight: 'bold',
   },
   avatar: {
@@ -588,7 +613,7 @@ therapistButton: {
     fontWeight: 'bold',
   },
   pickerContainer: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.secondary,
     marginHorizontal: 30,
     borderRadius: 10,
     padding: 10,
