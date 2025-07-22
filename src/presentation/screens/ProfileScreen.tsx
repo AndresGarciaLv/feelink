@@ -26,6 +26,7 @@ import {
 } from "../../core/http/requests/patientServerApi";
 import { useGetToyReadingsSummaryQuery } from "../../core/http/requests/toyServerApi";
 import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
+import { useSensorSocket } from '../../shared/hooks/useSensorSocket';
 
 type Toy = {
   id: string;
@@ -50,6 +51,7 @@ type ProfileScreenRouteProp = RouteProp<RootStackParamList, "Profile">;
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 export default function ProfileScreen() {
+  const socketData = useSensorSocket();
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ProfileScreenRouteProp>();
 const [isModalVisible, setIsModalVisible] = useState(false);
@@ -588,7 +590,7 @@ if (hasCriticalError) {
       </TouchableOpacity>
     </View>
     <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-      <RealTimeCharts />
+      <RealTimeCharts socketData={socketData} />
     </ScrollView>
   </View>
 </Modal>
