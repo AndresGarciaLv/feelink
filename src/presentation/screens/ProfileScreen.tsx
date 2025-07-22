@@ -27,6 +27,7 @@ import {
 import { useGetToyReadingsSummaryQuery } from "../../core/http/requests/toyServerApi";
 import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
 import { useSensorSocket } from '../../shared/hooks/useSensorSocket';
+import ToyHistoryComponent from "../../shared/components/profile/ToyHistoryComponent";
 
 type Toy = {
   id: string;
@@ -98,14 +99,14 @@ const [isModalVisible, setIsModalVisible] = useState(false);
 
   const safeMacAddress = toyMacAddress ?? "";
 
-  const {
-    data: toyReadingsSummary,
-    isLoading: isToyReadingsLoading,
-    error: toyReadingsError,
-  } = useGetToyReadingsSummaryQuery(
-    { macAddress: safeMacAddress, from: fromDate, to: toDate, dummy: false },
-    { skip: !toyMacAddress }
-  );
+  // const {
+  //   data: toyReadingsSummary,
+  //   isLoading: isToyReadingsLoading,
+  //   error: toyReadingsError,
+  // } = useGetToyReadingsSummaryQuery(
+  //   { macAddress: safeMacAddress, from: fromDate, to: toDate, dummy: false },
+  //   { skip: !toyMacAddress }
+  // );
 
   const patientInfo = useMemo(() => {
     if (!patientData) {
@@ -145,8 +146,9 @@ const [isModalVisible, setIsModalVisible] = useState(false);
   const isLoading =
     isPatientLoading ||
     isToyLoading ||
-    isActivitySummaryLoading ||
-    isToyReadingsLoading;
+        isActivitySummaryLoading;
+    // isActivitySummaryLoading ||
+    // isToyReadingsLoading;
 
   const getErrorStatus = (error: any, label: string) => {
     if (!error || typeof error !== "object") return null;
@@ -161,7 +163,7 @@ const [isModalVisible, setIsModalVisible] = useState(false);
     getErrorStatus(patientError, "Paciente") ||
     getErrorStatus(toyError, "Juguete") ||
     getErrorStatus(activitySummaryError, "Resumen actividad") ||
-    getErrorStatus(toyReadingsError, "Lecturas juguete") ||
+    // getErrorStatus(toyReadingsError, "Lecturas juguete") ||
     "Error desconocido";
 
   if (isLoading) {
@@ -180,7 +182,7 @@ const isToyNotFound = toyError && "status" in toyError && toyError.status === 40
 const hasCriticalError =
   patientError ||
   activitySummaryError ||
-  toyReadingsError ||
+  // toyReadingsError ||
   (toyError && !isToyNotFound); // ⚠️ Ignora 404
 
 if (hasCriticalError) {
@@ -236,7 +238,6 @@ if (hasCriticalError) {
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{patientInfo.name}</Text>
           <Text style={styles.subText}>{patientInfo.age}</Text>
-          <Text style={styles.subTextGray}>{"321000218739812 • Niño"}</Text>
         </View>
 
         {/* Datos físicos con divisores */}
@@ -277,7 +278,16 @@ if (hasCriticalError) {
 </TouchableOpacity>
         </View>
 
-    {/* AQUI SE INTEGRARA LO NUEVO IMPLEMENTADO POR RICHI */}
+    {/* AQUI SE INTEGRARA el componente ToyHistoryScreen.tsx*/}
+{toyData && toyData.macAddress ? (
+          <ToyHistoryComponent macAddress={toyData.macAddress} patientId={patientId} />
+        ) : (
+          <View >
+            <Text>
+              No hay un peluche asignado a este paciente para mostrar el historial de lecturas.
+            </Text>
+          </View>
+        )}
 
 
       </View>
@@ -309,7 +319,7 @@ if (hasCriticalError) {
 // ESTILOS (mantén todos tus estilos actuales y añade los nuevos para carga/error y noData)
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: "#FFF",
     fontFamily: "sans-serif",
   },
