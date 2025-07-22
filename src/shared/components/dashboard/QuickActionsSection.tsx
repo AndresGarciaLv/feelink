@@ -27,7 +27,13 @@ const QuickActionsSection: React.FC = () => {
             icon: 'person',
             color: '#C7A8E5',
             onPress: () => navigation.navigate('TherapistProfile')
-        }
+        },
+         {
+        title: 'Conectar Peluche',
+        icon: 'wifi',
+        color: '#E5A4C0',
+        onPress: () => navigation.navigate('WifiStepGuide')
+    },
     ];
 
     return (
@@ -62,6 +68,7 @@ const styles = StyleSheet.create({
     },
     quickActionsContainer: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         justifyContent: 'space-between',
         marginTop: 12,
     },
