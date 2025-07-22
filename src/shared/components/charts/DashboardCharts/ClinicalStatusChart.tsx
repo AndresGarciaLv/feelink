@@ -26,9 +26,6 @@ interface ClinicalStatusChartProps {
 
 const ClinicalStatusChart: React.FC<ClinicalStatusChartProps> = ({ aggregatedData }) => {
   
-  // 🔍 DEBUG: Verificar datos recibidos
-  // console.log('📊 [ClinicalStatusChart] Datos recibidos:', aggregatedData);
-  
   const getClinicalStatusData = (): PieDataItem[] => {
     const { stableChildren, anxiousChildren, crisisChildren } = aggregatedData;
     const total = stableChildren + anxiousChildren + crisisChildren;
