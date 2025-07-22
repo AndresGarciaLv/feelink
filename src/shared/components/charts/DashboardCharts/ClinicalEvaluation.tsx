@@ -21,11 +21,6 @@ const ClinicalEvaluation: React.FC<ClinicalEvaluationProps> = ({
     <View style={styles.recommendationsPanel}>
       <Text style={styles.recommendationsTitle}>EVALUACIÓN CLÍNICA</Text>
       
-      {/* Debug visual - mostrar valores */}
-      <Text style={styles.debugText}>
-        Debug: Crisis={crisisChildrenCount}, Batería={averageBatteryHealth}%
-      </Text>
-      
       <View style={styles.recommendationItem}>
         <View
           style={[
@@ -86,12 +81,6 @@ const styles = StyleSheet.create({
     color: "#2D3748",
     marginBottom: 16,
     letterSpacing: 0.5,
-  },
-  debugText: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 10,
-    fontStyle: "italic",
   },
   recommendationItem: {
     marginBottom: 12,

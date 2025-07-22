@@ -1,15 +1,14 @@
-// src/core/http/requests/toyServerApi.ts
 import { serverApi } from "../serverApi";
 import { buildQueryParams } from "../../composables/httpComposables";
 import BaseListResponse from "../../contracts/BaseListResponse";
 
-// --- DTOs PARA JUGUETES ---
+// --- DTOs y tipos para juguetes ---
+
 export interface ToyDto {
   id: string;
   name: string;
   macAddress: string;
   patientId: string;
-  // Agrega otros campos que devuelva tu API
 }
 
 export interface ToyCreateDto {
@@ -17,37 +16,72 @@ export interface ToyCreateDto {
   macAddress: string;
   patientId: string;
 }
+
 export interface ToyUpdateDto {
   name: string;
-  macAddress: string; 
+  macAddress: string;
+}
+
+export interface ToyReading {
+  timestamp: string;
+  value: number;
+  metricType: string;
+}
+
+export interface GetToyReadingsParams {
+  macAddress: string;
+  From?: string;
+  To?: string;
+  Metric?: string;
+  MinValue?: number;
+  MaxValue?: number;
+  Page?: number;
+  PageSize?: number;
+  SortBy?: string;
+  Desc?: boolean;
 }
 
 export interface ToyReadingsSummary {
-  macAddress: string;
-  from: string; // "YYYY-MM-DD"
-  to: string;   // "YYYY-MM-DD"
-  totalReadings: number;
-  averageMetric: number; // Ejemplo: promedio de algún valor
-  dailyReadings: DailyToyReading[];
+  items: {
+    date: string;       // "YYYY-MM-DD"
+    status: string;     // "estable" | "crisis" | "ansioso"
+  }[];
+  summary: {
+    ansioso: number;
+    crisis: number;
+    estable: number;
+  };
+  totalItems: number;
 }
+
+
+
+// export interface ToyReadingsSummary {
+//   macAddress: string;
+//   totalReadings: number;
+//   averageValue?: number;
+//   minValue?: number;
+//   maxValue?: number;
+//   dailyReadings?: DailyToyReading[];
+// }
 
 export interface DailyToyReading {
-  date: string; // "YYYY-MM-DD"
-  value: number; // Ejemplo: un valor de métrica diaria
-  emotions: string[]; // Ejemplo: ["Feliz", "Neutro"]
+  date: string;
+  value: number;
+  emotions: string[];
 }
 
-// Interfaz para los parámetros de la consulta de resumen de lecturas del juguete
-interface GetToyReadingsSummaryParams {
+export interface GetToyReadingsSummaryParams {
   macAddress: string;
-  from: string; // Formato "YYYY-MM-DD"
-  to: string;   // Formato "YYYY-MM-DD"
-  dummy?: boolean;
+  From?: string;
+  To?: string;
+  Dummy?: boolean;
 }
 
-export const toyServerApi = serverApi.injectEndpoints({
+// --- Inyección de endpoints en una sola API centralizada ---
+export const toysServerApi = serverApi.injectEndpoints({
   endpoints: (builder) => ({
-    // --- ENDPOINT PARA CREAR JUGUETES ---
+    // Crear juguete
     createToy: builder.mutation<ToyDto, ToyCreateDto>({
       query: (body) => ({
         url: "Toys",
@@ -56,17 +90,17 @@ export const toyServerApi = serverApi.injectEndpoints({
       }),
       invalidatesTags: ["Toy"],
     }),
-    
-    // --- ENDPOINT PARA LISTAR JUGUETES--
-listToys: builder.query<BaseListResponse<ToyDto>, { page?: number; pageSize?: number }>({
-  query: ({ page = 1, pageSize = 100 }) => {
-    const params = buildQueryParams({ page, pageSize });
-    return `Toys?${params}`;
-  },
-  providesTags: ["Toy"],
-}),
-    
-    // --- ENDPOINT PARA ELIMINAR JUGUETES ---
+
+    // Listar juguetes
+    listToys: builder.query<BaseListResponse<ToyDto>, { page?: number; pageSize?: number }>({
+      query: ({ page = 1, pageSize = 100 }) => {
+        const params = buildQueryParams({ page, pageSize });
+        return `Toys?${params}`;
+      },
+      providesTags: ["Toy"],
+    }),
+
+    // Eliminar juguete
     deleteToy: builder.mutation<void, string>({
       query: (id) => ({
         url: `Toys/${id}`,
@@ -74,36 +108,44 @@ listToys: builder.query<BaseListResponse<ToyDto>, { page?: number; pageSize?: nu
       }),
       invalidatesTags: ["Toy"],
     }),
-    
-    // --- ENDPOINT EXISTENTE PARA EL RESUMEN DE LECTURAS DEL JUGUETE ---
-    getToyReadingsSummary: builder.query<ToyReadingsSummary, GetToyReadingsSummaryParams>({
-      query: ({ macAddress, from, to, dummy }) => {
-        const params = buildQueryParams({ From: from, To: to, Dummy: dummy });
-        return `Toys/${macAddress}/readings/summary?${params}`;
-      },
-      providesTags: ["Toy"], // Considera una etiqueta más específica, ej: "ToyReadingsSummary"
+
+    // Actualizar juguete
+    updateToy: builder.mutation<ToyDto, { id: string; name: string; macAddress: string }>({
+      query: ({ id, name, macAddress }) => ({
+        url: `Toys/${id}`,
+        method: "PUT",
+        body: { name, macAddress },
+      }),
+      invalidatesTags: ["Toy"],
     }),
 
-    // ENDPOINT  EDITAR:
-      updateToy: builder.mutation<ToyDto, { id: string; name: string; macAddress: string }>({
-        query: ({ id, name, macAddress }) => ({
-          url: `Toys/${id}`,
-          method: "PUT",
-          body: { 
-            name,
-            macAddress 
-          },
-        }),
-        invalidatesTags: ["Toy"],
-      }),
+    // Obtener lecturas de un juguete
+    getToyReadings: builder.query<BaseListResponse<ToyReading>, GetToyReadingsParams>({
+      query: ({ macAddress, ...params }) => {
+        const queryParams = buildQueryParams(params);
+        return `Toys/${macAddress}/readings?${queryParams}`;
+      },
+      providesTags: (_result, _error, { macAddress }) => [{ type: "Toy", id: macAddress }],
+    }),
+
+    // Obtener resumen de lecturas de un juguete
+    getToyReadingsSummary: builder.query<ToyReadingsSummary, GetToyReadingsSummaryParams>({
+      query: ({ macAddress, ...params }) => {
+        const queryParams = buildQueryParams(params);
+        return `Toys/${macAddress}/readings/summary?${queryParams}`;
+      },
+      providesTags: (_result, _error, { macAddress }) => [{ type: "Toy", id: macAddress }],
+    }),
   }),
-  overrideExisting: false,
+  overrideExisting: false, // No sobrescribas si ya hay definidos
 });
 
+// --- Exportación de hooks ---
 export const {
-  useCreateToyMutation, // juguetes
-  useListToysQuery,     // listar juguetes
-  useDeleteToyMutation, // eliminar juguetes
-  useGetToyReadingsSummaryQuery, // Hook existente
-  useUpdateToyMutation
-} = toyServerApi;
+  useCreateToyMutation,
+  useListToysQuery,
+  useDeleteToyMutation,
+  useUpdateToyMutation,
+  useGetToyReadingsQuery,
+  useGetToyReadingsSummaryQuery,
+} = toysServerApi;
