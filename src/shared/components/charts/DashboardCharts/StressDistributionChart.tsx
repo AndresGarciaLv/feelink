@@ -39,7 +39,10 @@ const StressDistributionChart: React.FC<StressDistributionChartProps> = ({ allTo
   };
 
   const stressDistributionData = getStressDistributionData();
-
+    const maxRaw = Math.max(...stressDistributionData.map(d => d.value));
+    const cappedMax = Math.min(10, Math.max(3, maxRaw));
+    const noOfSections = 3;
+    const adjustedMax = Math.ceil(cappedMax / noOfSections) * noOfSections;
   return (
     <View style={styles.chartCard}>
       <View style={styles.chartHeader}>
@@ -50,12 +53,11 @@ const StressDistributionChart: React.FC<StressDistributionChartProps> = ({ allTo
       <View style={styles.barChartContainer}>
         <BarChart
           data={stressDistributionData}
-          width={screenWidth - 80}
-          height={200}
+          width={screenWidth - 150}
+          height={150}
           barWidth={35}
           spacing={20}
           roundedTop
-          roundedBottom
           hideRules
           yAxisThickness={1}
           xAxisThickness={1}
@@ -63,17 +65,27 @@ const StressDistributionChart: React.FC<StressDistributionChartProps> = ({ allTo
           xAxisColor="#E1E8ED"
           yAxisTextStyle={styles.axisText}
           xAxisLabelTextStyle={styles.axisLabelText}
-          noOfSections={4}
-          maxValue={Math.max(...stressDistributionData.map(d => d.value)) + 2}
+          noOfSections={noOfSections}
+          maxValue={adjustedMax}
           showGradient
           gradientColor="rgba(255,255,255,0.8)"
+    formatYLabel={(label) => Number(label).toFixed(0)}
         />
       </View>
       
-      <View style={styles.rangeDescription}>
-        <Text style={styles.rangeText}>
-          Rango Normal: 0-40% | Precaución: 41-60% | Crítico: 61-100%
-        </Text>
+      
+      {/* Leyenda de rangos con colores */}
+      <View style={styles.legendContainer}>
+        <Text style={styles.legendTitle}>Interpretación de Niveles:</Text>
+        
+      
+        <View style={styles.statusSummary}>
+          <Text style={styles.statusText}>
+            <Text style={[styles.statusLabel, { color: '#2E7D57' }]}>● Normal:</Text> 0-40% | 
+            <Text style={[styles.statusLabel, { color: '#F5A623' }]}> ● Precaución:</Text> 41-60% | 
+            <Text style={[styles.statusLabel, { color: '#D0021B' }]}> ● Crítico:</Text> 61-100%
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -135,6 +147,35 @@ const styles = StyleSheet.create({
     color: '#718096',
     textAlign: 'center',
     fontStyle: 'italic',
+  },    
+  legendContainer: {
+    marginTop: 20,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F7FAFC',
+  },
+  
+  legendTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#2D3748',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  statusSummary: {
+    backgroundColor: '#F7FAFC',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  statusText: {
+    fontSize: 11,
+    color: '#718096',
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  statusLabel: {
+    fontWeight: '600',
   },
 });
 

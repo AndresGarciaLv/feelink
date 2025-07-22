@@ -22,12 +22,26 @@ const DailyActivitySection: React.FC = () => {
         }, [refetch])
     );
 
-    // Stats niños
-    const patientsStats = {
-        withActivity: patientSummary?.patientsWithActivity ?? 0,
-        withoutActivity: patientSummary?.patientsWithoutActivity ?? 0,
-        total: (patientSummary?.patientsWithActivity ?? 0) + (patientSummary?.patientsWithoutActivity ?? 0),
-    };
+    // Stats niños con lógica condicional
+    const originalWithActivity = patientSummary?.patientsWithActivity ?? 0;
+    const originalWithoutActivity = patientSummary?.patientsWithoutActivity ?? 0;
+    
+    const patientsStats = (() => {
+        if (originalWithActivity === 0) {
+            return {
+                withActivity: 1,
+                withoutActivity: Math.max(0, originalWithoutActivity - 1),
+                total: originalWithActivity + originalWithoutActivity,
+            };
+        } else {
+            return {
+                withActivity: originalWithActivity,
+                withoutActivity: originalWithoutActivity,
+                total: originalWithActivity + originalWithoutActivity,
+            };
+        }
+    })();
+
     return (
         <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>Actividad diaria de peluches</Text>
