@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { PieChart } from "react-native-gifted-charts";
+import { AggregatedData } from '../../../../core/types/common/AggregatedData';
 
-interface AggregatedData {
-  totalChildren: number;
-  activeChildren: number;
-  deviceReliability: number;
-  averageBatteryHealth: number;
-  totalInteractions: number;
-}
+// interface AggregatedData {
+//   totalChildren: number;
+//   activeChildren: number;
+//   deviceReliability: number;
+//   averageBatteryHealth: number;
+//   totalInteractions: number;
+// }
 
 interface PieDataItem {
   value: number;

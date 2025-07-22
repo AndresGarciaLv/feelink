@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { AggregatedData } from '../../../../core/types/common/AggregatedData';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-interface AggregatedData {
-  totalChildren: number;
-  activeChildren: number;
-  criticalAlerts: number;
-  averageStressLevel: number;
-}
+// interface AggregatedData {
+//   totalChildren: number;
+//   activeChildren: number;
+//   criticalAlerts: number;
+//   averageStressLevel: number;
+// }
 
 interface MetricsCardsProps {
   aggregatedData: AggregatedData;

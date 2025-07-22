@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions, ScrollView, StatusBar } from 'react-native';
 import { PieChart, BarChart, LineChart } from "react-native-gifted-charts";
 import { useSensorSocket } from '../../hooks/useSensorSocket';
@@ -11,7 +11,8 @@ import ClinicalStatusChart from './DashboardCharts/ClinicalStatusChart';
 import StressDistributionChart from './DashboardCharts/StressDistributionChart';
 import DeviceStatusChart from './DashboardCharts/DeviceStatusChart';
 import ClinicalEvaluation from './DashboardCharts/ClinicalEvaluation';
-import { ToyData, AllToysData  } from '../../../core/types/common/toyTypes';
+import { ToyData, AllToysData } from '../../../core/types/common/toyTypes';
+import { AggregatedData } from '../../../core/types/common/AggregatedData';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -19,19 +20,6 @@ interface SystemState {
   state: string;
   label: string;
   color: string;
-}
-
-interface AggregatedData {
-  totalChildren: number;
-  activeChildren: number;
-  stableChildren: number;
-  anxiousChildren: number;
-  crisisChildren: number;
-  averageBatteryHealth: number;
-  totalInteractions: number;
-  criticalAlerts: number;
-  averageStressLevel: number;
-  deviceReliability: number;
 }
 
 interface PieDataItem {
@@ -45,7 +33,6 @@ interface PieDataItem {
 
 const DashboardCharts: React.FC = () => {
   const { allToysData, isConnected, connectedToys } = useSensorSocket();
-  
   const { data: toysData } = useListToysQuery({ page: 1, pageSize: 100 });
   const toys = toysData?.items || [];
 
@@ -54,26 +41,27 @@ const DashboardCharts: React.FC = () => {
     return toy ? toy.name : `Paciente ${toyId.slice(-4)}`;
   };
 
-  const getSystemState = (): SystemState => {
-  const totalToys = toys.length; // Usar el total de pacientes registrados
-const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;    
-    if (connectivityRate >= 95) {
+  const getSystemState = useMemo((): SystemState => {
+    const totalToys = toys.length;
+    const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
+    
+    if (connectivityRate >= 80) {
       return { state: 'optimal', label: 'Sistema Operativo', color: '#2E7D57' };
-    } else if (connectivityRate >= 80) {
-      return { state: 'stable', label: 'Funcionamiento Normal', color: '#4A90E2' };
     } else if (connectivityRate >= 60) {
+      return { state: 'stable', label: 'Funcionamiento Normal', color: '#4A90E2' };
+    } else if (connectivityRate >= 30) {
       return { state: 'warning', label: 'Requiere Atención', color: '#F5A623' };
     } else {
       return { state: 'critical', label: 'Estado Crítico', color: '#D0021B' };
     }
-  };
+  }, [toys.length, connectedToys]);
 
-  const getAggregatedData = (): AggregatedData => {
-    const toyIds = Object.keys(allToysData);
-    
-    if (toyIds.length === 0) {
-      return {
-        totalChildren: 0,
+  // Memoizar getAggregatedData para optimizar performance
+  const getAggregatedData = useMemo((): AggregatedData => {
+    // Si no hay datos de sensores, retornar estado inicial con valores en 0
+    if (!allToysData || Object.keys(allToysData).length === 0) {
+      const emptyData: AggregatedData = {
+        totalChildren: toys.length,
         activeChildren: 0,
         stableChildren: 0,
         anxiousChildren: 0,
@@ -84,8 +72,13 @@ const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
         averageStressLevel: 0,
         deviceReliability: 0,
       };
+      
+      return emptyData;
     }
 
+    const toyIds = Object.keys(allToysData);
+
+    // Inicializar contadores
     let totalInteractions = 0;
     let totalBattery = 0;
     let totalStressLevel = 0;
@@ -96,60 +89,77 @@ const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
     let criticalAlerts = 0;
     let reliableDevices = 0;
 
-    toyIds.forEach(toyId => {
+    toyIds.forEach((toyId) => {
       const toyData = allToysData[toyId];
-      if (toyData && toyData.pressurePercent.length > 0) {
-        activeChildren++;
-        
-        const interactions = toyData.pressurePercent.filter(p => p > 10).length;
-        totalInteractions += interactions;
-        
-        const currentBattery = toyData.battery[toyData.battery.length - 1] || 0;
-        totalBattery += currentBattery;
-        
-        const currentPressure = toyData.pressurePercent[toyData.pressurePercent.length - 1] || 0;
-        totalStressLevel += currentPressure;
-        
-        // Clasificación clínica basada en rangos médicos
-        if (currentPressure >= 85) {
-          crisisChildren++;
-          criticalAlerts++;
-        } else if (currentPressure >= 65) {
-          anxiousChildren++;
-        } else {
-          stableChildren++;
-        }
 
-        // Confiabilidad del dispositivo
-        if (currentBattery > 20 && interactions > 0) {
-          reliableDevices++;
-        }
+      // Validación de los datos
+      if (!toyData) {
+        return;
       }
+
+      // Verificar que existan los arrays necesarios
+      const pressureData = toyData.pressurePercent;
+      const batteryData = toyData.battery;
+
+      if (!Array.isArray(pressureData) || pressureData.length === 0) {
+        return;
+      }
+
+      // Obtener los últimos valores válidos
+      const currentPressure = Number(pressureData[pressureData.length - 1]) || 0;
+      const currentBattery = Array.isArray(batteryData) && batteryData.length > 0 
+        ? Number(batteryData[batteryData.length - 1]) || 0 
+        : 0;
+
+      // Contar interacciones (presión > 10%)
+      const interactions = pressureData.filter(p => Number(p) > 10).length;
+      totalInteractions += interactions;
+      totalBattery += currentBattery;
+      totalStressLevel += currentPressure;
+
+      // Clasificar según nivel de estrés/presión
+      if (currentPressure >= 85) {
+        crisisChildren++;
+        criticalAlerts++;
+      } else if (currentPressure >= 65) {
+        anxiousChildren++;
+      } else {
+        stableChildren++;
+      }
+
+      // Verificar confiabilidad del dispositivo
+      if (currentBattery > 20 && interactions > 0) {
+        reliableDevices++;
+      }
+
+      activeChildren++;
     });
 
-    return {
+    const aggregatedData: AggregatedData = {
       totalChildren: toys.length,
       activeChildren,
       stableChildren,
       anxiousChildren,
       crisisChildren,
-      averageBatteryHealth: activeChildren > 0 ? totalBattery / activeChildren : 0,
+      averageBatteryHealth: activeChildren > 0 ? Math.round(totalBattery / activeChildren) : 0,
       totalInteractions,
       criticalAlerts,
-      averageStressLevel: activeChildren > 0 ? totalStressLevel / activeChildren : 0,
-      deviceReliability: toyIds.length > 0 ? (reliableDevices / toyIds.length) * 100 : 0,
+      averageStressLevel: activeChildren > 0 ? Math.round(totalStressLevel / activeChildren) : 0,
+      deviceReliability: toyIds.length > 0 ? Math.round((reliableDevices / toyIds.length) * 100) : 0,
     };
-  };
 
-  const aggregatedData = getAggregatedData();
-  const systemState = getSystemState();
+    return aggregatedData;
+  }, [allToysData, toys.length]); // Dependencias para useMemo
+
+  const aggregatedData = getAggregatedData;
+  const systemState = getSystemState;
 
   // Datos para gráfica principal - Estados clínicos
   const getClinicalStatusData = (): PieDataItem[] => {
     const total = aggregatedData.stableChildren + aggregatedData.anxiousChildren + aggregatedData.crisisChildren;
     if (total === 0) return [];
 
-    return [
+    const data = [
       {
         value: aggregatedData.stableChildren,
         color: '#2E7D57',
@@ -173,10 +183,16 @@ const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
         label: 'Crítico',
       }
     ].filter(item => item.value > 0);
+
+    return data;
   };
 
   // Datos para gráfica de barras - Distribución por rangos de estrés
   const getStressDistributionData = () => {
+    if (!allToysData || Object.keys(allToysData).length === 0) {
+      return [];
+    }
+
     const toyIds = Object.keys(allToysData);
     const ranges = [
       { label: '0-20%', min: 0, max: 20, count: 0, color: '#2E7D57' },
@@ -188,14 +204,14 @@ const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
 
     toyIds.forEach(toyId => {
       const toyData = allToysData[toyId];
-      if (toyData && toyData.pressurePercent.length > 0) {
-        const currentPressure = toyData.pressurePercent[toyData.pressurePercent.length - 1] || 0;
+      if (toyData && Array.isArray(toyData.pressurePercent) && toyData.pressurePercent.length > 0) {
+        const currentPressure = Number(toyData.pressurePercent[toyData.pressurePercent.length - 1]) || 0;
         const range = ranges.find(r => currentPressure >= r.min && currentPressure <= r.max);
         if (range) range.count++;
       }
     });
 
-    return ranges.map((range, index) => ({
+    return ranges.map((range) => ({
       value: range.count,
       label: range.label,
       frontColor: range.color,
@@ -206,7 +222,7 @@ const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
 
   // Datos para conectividad de dispositivos
   const getDeviceStatusData = (): PieDataItem[] => {
-    const disconnected = aggregatedData.totalChildren - aggregatedData.activeChildren;
+    const disconnected = Math.max(0, aggregatedData.totalChildren - aggregatedData.activeChildren);
     
     if (aggregatedData.totalChildren === 0) return [];
 
@@ -274,23 +290,19 @@ const connectivityRate = totalToys > 0 ? (connectedToys / totalToys) * 100 : 0;
       </View>
 
       {/* Métricas Vitales */}
-    <MetricsCards aggregatedData={aggregatedData} />
-
+      <MetricsCards aggregatedData={aggregatedData} />
 
       {/* Gráfica Principal - Estado Clínico */}
-    <ClinicalStatusChart aggregatedData={aggregatedData} />
-
+      <ClinicalStatusChart aggregatedData={aggregatedData} />
 
       {/* Gráfica de Barras - Distribución de Estrés */}
-    <StressDistributionChart allToysData={allToysData} />
-
+      <StressDistributionChart allToysData={allToysData} />
 
       {/* Estado de Dispositivos */}
-    <DeviceStatusChart aggregatedData={aggregatedData} />
-
+      <DeviceStatusChart aggregatedData={aggregatedData} />
 
       {/* Panel de Recomendaciones Clínicas */}
-<ClinicalEvaluation aggregatedData={aggregatedData} />
+      <ClinicalEvaluation aggregatedData={aggregatedData} />
 
     </ScrollView>
   );

@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { PieChart } from "react-native-gifted-charts";
+import { AggregatedData } from '../../../../core/types/common/AggregatedData';
 
-interface AggregatedData {
-  stableChildren: number;
-  anxiousChildren: number;
-  crisisChildren: number;
-  totalChildren: number; // Agregar para mejor validación
-  activeChildren: number; // Agregar para validación
-}
+// interface AggregatedData {
+//   stableChildren: number;
+//   anxiousChildren: number;
+//   crisisChildren: number;
+//   totalChildren: number; // Agregar para mejor validación
+//   activeChildren: number; // Agregar para validación
+// }
 
 interface PieDataItem {
   value: number;
@@ -26,20 +27,14 @@ interface ClinicalStatusChartProps {
 const ClinicalStatusChart: React.FC<ClinicalStatusChartProps> = ({ aggregatedData }) => {
   
   // 🔍 DEBUG: Verificar datos recibidos
-  console.log('📊 [ClinicalStatusChart] Datos recibidos:', aggregatedData);
+  // console.log('📊 [ClinicalStatusChart] Datos recibidos:', aggregatedData);
   
   const getClinicalStatusData = (): PieDataItem[] => {
     const { stableChildren, anxiousChildren, crisisChildren } = aggregatedData;
     const total = stableChildren + anxiousChildren + crisisChildren;
     
-    console.log('📊 [ClinicalStatusChart] Procesando datos:');
-    console.log('  - Estables:', stableChildren);
-    console.log('  - Moderados:', anxiousChildren);
-    console.log('  - Críticos:', crisisChildren);
-    console.log('  - Total calculado:', total);
     
     if (total === 0) {
-      console.log('⚠️ [ClinicalStatusChart] No hay pacientes con datos clínicos');
       return [];
     }
 
@@ -68,7 +63,7 @@ const ClinicalStatusChart: React.FC<ClinicalStatusChartProps> = ({ aggregatedDat
       }
     ].filter(item => item.value > 0);
 
-    console.log('📊 [ClinicalStatusChart] Datos para gráfica:', data);
+    // console.log('📊 [ClinicalStatusChart] Datos para gráfica:', data);
     return data;
   };
 
@@ -76,7 +71,6 @@ const ClinicalStatusChart: React.FC<ClinicalStatusChartProps> = ({ aggregatedDat
 
   // 🔍 MEJORA 1: Mejor validación
   if (clinicalStatusData.length === 0) {
-    console.log('⚠️ [ClinicalStatusChart] No renderizando - sin datos clínicos');
     return (
       <View style={styles.chartCard}>
         <View style={styles.chartHeader}>
@@ -99,8 +93,6 @@ const ClinicalStatusChart: React.FC<ClinicalStatusChartProps> = ({ aggregatedDat
   // 🔍 MEJORA 2: Calcular total una sola vez
   const totalPatients = clinicalStatusData.reduce((sum, item) => sum + item.value, 0);
   
-  console.log('✅ [ClinicalStatusChart] Renderizando gráfica con', totalPatients, 'pacientes');
-
   return (
     <View style={styles.chartCard}>
       <View style={styles.chartHeader}>
@@ -151,7 +143,7 @@ const ClinicalStatusChart: React.FC<ClinicalStatusChartProps> = ({ aggregatedDat
         {aggregatedData.totalChildren > aggregatedData.activeChildren && (
           <View style={styles.contextInfo}>
             <Text style={styles.contextText}>
-              📊 {aggregatedData.totalChildren - aggregatedData.activeChildren} pacientes sin conexión
+              {aggregatedData.totalChildren - aggregatedData.activeChildren} pacientes sin conexión
             </Text>
           </View>
         )}

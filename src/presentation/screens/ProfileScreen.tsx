@@ -273,7 +273,7 @@ if (hasCriticalError) {
   style={styles.stressButton}
   onPress={() => setIsModalVisible(true)}
 >
-  <Text style={styles.stressText}>Ver gráficas</Text>
+  <Text style={styles.stressText}>Gráficas en tiempo real</Text>
 </TouchableOpacity>
         </View>
 
