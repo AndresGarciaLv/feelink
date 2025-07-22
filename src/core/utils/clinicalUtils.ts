@@ -16,10 +16,11 @@ export const getPressureState = (pressure: number): ClinicalState => {
 // // Función para determinar el estado de movimiento
 export const getMovementState = (accelValue: number): ClinicalState => {
   const magnitude = Math.abs(accelValue);
-  if (magnitude <= 0.3) {
+
+  if (magnitude < 0.1) {
     return { state: 'stable', label: 'Calmo', color: ClinicalColors.stable };
-  } else if (magnitude <= 0.8) {
-    return { state: 'anxious', label: 'Inquieto', color: ClinicalColors.anxious };
+  } else if (magnitude < 0.4) {
+    return { state: 'anxious', label: 'Activo', color: ClinicalColors.anxious };
   } else {
     return { state: 'crisis', label: 'Agitado', color: ClinicalColors.crisis };
   }

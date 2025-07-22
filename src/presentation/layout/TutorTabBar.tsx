@@ -59,22 +59,6 @@ const TutorTabBar: React.FC<TabBarProps> = ({ activeTab = 'Home' }) => {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.tabButton}
-        onPress={() => navigation.navigate('InfoPeluche')}
-      >
-        <Ionicons
-          name="information-circle"
-          size={22}
-          color={activeTab === 'InfoPeluche' ? '#4A90E2' : '#ADB5BD'}
-        />
-        <Text style={[
-          styles.tabLabel,
-          activeTab === 'InfoPeluche' && styles.activeTabLabel
-        ]}>
-          Peluche
-        </Text>
-      </TouchableOpacity>
 
       {/* Perfil */}
       <TouchableOpacity

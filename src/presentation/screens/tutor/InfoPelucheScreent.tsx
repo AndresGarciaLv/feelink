@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Text } from 'react-native';
 import { useAppSelector } from '../../../core/stores/store';
 import { selectUserData, selectAccessToken } from '../../../core/stores/auth/authSlice';
 import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
@@ -12,7 +12,7 @@ import RealTimeCharts from '../../../shared/components/charts/RealTimeCharts';
 const InfoPelucheScreen: React.FC = () => {
   const userData = useAppSelector(selectUserData);
   const accessToken = useAppSelector(selectAccessToken);
-  const { sensorData, isConnected } = useSensorSocket(); // 👈 Aquí llegan los datos reales del peluche
+  const socketData = useSensorSocket(); // ✅ contiene sensorData + isConnected
 
   return (
     <KeyboardAvoidingView
@@ -33,7 +33,13 @@ const InfoPelucheScreen: React.FC = () => {
             <ResumenEmocional patientId={userData.id} accessToken={accessToken} />
           )}
 
-          {sensorData && <RealTimeCharts/>}
+          {socketData?.sensorData ? (
+            <RealTimeCharts socketData={socketData} />
+          ) : (
+            <Text style={{ textAlign: 'center', marginTop: 20, color: 'gray' }}>
+              Esperando conexión con el peluche...
+            </Text>
+          )}
         </ScrollView>
 
         <TutorTabBar activeTab="InfoPeluche" />
