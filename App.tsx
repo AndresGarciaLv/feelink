@@ -22,7 +22,7 @@ import { Buffer } from 'buffer';
 global.Buffer = Buffer;
 import DetallesPelucheScreen from './src/presentation/screens/DetallesPelucheScreen';
 import InfoPeluche from './src/presentation/screens/tutor/InfoPelucheScreent';
-
+import WifiStepGuide from './src/presentation/screens/WifiStepGuide';
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function App() {
@@ -43,6 +43,7 @@ export default function App() {
             <Stack.Screen name="ChartsProfile" component={ChartsProfileScreen} options={{headerShown: false}}/>
             <Stack.Screen name="DetallesPeluche" component={DetallesPelucheScreen} options={{ headerShown: false }} />
             <Stack.Screen name="InfoPeluche" component={InfoPeluche} options={{ headerShown: false }} />
+            <Stack.Screen name="WifiStepGuide" component={WifiStepGuide} options={{ headerShown: false }} />
           </Stack.Navigator>
         </NavigationContainer>
       </Provider>

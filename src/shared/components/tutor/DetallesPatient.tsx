@@ -87,7 +87,7 @@ const DetallesPatient: React.FC = () => {
             {patientData ? `${patientData.age} Años` : ''}
           </Text>
           <Text style={styles.childId}>
-            {patientData ? `${tutorData?.patientId} • ${patientData.gender}` : ''}
+            {patientData ? ` ${patientData.gender}` : ''}
           </Text>
         </View>
       </TouchableOpacity>
