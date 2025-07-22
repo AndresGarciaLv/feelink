@@ -18,7 +18,7 @@ interface Props {
 const PressureChartCard: React.FC<Props> = ({ pressureValue, pressureState, chartData }) => {
   return (
     <ClinicalInfoCard
-      title="Monitoreo de Presión Táctil"
+      title="Monitoreo de Presión"
       description="Mide la intensidad del contacto físico con el peluche terapéutico. Ayuda a identificar patrones de búsqueda sensorial y estados emocionales."
       clinicalValue={pressureState}
     >
