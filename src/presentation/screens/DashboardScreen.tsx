@@ -10,36 +10,12 @@ import type {RootStackParamList} from '../../core/types/common/navigation';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAppSelector} from "../../core/stores/store";
 import {selectUserData} from "../../core/stores/auth/authSlice";
-import {useListPatientsQuery} from "../../core/http/requests/patientServerApi";
 import MyPatientsSection from '../../shared/components/dashboard/myPatients';
-import { useGetPatientsSummaryQuery, useGetMonthlyActivitySummaryQuery } from "../../core/http/requests/patientServerApi";
 import DashboardCharts from '../../shared/components/charts/DashboardCharts';
+import QuickActionsSection from '../../shared/components/dashboard/QuickActionsSection';
+import DailyActivitySection from '../../shared/components/dashboard/DailyActivitySection';
 
 
-// --- NUEVA IMPORTACIÓN ---
-import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
-
-
-const PROFILE_IMAGE = null;
-const PATIENT_AVATAR = null;
-
-interface PatientData {
-    id: string;
-    name: string;
-    avatar: any;
-}
-interface MonthlyActivity {
-    month: string; // o number
-    daysRegistered: number;
-    stressLevel: number;
-}
-
-interface QuickAction {
-    title: string;
-    icon: keyof typeof Ionicons.glyphMap;
-    color: string;
-    onPress: () => void;
-}
 const DashboardScreen: React.FC = () => {
 
     const userData = useAppSelector(selectUserData)
@@ -47,44 +23,10 @@ const DashboardScreen: React.FC = () => {
     const insets = useSafeAreaInsets();
     const today = new Date().toISOString().split("T")[0]; // formato YYYY-MM-DD
 
-//Obtener los registros del mes (Se tiene dummy de momento)
-const {
-    data: patientSummary,
-    isFetching: isFetchingSummary,
-    error: summaryError
-} = useGetPatientsSummaryQuery({date: today, dummy: false });
 
-    // Stats niños
-const patientsStats = {
-    withActivity: patientSummary?.patientsWithActivity ?? 0,
-    withoutActivity: patientSummary?.patientsWithoutActivity ?? 0,
-    total: (patientSummary?.patientsWithActivity ?? 0) + (patientSummary?.patientsWithoutActivity ?? 0),
-};
     //Obtener el mes
     const currentMonth = new Date().getMonth() + 1; // +1 porque getMonth() devuelve 0-11
 
-    //Obtener los niveles de estres por mes  (Se tiene como dummy de momento)
-    const {
-    data: activitySummary,
-    isLoading: isActivityLoading
-    } = useGetMonthlyActivitySummaryQuery({ month: currentMonth, dummy: true}); // ← Junio
-
- 
-// Acciones rápidas
-const quickActions: QuickAction[] = [
-    {
-        title: 'Nuevo Paciente',
-        icon: 'person-add',
-        color: '#A8C7E5',
-        onPress: () => navigation.navigate('Patients', { openAddModal: true })
-    },
-    {
-        title: 'Perfil',
-        icon: 'person',
-        color: '#C7A8E5',
-        onPress: () => navigation.navigate('TherapistProfile')
-    }
-];
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
@@ -94,52 +36,15 @@ const quickActions: QuickAction[] = [
                     onBackPress={() => navigation.goBack()}
                 />
 
-                {/* --- NUEVA SECCIÓN DE GRÁFICOS EN TIEMPO REAL --- */}
-                {/* <RealTimeCharts /> */}
-
                 {/* My Patients Section */}
                 <MyPatientsSection />
-{/* Acciones rápidas */}
-<View style={styles.sectionContainer}>
-    <Text style={styles.sectionTitle}>Acciones rápidas</Text>
-    <View style={styles.quickActionsContainer}>
-        {quickActions.map((action, index) => (
-            <TouchableOpacity
-                key={index}
-                style={[styles.quickActionButton, { backgroundColor: action.color }]}
-                onPress={action.onPress}
-            >
-                <Ionicons name={action.icon} size={24} color="white" />
-                <Text style={styles.quickActionText}>{action.title}</Text>
-            </TouchableOpacity>
-        ))}
-    </View>
-</View>
-{/* Kids Registration Section */}
-<View style={styles.sectionContainer}>
-    <Text style={styles.sectionTitle}>Actividad diaria de peluches</Text>
-    <Text style={styles.sectionSubtitle}>Registro de uso de peluches terapéuticos hoy</Text>
 
-    <View style={styles.statsContainer}>
-        <View style={styles.withActivityStatBox}>
-            <Ionicons name="heart" size={32} color="white" style={styles.statIcon} />
-            <Text style={styles.withActivityLabel}>Con actividad</Text>
-            <Text style={styles.withActivityNumber}>{patientsStats.withActivity}</Text>
-            <Text style={styles.withActivityText}>
-                {patientsStats.withActivity === 1 ? 'Niño' : 'Niños'}
-            </Text>
-        </View>
-        <View style={styles.withoutActivityStatBox}>
-            <Ionicons name="moon" size={32} color="white" style={styles.statIcon} />
-            <Text style={styles.withoutActivityLabel}>Sin actividad</Text>
-            <Text style={styles.withoutActivityNumber}>{patientsStats.withoutActivity}</Text>
-            <Text style={styles.withoutActivityText}>
-                {patientsStats.withoutActivity === 1 ? 'Niño' : 'Niños'}
-            </Text>
-        </View>
-    </View>
-    
-</View>
+                {/* Acciones rápidas */}
+                <QuickActionsSection/>
+
+                {/* Kids Registration Section */}
+                <DailyActivitySection />
+
 
                         <View style={{ flex: 1 }}>
             <DashboardCharts />
@@ -160,7 +65,6 @@ const quickActions: QuickAction[] = [
     );
 };
 
-// ... (tus estilos existentes, no es necesario cambiarlos)
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -176,60 +80,6 @@ const styles = StyleSheet.create({
     welcomeContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        marginTop: 8,
-        borderRadius: 12,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    withActivityStatBox: {
-        flex: 1,
-        backgroundColor: '#A8C7E5',
-        padding: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 120,
-    },
-    statIcon: {
-        marginBottom: 8,
-    },
-    withActivityLabel: {
-        fontSize: 14,
-        color: 'white',
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    withoutActivityLabel: {
-        fontSize: 14,
-        color: 'white',
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    withActivityNumber: {
-        fontSize: 36,
-        fontWeight: 'bold',
-        color: 'white',
-        marginBottom: 4,
-    },
-    withoutActivityNumber: {
-        fontSize: 36,
-        fontWeight: 'bold',
-        color: 'white',
-        marginBottom: 4,
-    },
-    withActivityText: {
-        fontSize: 12,
-        color: 'rgba(255, 255, 255, 0.9)',
-    },
-    withoutActivityText: {
-        fontSize: 12,
-        color: 'rgba(255, 255, 255, 0.9)',
     },
     profileImage: {
         width: 50,
@@ -323,18 +173,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
-    withoutActivityStatBox: {
-        flex: 1,
-        backgroundColor: '#E5A4C0',
-        borderTopRightRadius: 12,
-        borderBottomRightRadius: 12,
-        borderTopLeftRadius: 0, // esquina interior cuadrada
-        borderBottomLeftRadius: 0,
-        padding: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: 100,
-    },
     registeredLabel: {
         fontSize: 14,
         color: 'white',
@@ -422,25 +260,7 @@ const styles = StyleSheet.create({
     },
     bottomSpacer: {
         height: 20,
-    },quickActionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
-},
-quickActionButton: {
-    width: '48%',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 8,
-},
-quickActionText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 8,
-    textAlign: 'center',
-},
+    }
 });
 
 
