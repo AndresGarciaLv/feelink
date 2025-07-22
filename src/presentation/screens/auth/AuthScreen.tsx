@@ -1,16 +1,18 @@
-import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, Keyboard} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {Formik} from 'formik';
-import {RootStackParamList} from "../../../core/types/common/navigation";
-import {loginSchema, registerSchema} from "../../../application/auth/authSchemas";
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, KeyboardAvoidingView, TouchableWithoutFeedback, Platform, Keyboard } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Formik } from 'formik';
+import { RootStackParamList } from "../../../core/types/common/navigation";
+import { loginSchema, registerSchema } from "../../../application/auth/authSchemas";
 // @ts-ignore
 import ScreenBackground from "../../../shared/assets/img/Bienvenida.png"
-import {useLoginMutation, useRegisterMutation} from "../../../core/http/requests/authServerApi";
-import {useAppDispatch} from "../../../core/stores/store";
-import {login} from "../../../core/stores/auth/authSlice";
-import {buildAuthStateFromResponse} from "../../../core/composables/authComposables";
+import { useLoginMutation, useRegisterMutation } from "../../../core/http/requests/authServerApi";
+import { useAppDispatch } from "../../../core/stores/store";
+import { login } from "../../../core/stores/auth/authSlice";
+import { buildAuthStateFromResponse } from "../../../core/composables/authComposables";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const AuthScreen: React.FC = () => {
     const [formState, setFormState] = useState<null | 'login' | 'register'>(null);
@@ -20,9 +22,16 @@ const AuthScreen: React.FC = () => {
     const [registerRequest] = useRegisterMutation()
 
     const handleLogin = async (email: string, password: string) => {
-        loginRequest({email, password}).unwrap()
-            .then((res) => {
+        loginRequest({ email, password }).unwrap()
+            .then(async (res) => {
+                console.log("🔐 Respuesta login:", res);
                 const authState = buildAuthStateFromResponse(res);
+
+                await AsyncStorage.setItem('accessToken', authState.accessToken!);
+                await AsyncStorage.setItem('userData', JSON.stringify(authState.userData));
+                await AsyncStorage.setItem('role', authState.role!);
+                await AsyncStorage.setItem('userId', authState.userData?.id ?? '');
+                console.log("AuthState:", authState);
                 dispatch(login({
                     user: authState.userData!,
                     accessToken: authState.accessToken!,
@@ -36,12 +45,14 @@ const AuthScreen: React.FC = () => {
                 }
             })
             .catch(err => {
-                alert('Error al iniciar sesión. Por favor, verifica tus credenciales.');
+                console.log("❌ Error al hacer login:", err);
+                const msg = err?.data?.message || err?.error || 'Error desconocido al iniciar sesión.';
+                alert(`Error: ${msg}`);
             })
     }
 
     const handleRegister = async (userName: string, email: string, password: string) => {
-        registerRequest({name: userName, email, password}).unwrap()
+        registerRequest({ name: userName, email, password }).unwrap()
             .then((res) => {
                 const authState = buildAuthStateFromResponse(res);
                 dispatch(login({
@@ -58,7 +69,7 @@ const AuthScreen: React.FC = () => {
 
     const renderForm = () => (
         <Formik
-            initialValues={{name: '', email: '', password: '', checkPassword: ''}}
+            initialValues={{ name: '', email: '', password: '', checkPassword: '' }}
             enableReinitialize
             validationSchema={formState === 'register' ? registerSchema : loginSchema}
             onSubmit={async (values) => {
@@ -69,7 +80,7 @@ const AuthScreen: React.FC = () => {
                 }
             }}
         >
-            {({handleChange, handleBlur, handleSubmit, values, errors, touched}) => (
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <>
                     <Text style={styles.title}>
                         {formState === 'register' ? 'Registro' : 'Iniciar Sesión'}
@@ -84,7 +95,7 @@ const AuthScreen: React.FC = () => {
                                 onChangeText={handleChange('name')}
                                 onBlur={handleBlur('name')}
                             />
-                            {touched.name && errors.name && <Text style={{color: 'red'}}>{errors.name}</Text>}
+                            {touched.name && errors.name && <Text style={{ color: 'red' }}>{errors.name}</Text>}
                         </>
                     )}
 
@@ -96,7 +107,7 @@ const AuthScreen: React.FC = () => {
                         onBlur={handleBlur('email')}
                         keyboardType="email-address"
                     />
-                    {touched.email && errors.email && <Text style={{color: 'red'}}>{errors.email}</Text>}
+                    {touched.email && errors.email && <Text style={{ color: 'red' }}>{errors.email}</Text>}
 
                     <TextInput
                         style={styles.input}
@@ -106,7 +117,7 @@ const AuthScreen: React.FC = () => {
                         onBlur={handleBlur('password')}
                         secureTextEntry
                     />
-                    {touched.password && errors.password && <Text style={{color: 'red'}}>{errors.password}</Text>}
+                    {touched.password && errors.password && <Text style={{ color: 'red' }}>{errors.password}</Text>}
 
                     {formState === 'register' && (
                         <>
@@ -119,7 +130,7 @@ const AuthScreen: React.FC = () => {
                                 secureTextEntry
                             />
                             {touched.checkPassword && errors.checkPassword && (
-                                <Text style={{color: 'red'}}>{errors.checkPassword}</Text>
+                                <Text style={{ color: 'red' }}>{errors.checkPassword}</Text>
                             )}
                         </>
                     )}
@@ -153,31 +164,31 @@ const AuthScreen: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={() => setFormState("register")}
-                style={[styles.button, {marginTop: 16}]}
+                style={[styles.button, { marginTop: 16 }]}
             >
                 <Text style={styles.buttonText}>Registrarme</Text>
             </TouchableOpacity>
         </>
     );
 
-    const extraHeight = formState === null ? {paddingVertical: '15%', minHeight: '35%'} : {};
+    const extraHeight = formState === null ? { paddingVertical: '15%', minHeight: '35%' } : {};
 
-   return (
-  <ImageBackground source={ScreenBackground} style={styles.background}>
-    <KeyboardAvoidingView
-      style={{ flex: 1, width: '100%' }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
-          <View style={[styles.form, extraHeight]}>
-            {formState ? renderForm() : renderInitialButtons()}
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-  </ImageBackground>
-);
+    return (
+        <ImageBackground source={ScreenBackground} style={styles.background}>
+            <KeyboardAvoidingView
+                style={{ flex: 1, width: '100%' }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={styles.container}>
+                        <View style={[styles.form, extraHeight]}>
+                            {formState ? renderForm() : renderInitialButtons()}
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+        </ImageBackground>
+    );
 
 };
 
@@ -201,14 +212,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderTopLeftRadius: 35,
         borderTopRightRadius: 35,
-        borderBottomEndRadius:35,
-        borderBottomLeftRadius:35,
+        borderBottomEndRadius: 35,
+        borderBottomLeftRadius: 35,
         padding: '10%',
         width: '100%',
         elevation: 5,
         shadowColor: '#000',
         shadowOpacity: 0.05,
-        shadowOffset: {width: 4, height: -4},
+        shadowOffset: { width: 4, height: -4 },
         shadowRadius: 4,
     },
     title: {

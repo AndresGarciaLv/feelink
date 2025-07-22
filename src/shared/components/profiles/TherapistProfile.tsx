@@ -19,8 +19,6 @@ const TherapistProfile: React.FC = () => {
     isFetching: isLoadingProfile,
     error: profileError
   } = useGetCurrentUserQuery();
-
-  // Función para obtener el texto del tag basado en el rol
   const getRoleDisplayText = (roleName: string): string => {
     switch (roleName) {
       case 'SuperAdmin':
@@ -49,7 +47,6 @@ const getSpecialtiesByRole = (roleName: string): string[] => {
 };
 
 
-  // Mostrar loading mientras se cargan los datos
   if (isLoadingProfile) {
     return (
       <SafeAreaView style={styles.container}>
@@ -183,7 +180,6 @@ const styles = StyleSheet.create({
   },
   gradientHeader: {
     paddingTop: Platform.OS === 'android' ? 30 : 40,
-    paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -197,7 +193,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 15,
   },
   backButton: {
     padding: 8,

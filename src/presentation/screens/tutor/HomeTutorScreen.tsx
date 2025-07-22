@@ -1,396 +1,164 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-    TouchableOpacity,
-    Image,
-    KeyboardAvoidingView,
-    Platform
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { useAppSelector } from '../../../core/stores/store';
-import { selectUserData } from '../../../core/stores/auth/authSlice';
-
+import { selectUserData, selectAccessToken } from '../../../core/stores/auth/authSlice';
+import { TutorData } from '../../../core/types/tutor';
+import { PatientData } from '../../../core/types/patient';
 import HeaderTutor from '../../../shared/components/home-tutor/HeaderTutor';
-import HeaderProfile from '../../../shared/components/profile/HeaderProfile';
 import TutorTabBar from '../../../presentation/layout/TutorTabBar';
-// PALETA DE COLORES - Basada en el diseño de referencia
-const Colors = {
-    white: '#FFFFFF',
-    textPrimary: '#2C3E50',
-    textSecondary: '#7F8C8D',
-    primary: '#3498DB',
-    background: '#F8FAFC',
-    cardBackground: '#FFFFFF',
-    lightBlue: '#BFDDFB',
-    timelineBackgroundPrimary: '#BFDDFB',
-    timelineBackgroundSecundary: '#F3F6FB',
-    // Colores para estados emocionales
-    emotionGreen: '#89C58B',
-    emotionYellow: '#D8DB56',
-    emotionRed: '#D27373',
-    // Colores adicionales para las cards
-    cardShadow: 'rgba(0, 0, 0, 0.1)',
-    borderLight: '#E5E5E5',
-    bluePrimary: '#5DADE2',
-    blueSecondary: '#AED6F1',
-};
+import DetallesPatient from '../../../shared/components/tutor/DetallesPatient';
+import ResumenEmocional from '../../../shared/components/tutor/ResumenEmocional';
+import ClinicalColors from '../../../shared/components/constants/clinicalcolors';
+import { getPressureState } from '../../../core/utils/clinicalUtils';
+import PressureChartCard from '../../../shared/components/charts/RealTimeCharts/PressureChartCard';
+import { UseSensorSocketReturn } from '../../../data/chartdata';
 
-
-
-export default function HomeTutor() {
-
-    const userData = useAppSelector(selectUserData);
-
-    // ESTADO - Control del mes seleccionado en la navegación mensual
-    const [selectedMonth, setSelectedMonth] = useState('Abril');
-
-    // DATOS MOCK - Información simulada para cada mes del año
-    const monthlyData = {
-        'Abril': {
-            summary: {
-                title: 'Estado emocional del último mes',
-                date: 'Abril 2025',
-                child: 'Álvaro Díaz',
-                age: '3 Años',
-                status: 'Normal',
-                days: {
-                    estable: 12,
-                    ansioso: 8,
-                    crisis: 8
-                }
-            },
-            recommendations: [
-                {
-                    title: 'Jugar a imitar gestos frente al espejo',
-                    icon: '🪞'
-                },
-                {
-                    title: 'Leer un cuento con imágenes grandes',
-                    icon: '📚'
-                }
-            ],
-            dailyQuote: "Tu paciencia hoy es el camino a su confianza mañana."
-        },
-        'Marzo': {
-            summary: {
-                title: 'Estado emocional del último mes',
-                date: 'Marzo 2025',
-                child: 'Álvaro Díaz',
-                age: '3 Años',
-                status: 'Normal',
-                days: {
-                    estable: 15,
-                    ansioso: 10,
-                    crisis: 6
-                }
-            },
-            recommendations: [
-                {
-                    title: 'Actividades sensoriales con texturas',
-                    icon: '✋'
-                },
-                {
-                    title: 'Música relajante durante las comidas',
-                    icon: '🎵'
-                }
-            ],
-            dailyQuote: "Cada pequeño paso es un gran logro."
-        },
-        'Febrero': {
-            summary: {
-                title: 'Estado emocional del último mes',
-                date: 'Febrero 2025',
-                child: 'Álvaro Díaz',
-                age: '3 Años',
-                status: 'Observación',
-                days: {
-                    estable: 8,
-                    ansioso: 12,
-                    crisis: 8
-                }
-            },
-            recommendations: [
-                {
-                    title: 'Rutinas visuales con pictogramas',
-                    icon: '📋'
-                },
-                {
-                    title: 'Ejercicios de respiración juntos',
-                    icon: '🫁'
-                }
-            ],
-            dailyQuote: "La constancia es el secreto del progreso."
-        },
-        'Enero': {
-            summary: {
-                title: 'Estado emocional del último mes',
-                date: 'Enero 2025',
-                child: 'Álvaro Díaz',
-                age: '3 Años',
-                status: 'Normal',
-                days: {
-                    estable: 14,
-                    ansioso: 9,
-                    crisis: 8
-                }
-            },
-            recommendations: [
-                {
-                    title: 'Juegos de construcción simples',
-                    icon: '🧱'
-                },
-                {
-                    title: 'Tiempo de juego estructurado',
-                    icon: '⏰'
-                }
-            ],
-            dailyQuote: "Celebra cada momento de conexión."
-        }
-    };
-
-    // FUNCIONES - Manejadores de eventos y utilidades
-
-    // Función para manejar la selección de mes en la navegación
-    const handleMonthSelect = (month) => {
-        setSelectedMonth(month);
-    };
-
-    // Función para obtener el estilo de color según el tipo de emoción
-    const getEmotionColor = (type) => {
-        switch (type) {
-            case 'estable':
-                return Colors.emotionGreen;
-            case 'ansioso':
-                return Colors.emotionYellow;
-            case 'crisis':
-                return Colors.emotionRed;
-            default:
-                return Colors.emotionGreen;
-        }
-    };
-
-    // Función para obtener el icono según el tipo de emoción
-    const getEmotionIcon = (type) => {
-        switch (type) {
-            case 'estable':
-                return '😊';
-            case 'ansioso':
-                return '😐';
-            case 'crisis':
-                return '😰';
-            default:
-                return '😊';
-        }
-    };
-
-    // COMPONENTES DE RENDERIZADO
-
-    // Renderiza las estadísticas emocionales del día actual
-    const renderEmotionalStats = () => {
-        const todayStats = [
-            { type: 'estable', label: 'Estable', percentage: '60%' },
-            { type: 'ansioso', label: 'Ansioso', percentage: '30%' },
-            { type: 'crisis', label: 'Crisis', percentage: '10%' }
-        ];
-
-        return (
-            <View style={styles.emotionalStatsCard}>
-                <Text style={styles.sectionTitle}>Estados emocionales del día</Text>
-                <View style={styles.emotionalStatsContainer}>
-                    {todayStats.map((stat, index) => (
-                        <View key={index} style={styles.emotionalStatItem}>
-                            <View style={[
-                                styles.emotionalIcon,
-                                { backgroundColor: getEmotionColor(stat.type) }
-                            ]}>
-                                <Text style={styles.emotionalIconText}>
-                                    {getEmotionIcon(stat.type)}
-                                </Text>
-                            </View>
-                            <Text style={styles.emotionalLabel}>{stat.label}</Text>
-                            <Text style={styles.emotionalPercentage}>{stat.percentage}</Text>
-                        </View>
-                    ))}
-                </View>
-            </View>
-        );
-    };
-
-    // Renderiza el resumen mensual con información detallada
-    const renderMonthlySummary = () => {
-        const currentData = monthlyData[selectedMonth];
-
-        return (
-            <View style={styles.monthlySummaryCard}>
-                <View style={styles.summaryHeader}>
-                    <View style={styles.summaryTitleContainer}>
-                        <Text style={styles.summaryTitle}>{currentData.summary.title}</Text>
-                        <Text style={styles.summaryDate}>{currentData.summary.date}</Text>
-                        <Text style={styles.summaryChild}>{currentData.summary.child}</Text>
-                        <Text style={styles.summaryAge}>Edad: {currentData.summary.age}</Text>
-                    </View>
-                    <View style={styles.statusBadge}>
-                        <Text style={styles.statusText}>{currentData.summary.status}</Text>
-                    </View>
-                </View>
-
-                {/* Estadísticas mensuales detalladas */}
-                <View style={styles.monthlySummaryStats}>
-                    <View style={styles.monthlyStatItem}>
-                        <Text style={styles.monthlyStatNumber}>Días {currentData.summary.days.estable}</Text>
-                        <View style={[styles.monthlyStatTag, { backgroundColor: Colors.emotionGreen }]}>
-                            <Text style={styles.monthlyStatLabel}>Estable</Text>
-                        </View>
-                    </View>
-                    <View style={styles.monthlyStatItem}>
-                        <Text style={styles.monthlyStatNumber}>Días {currentData.summary.days.ansioso}</Text>
-                        <View style={[styles.monthlyStatTag, { backgroundColor: Colors.emotionYellow }]}>
-                            <Text style={styles.monthlyStatLabel}>Ansioso</Text>
-                        </View>
-                    </View>
-                    <View style={styles.monthlyStatItem}>
-                        <Text style={styles.monthlyStatNumber}>Días {currentData.summary.days.crisis}</Text>
-                        <View style={[styles.monthlyStatTag, { backgroundColor: Colors.emotionRed }]}>
-                            <Text style={styles.monthlyStatLabel}>Crisis</Text>
-                        </View>
-                    </View>
-                </View>
-            </View>
-        );
-    };
-
-    // Renderiza las recomendaciones en formato carrusel
-    const renderRecommendations = () => {
-        const recommendations = monthlyData[selectedMonth].recommendations;
-
-        return (
-            <View style={styles.recommendationsSection}>
-                <Text style={styles.sectionTitle}>Recomendaciones</Text>
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.recommendationsCarousel}
-                >
-                    {recommendations.map((recommendation, index) => (
-                        <View key={index} style={styles.recommendationCard}>
-                            <Text style={styles.recommendationIcon}>{recommendation.icon}</Text>
-                            <Text style={styles.recommendationText}>{recommendation.title}</Text>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>
-        );
-    };
-
-    // Renderiza la frase motivacional del día
-    const renderDailyQuote = () => {
-        const quote = monthlyData[selectedMonth].dailyQuote;
-
-        return (
-            <View style={styles.dailyQuoteSection}>
-                <Text style={styles.sectionTitle}>Frase del día</Text>
-                <View style={styles.dailyQuoteCard}>
-                    <Text style={styles.dailyQuoteText}>"{quote}"</Text>
-                </View>
-            </View>
-        );
-    };
-    const navigation = useNavigation();
-
-
-    // COMPONENTE PRINCIPAL - Estructura completa de la pantalla
-    return (
-
-
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={{ flex: 1 }}
-        >
-            <View style={{ flex: 1 }}>
-                <ScrollView style={styles.container}>
-
-                    {/* NAVIGATION - Barra de navegación principal */}
-                    <HeaderTutor
-                        tutorName={`Tutor ${userData?.name}`}
-                    />
-
-                    {/* SECCIÓN: MI PEQUEÑO - Información personal del niño */}
-                    <Text style={styles.mainSectionTitle}>Mi pequeño</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('TutorProfile')}>
-                        <View style={styles.profileCard}>
-                            {/* Avatar del niño */}
-                            <Image
-                                source={require('../../../shared/assets/img/Home-tutor.png')}
-                                style={styles.avatar}
-                            />
-
-                            {/* Información básica del perfil */}
-                            <Text style={styles.childName}>Álvaro Díaz</Text>
-                            <Text style={styles.childAge}>3 Años</Text>
-                            <Text style={styles.childId}>321000218739812 • Niño</Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    {/* SECCIÓN: ESTADOS EMOCIONALES DEL DÍA */}
-                    {renderEmotionalStats()}
-
-
-                    {/* SECCIÓN: REGISTRO MENSUAL */}
-                    <Text style={styles.mainSectionTitle}>Registro mensual</Text>
-
-                    {/* NAVEGACIÓN MENSUAL - Tabs para seleccionar meses */}
-                    <View style={styles.monthTabs}>
-                        {['Abril', 'Marzo', 'Febrero', 'Enero'].map((mes, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.monthButton,
-                                    selectedMonth === mes && styles.monthButtonActive
-                                ]}
-                                onPress={() => handleMonthSelect(mes)}
-                            >
-                                <Text style={[
-                                    styles.monthText,
-                                    selectedMonth === mes && styles.monthTextActive
-                                ]}>
-                                    {mes}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-
-                    {/* RESUMEN MENSUAL DETALLADO */}
-                    {renderMonthlySummary()}
-
-                    {/* RECOMENDACIONES PERSONALIZADAS */}
-                    {renderRecommendations()}
-
-                    {/* FRASE MOTIVACIONAL DEL DÍA */}
-                    {renderDailyQuote()}
-
-                    {/* Espacio adicional para scroll */}
-
-                    <View style={styles.bottomPadding} />
-
-                </ScrollView>
-
-                <TutorTabBar activeTab="Home" />
-            </View>
-        </KeyboardAvoidingView>
-
-
-
-
-
-
-    );
+interface InfoPelucheProps {
+  socketData?: UseSensorSocketReturn;
 }
 
+const Colors = {
+  white: '#FFFFFF',
+  textPrimary: '#2C3E50',
+  textSecondary: '#7F8C8D',
+  primary: '#3498DB',
+  background: '#F8FAFC',
+  cardBackground: '#FFFFFF',
+  lightBlue: '#BFDDFB',
+  bluePrimary: '#5DADE2',
+  blueSecondary: '#AED6F1',
+};
 
-// ESTILOS - Definición completa de todos los estilos del componente
+const HomeTutor: React.FC<InfoPelucheProps> = ({ socketData }) => {
+  const userData = useAppSelector(selectUserData);
+  const accessToken = useAppSelector(selectAccessToken);
+  const [tutorData, setTutorData] = useState<TutorData | null>(null);
+  const [patientData, setPatientData] = useState<PatientData | null>(null);
+  const navigation = useNavigation();
+
+  // Procesamiento de datos para el gráfico de presión
+  const { pressureValue, pressureState, pressureChartData } = useMemo(() => {
+    const lastValue = socketData?.sensorData.pressurePercent?.[socketData.sensorData.pressurePercent.length - 1] || 0;
+    const state = getPressureState(lastValue);
+    
+    const chartData = socketData?.sensorData.pressurePercent?.slice(-6).map((value, index) => ({
+      value,
+      label: `${index + 1}`,
+      frontColor: state.color,
+      labelTextStyle: {
+        color: ClinicalColors.textSecondary,
+        fontSize: 10,
+      },
+    })) || [];
+
+    return {
+      pressureValue: lastValue,
+      pressureState: state,
+      pressureChartData: chartData
+    };
+  }, [socketData]);
+
+  useEffect(() => {
+    if (!accessToken || !userData || !userData.id) {
+      console.warn('ID del usuario no definido');
+      return;
+    }
+
+    const fetchTutorData = async () => {
+      try {
+        const res = await fetch(
+          `http://feelink-api.runasp.net/api/Users/${userData.id}/data`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        setTutorData(await res.json());
+      } catch (err) {
+        console.error('Error al obtener datos del tutor:', err);
+      }
+    };
+
+    fetchTutorData();
+  }, [accessToken, userData]);
+
+  useEffect(() => {
+    if (!tutorData?.patientId || !accessToken) return;
+
+    const fetchPatientData = async () => {
+      try {
+        const res = await fetch(
+          `http://feelink-api.runasp.net/api/Patients/${tutorData.patientId}`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
+
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        setPatientData(await res.json());
+      } catch (err) {
+        console.error('Error al obtener datos del paciente:', err);
+      }
+    };
+
+    fetchPatientData();
+  }, [tutorData, accessToken]);
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
+      <View style={{ flex: 1 }}>
+        <ScrollView 
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <HeaderTutor
+            tutorName={`Tutor ${userData?.name}`}
+            centerName={tutorData?.companyName || 'Centro no disponible'}
+            specialistName={tutorData?.therapistName || 'Especialista no disponible'}
+          />
+
+          <DetallesPatient />
+
+          {tutorData?.patientId && accessToken && (
+            <ResumenEmocional 
+              patientId={tutorData.patientId} 
+              accessToken={accessToken} 
+            />
+          )}
+
+          {/* Sección del gráfico de presión */}
+          {socketData && pressureChartData.length > 0 && (
+            <View style={styles.chartContainer}>
+              <PressureChartCard
+                pressureValue={pressureValue}
+                pressureState={pressureState}
+                chartData={pressureChartData}
+              />
+            </View>
+          )}
+
+          {/* Espacio adicional al final para evitar que el tab bar tape contenido */}
+          <View style={styles.bottomSpacer} />
+        </ScrollView>
+
+        <TutorTabBar activeTab="Home" />
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
+
 const styles = StyleSheet.create({
     // CONTENEDOR PRINCIPAL
     container: {
@@ -714,3 +482,6 @@ const styles = StyleSheet.create({
         height: 60,
     },
 });
+export default HomeTutor;
+
+
