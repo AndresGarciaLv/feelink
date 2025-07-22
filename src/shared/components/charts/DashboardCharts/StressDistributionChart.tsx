@@ -5,17 +5,6 @@ import { ToyData, AllToysData  } from '../../../../core/types/common/toyTypes';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-export interface ToyData {
-  pressurePercent: number[];
-  accelX: number[];
-  battery: number[];
-  [key: string]: number[]; // ← Agrega esta línea
-}
-
-export interface AllToysData {
-  [toyId: string]: ToyData;
-}
-
 interface StressDistributionChartProps {
   allToysData: AllToysData;
 }
