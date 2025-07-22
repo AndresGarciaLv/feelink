@@ -38,11 +38,25 @@ const StressDistributionChart: React.FC<StressDistributionChartProps> = ({ allTo
     }));
   };
 
-  const stressDistributionData = getStressDistributionData();
-    const maxRaw = Math.max(...stressDistributionData.map(d => d.value));
-    const cappedMax = Math.min(10, Math.max(3, maxRaw));
-    const noOfSections = 3;
-    const adjustedMax = Math.ceil(cappedMax / noOfSections) * noOfSections;
+const stressDistributionData = getStressDistributionData();
+const maxRaw = Math.max(...stressDistributionData.map(d => d.value));
+
+// Número de secciones deseado (puedes subir a 4 si quieres más detalle)
+let noOfSections = 3;
+
+// Lógica dinámica: mínimo 3, máximo 10
+let cappedMax = Math.max(3, maxRaw);
+cappedMax = Math.min(10, cappedMax);
+
+// Ajusta número de secciones si el máximo valor supera cierto umbral (opcional)
+if (cappedMax > 6) {
+  noOfSections = 5;
+} else if (cappedMax > 3) {
+  noOfSections = 4;
+}
+
+// Calcula un maxValue limpio divisible por noOfSections
+const adjustedMax = Math.ceil(cappedMax / noOfSections) * noOfSections;
   return (
     <View style={styles.chartCard}>
       <View style={styles.chartHeader}>
