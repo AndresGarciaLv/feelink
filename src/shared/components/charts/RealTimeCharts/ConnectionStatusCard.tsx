@@ -1,26 +1,45 @@
-// src/components/realtime/ConnectionStatusCard.tsx
+// src\shared\components\charts\RealTimeCharts\ConnectionStatusCard.tsx
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import ClinicalColors from '../../constants/clinicalcolors';
 
+
 interface Props {
   isConnected: boolean;
+  isReceivingData: boolean;
 }
 
-const ConnectionStatusCard: React.FC<Props> = ({ isConnected }) => {
+
+const ConnectionStatusCard: React.FC<Props> = ({ isConnected, isReceivingData }) => {
+  const isFullyConnected = isConnected && isReceivingData;
+
+  const cardColor = !isConnected
+    ? ClinicalColors.crisis
+    : isReceivingData
+    ? ClinicalColors.stable
+    : ClinicalColors.anxious;
+
+  const icon = !isConnected ? '🔴' : isReceivingData ? '🟢' : '🟠';
+
+  const statusText = !isConnected
+    ? 'Desconectado'
+    : isReceivingData
+    ? 'Sistema Activo'
+    : 'Esperando Dispositivo';
+
+  const subText = !isConnected
+    ? 'Intentando reconectar...'
+    : isReceivingData
+    ? 'Recopilando datos sensoriales'
+    : 'En espera de señal del peluche';
+
   return (
-    <View style={[styles.connectionCard, {
-      backgroundColor: isConnected ? ClinicalColors.stable : ClinicalColors.crisis
-    }]}> 
+    <View style={[styles.connectionCard, { backgroundColor: cardColor }]}>
       <View style={styles.connectionContent}>
-        <Text style={styles.connectionIcon}>{isConnected ? '🟢' : '🔴'}</Text>
+        <Text style={styles.connectionIcon}>{icon}</Text>
         <View>
-          <Text style={styles.connectionStatus}>
-            {isConnected ? 'Sistema Activo' : 'Desconectado'}
-          </Text>
-          <Text style={styles.connectionSubtext}>
-            {isConnected ? 'Recopilando datos sensoriales' : 'Intentando reconectar...'}
-          </Text>
+          <Text style={styles.connectionStatus}>{statusText}</Text>
+          <Text style={styles.connectionSubtext}>{subText}</Text>
         </View>
       </View>
     </View>
