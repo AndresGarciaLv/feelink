@@ -1,43 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { ConfirmModal, InfoModal } from './ModalD';
 
 interface Props {
   icon: React.ReactNode;
-  connected: boolean;
-  ssid?: string;
-  onToggle?: () => void;
+  ssid: string;
+  macAddress: string;
 }
 
 const WifiOffIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24">
-    <Path 
-      fill="black" 
+    <Path
+      fill="black"
       d="M2.28 3L1 4.27l1.47 1.47c-.43.26-.86.55-1.27.86L3 9c.53-.4 1.08-.75 1.66-1.07l2.23 2.23c-.74.34-1.45.75-2.09 1.24l1.8 2.4c.78-.58 1.66-1.03 2.6-1.33L11.75 15c-1.25.07-2.41.5-3.35 1.2L12 21l2.46-3.27L17.74 21L19 19.72M12 3c-2.15 0-4.2.38-6.1 1.07l2.39 2.4C9.5 6.16 10.72 6 12 6c3.38 0 6.5 1.11 9 3l1.8-2.4C19.79 4.34 16.06 3 12 3m0 6c-.38 0-.75 0-1.12.05l3.19 3.2c1.22.28 2.36.82 3.33 1.55l1.8-2.4C17.2 9.89 14.7 9 12 9"
     />
   </Svg>
 );
 
-export default function WifiStatusCard({
-  icon,
-  connected,
-  ssid = 'MiCasaWiFi',
-  onToggle,
-}: Props) {
+export default function WifiStatusCard({ icon, ssid, macAddress }: Props) {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const wifiOn = ssid !== ''; // Estado solo lectura
+
+  const handleToggle = () => {
+    if (wifiOn) {
+      setShowConfirm(true);
+    } else {
+      Alert.alert('Aviso', 'El peluche ya está desconectado.');
+    }
+  };
+
+  const handleDisconnect = async () => {
+    setShowConfirm(false);
+
+    // <-- Aquí agregamos los console.log para debug
+    console.log('🚀 Enviando petición a:', `http://feelink-api.runasp.net/api/Toys/${encodeURIComponent(macAddress)}/commands/disconnect-wifi`);
+    console.log('🆔 macAddress:', macAddress);
+
+    try {
+      const response = await fetch(
+        `http://feelink-api.runasp.net/api/Toys/${encodeURIComponent(macAddress)}/commands/disconnect-wifi`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            cmd: 'disconnectFromWifi',
+            data: { macAddress },
+          }),
+        }
+      );
+
+      console.log('📡 Código de estado:', response.status);
+
+      if (response.ok) {
+        setShowInfo(true);
+      } else {
+        Alert.alert('Error', 'No se pudo desconectar el peluche.');
+      }
+    } catch (error) {
+      console.error('Error de red al desconectar:', error);
+      Alert.alert('Error de red', 'No se pudo conectar al servidor.');
+    }
+  };
+
   return (
     <View style={styles.card}>
-      {/* Izquierda: Contenido dinámico según estado */}
       <View style={styles.leftSection}>
-        <View style={styles.iconContainer}>
-          {connected ? icon : <WifiOffIcon />}
-        </View>
-        
-        {connected ? (
+        <View style={styles.iconContainer}>{wifiOn ? icon : <WifiOffIcon />}</View>
+        {wifiOn ? (
           <>
             <Text style={styles.ssidText}>RED: {ssid}</Text>
             <Text style={[styles.statusText, styles.connectedText]}>Conectado</Text>
@@ -47,16 +86,28 @@ export default function WifiStatusCard({
         )}
       </View>
 
-      {/* Derecha: Toggle + Título (Wi-Fi) */}
       <View style={styles.rightSection}>
         <TouchableOpacity
-          style={[styles.toggleContainer, connected && styles.connectedToggle]}
-          onPress={onToggle}
+          style={[styles.toggleContainer, wifiOn && styles.connectedToggle]}
+          onPress={handleToggle}
         >
-          <View style={[styles.toggleCircle, connected && styles.circleActive]} />
+          <View style={[styles.toggleCircle, wifiOn && styles.circleActive]} />
         </TouchableOpacity>
         <Text style={styles.cardTitle}>Wi-Fi</Text>
       </View>
+
+      <ConfirmModal
+        visible={showConfirm}
+        message="¿Estás seguro que quieres apagar el peluche?"
+        onConfirm={handleDisconnect}
+        onCancel={() => setShowConfirm(false)}
+      />
+
+      <InfoModal
+        visible={showInfo}
+        message="Peluche apagado correctamente"
+        onClose={() => setShowInfo(false)}
+      />
     </View>
   );
 }
@@ -138,6 +189,4 @@ const styles = StyleSheet.create({
   iconContainer: {
     paddingLeft: 20,
   },
-
-  
 });
