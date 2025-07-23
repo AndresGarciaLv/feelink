@@ -1,64 +1,28 @@
-import React, { useEffect, useRef, useState } from "react";
+// src/shared/components/PressureProgressBar.tsx
+import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import * as Progress from "react-native-progress";
 
 interface Props {
-  identifier: string;
+  pressure: {
+    pressurePercent: number;
+    pressureGrams: number;
+  };
 }
 
-const PressureProgressBar: React.FC<Props> = ({ identifier }) => {
-  const [pressurePercent, setPressurePercent] = useState(0);
-  const [pressureGrams, setPressureGrams] = useState(0);
-  const ws = useRef<WebSocket | null>(null);
-
-  useEffect(() => {
-    if (!identifier) return;
-
-    const wsUrl = `ws://feelink-api.runasp.net/ws/sensor-data?device=esp32&identifier=${identifier}`;
-    ws.current = new WebSocket(wsUrl);
-
-    // ws.current.onopen = () => {
-    //   console.log("✅ WebSocket conectado");
-    // };
-
-    ws.current.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        const pressureData = data.Sensors?.p;
-        if (pressureData) {
-          const pc = typeof pressureData.pc === "number" ? pressureData.pc : 0;
-          const gr = typeof pressureData.gr === "number" ? pressureData.gr : 0;
-
-          setPressurePercent(Math.min(Math.max(pc / 100, 0), 1));
-          setPressureGrams(gr);
-        }
-      } catch (error) {
-        // console.error("❌ Error parseando mensaje WebSocket", error);
-      }
-    };
-
-    ws.current.onerror = (error) => {
-      console.log("🚨 Error en WebSocket:", error);
-    };
-
-    ws.current.onclose = () => {
-      // console.log("🔌 WebSocket cerrado");
-    };
-
-    return () => {
-      ws.current?.close();
-    };
-  }, [identifier]);
+const PressureProgressBar: React.FC<Props> = ({ pressure }) => {
+  const pressurePercent = pressure?.pressurePercent ?? 0;
+  const pressureGrams = pressure?.pressureGrams ?? 0;
 
   const getBarColor = (value: number) => {
-    if (value <= 0.6) return "#4CAF50"; // Verde
-    if (value <= 0.87) return "#FFB300"; // Amarillo
-    return "#E53935"; // Rojo
+    if (value <= 60) return "#4CAF50";
+    if (value <= 87) return "#FFB300";
+    return "#E53935";
   };
 
   const getStatusText = (value: number) => {
-    if (value <= 0.6) return "Estable";
-    if (value <= 0.87) return "Ansioso";
+    if (value <= 60) return "Estable";
+    if (value <= 87) return "Ansioso";
     return "Crisis";
   };
 
@@ -76,7 +40,7 @@ const PressureProgressBar: React.FC<Props> = ({ identifier }) => {
       </View>
 
       <Progress.Bar
-        progress={pressurePercent}
+        progress={pressurePercent / 100}
         width={null}
         color={barColor}
         unfilledColor="#eee"
@@ -84,7 +48,7 @@ const PressureProgressBar: React.FC<Props> = ({ identifier }) => {
         height={18}
       />
       <Text style={[styles.percentage, { color: barColor }]}>
-        {Math.round(pressurePercent * 100)}%
+        {Math.round(pressurePercent)}%
       </Text>
 
       <View style={styles.forceContainer}>

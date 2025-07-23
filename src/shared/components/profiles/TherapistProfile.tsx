@@ -244,7 +244,6 @@ arrowIcon: {
 },
   gradientHeader: {
     paddingTop: Platform.OS === 'android' ? 30 : 40,
-    paddingBottom: 20,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -258,7 +257,6 @@ arrowIcon: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 15,
   },
   backButton: {
     padding: 8,

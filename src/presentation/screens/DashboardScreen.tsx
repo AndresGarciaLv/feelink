@@ -20,6 +20,7 @@ import { selectUserData } from "../../core/stores/auth/authSlice";
 import MyPatientsSection from "../../shared/components/dashboard/myPatients";
 import DashboardCharts from "../../shared/components/charts/DashboardCharts";
 import QuickActionsSection from "../../shared/components/dashboard/QuickActionsSection";
+import WifiStepGuide from '../screens/WifiStepGuide';
 import DailyActivitySection from "../../shared/components/dashboard/DailyActivitySection";
 
 const DashboardScreen: React.FC = () => {
