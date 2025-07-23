@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, Platform, ActivityIndicator, ScrollView, Linking } from 'react-native';import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import TabBar from '../../../presentation/layout/TabBar';
 import type { RootStackParamList } from '../../../core/types/common/navigation';
@@ -8,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGetCurrentUserQuery } from '../../../core/http/requests/therapistServerApi';
+import { useGetCompaniesQuery } from '../../../core/http/requests/companyServerApi'; // Importar el nuevo hook
 
 const TherapistProfile: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -19,6 +19,17 @@ const TherapistProfile: React.FC = () => {
     isFetching: isLoadingProfile,
     error: profileError
   } = useGetCurrentUserQuery();
+
+  // Consultar datos de las compañías
+  const {
+    data: companiesData,
+    isFetching: isLoadingCompanies,
+    error: companiesError
+  } = useGetCompaniesQuery();
+
+  // Obtener la primera compañía
+  const companyInfo = companiesData?.items?.[0];
+
 
   // Función para obtener el texto del tag basado en el rol
   const getRoleDisplayText = (roleName: string): string => {
@@ -35,22 +46,21 @@ const TherapistProfile: React.FC = () => {
   };
 
   // Función para obtener especialidades basadas en el rol
-const getSpecialtiesByRole = (roleName: string): string[] => {
-  switch (roleName) {
-    case 'SuperAdmin':
-        return ['Administración', 'Supervisión', 'Gestión'];
-    case 'Therapist':
-      return ['Terapia Infantil', 'Intervención en TEA', 'Seguimiento Emocional'];
-    case 'Tutor':
-      return ['Padre / Madre de Familia', 'Acompañamiento en Casa', 'Colaboración con Terapeutas'];
-    default:
-      return ['Atención Profesional'];
-  }
-};
-
+  const getSpecialtiesByRole = (roleName: string): string[] => {
+    switch (roleName) {
+      case 'SuperAdmin':
+          return ['Administración', 'Supervisión', 'Gestión'];
+      case 'Therapist':
+        return ['Terapia Infantil', 'Intervención en TEA', 'Seguimiento Emocional'];
+      case 'Tutor':
+        return ['Padre / Madre de Familia', 'Acompañamiento en Casa', 'Colaboración con Terapeutas'];
+      default:
+        return ['Atención Profesional'];
+    }
+  };
 
   // Mostrar loading mientras se cargan los datos
-  if (isLoadingProfile) {
+  if (isLoadingProfile || isLoadingCompanies) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -85,7 +95,8 @@ const getSpecialtiesByRole = (roleName: string): string[] => {
   const roleDisplayText = getRoleDisplayText(userProfile.roleName);
     
   return (
-    <SafeAreaView style={styles.container}>
+          <>
+    <ScrollView  style={styles.container}>
       {/* Header con gradiente */}
       <LinearGradient
         colors={['#9bc4e0', '#cbe0f4']} 
@@ -153,6 +164,7 @@ const getSpecialtiesByRole = (roleName: string): string[] => {
           )}
         </View>
 
+        
         {/* Especialidades */}
         <View style={styles.specialtiesContainer}>
           <Text style={styles.sectionTitle}>Especialidades</Text>
@@ -165,12 +177,54 @@ const getSpecialtiesByRole = (roleName: string): string[] => {
           </View>
         </View>
       </View>
+
+{/* Información de la clínica */}
+{companyInfo && (
+  <View style={styles.clinicContainer}>
+    <Text style={styles.sectionTitle}>Contacto</Text>
+    <View style={styles.clinicInfoContainer}>
+      <View style={styles.infoRow}>
+        <Ionicons name="medical" size={20} color="#9BC4E0" />
+        <Text style={styles.infoLabel}>Clínica:</Text>
+        <Text style={styles.infoValue}>{companyInfo.name}</Text>
+      </View>
+<TouchableOpacity 
+  style={styles.infoRow}
+  onPress={() => {
+    const phoneNumber = companyInfo.phoneNumber.replace(/[^0-9+]/g, ''); // Limpiar el número
+    Linking.openURL(`tel:${phoneNumber}`);
+  }}
+  activeOpacity={0.7}
+>
+  <Ionicons name="call" size={20} color="#9BC4E0" />
+  <Text style={styles.infoLabel}>Teléfono:</Text>
+  <Text style={[styles.infoValue, styles.phoneLink]}>{companyInfo.phoneNumber}</Text>
+  <Ionicons name="chevron-forward" size={16} color="#9BC4E0" style={styles.arrowIcon} />
+</TouchableOpacity>
+      <View style={styles.infoRow}>
+        <Ionicons name="location" size={20} color="#9BC4E0" />
+        <Text style={styles.infoLabel}>Dirección:</Text>
+        <Text style={styles.infoValue}>{companyInfo.address}</Text>
+      </View>
+      {companyInfo.personContact && (
+        <View style={styles.infoRow}>
+          <Ionicons name="person-circle" size={20} color="#9BC4E0" />
+          <Text style={styles.infoLabel}>Contacto:</Text>
+          <Text style={styles.infoValue}>{companyInfo.personContact}</Text>
+        </View>
+      )}
+    </View>
+  </View>
+)}
+
             
-      {/* Tab Bar Component - Fijo en el fondo */}
+
+    </ScrollView>
+          {/* Tab Bar Component - Fijo en el fondo */}
       <View style={{ paddingBottom: insets.bottom }}>
         <TabBar activeTab="Profile" />
       </View>
-    </SafeAreaView>
+      </>
   );
 };
 
@@ -180,7 +234,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF',
-  },
+  },phoneLink: {
+  color: '#9BC4E0',
+  textDecorationLine: 'underline',
+  fontWeight: '600',
+},
+arrowIcon: {
+  marginLeft: 8,
+},
   gradientHeader: {
     paddingTop: Platform.OS === 'android' ? 30 : 40,
     paddingBottom: 20,
@@ -290,7 +351,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     flex: 1,
-  },
+  },// Nuevos estilos mejorados para la información de la clínica
+clinicContainer: {
+  marginHorizontal: 24,
+  marginBottom: 25,
+},
+clinicInfoContainer: {
+  backgroundColor: '#FFFFFF',
+  borderRadius: 16,
+  padding: 20,
+  borderWidth: 1,
+  borderColor: '#E8F4FD',
+  shadowColor: '#9BC4E0',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.1,
+  shadowRadius: 12,
+  elevation: 6,
+},
   specialtiesContainer: {
     marginHorizontal: 24,
     marginBottom: 20,
