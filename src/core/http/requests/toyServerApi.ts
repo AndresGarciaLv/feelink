@@ -128,6 +128,19 @@ export const toysServerApi = serverApi.injectEndpoints({
       providesTags: (_result, _error, { macAddress }) => [{ type: "Toy", id: macAddress }],
     }),
 
+    disconnectToyWifi: builder.mutation<void, string>({
+  query: (macAddress) => ({
+    url: `Toys/${encodeURIComponent(macAddress)}/commands/disconnect-wifi`,
+    method: 'POST',
+    body: {
+      cmd: 'disconnectFromWifi',
+      data: { macAddress },
+    },
+  }),
+  invalidatesTags: (_result, _error, macAddress) => [{ type: 'Toy', id: macAddress }],
+}),
+
+
     // Obtener resumen de lecturas de un juguete
     getToyReadingsSummary: builder.query<ToyReadingsSummary, GetToyReadingsSummaryParams>({
       query: ({ macAddress, ...params }) => {
@@ -148,4 +161,5 @@ export const {
   useUpdateToyMutation,
   useGetToyReadingsQuery,
   useGetToyReadingsSummaryQuery,
+  useDisconnectToyWifiMutation,
 } = toysServerApi;

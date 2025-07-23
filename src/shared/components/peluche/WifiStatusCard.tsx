@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { ConfirmModal, InfoModal } from './ModalD';
+import { useDisconnectToyWifiMutation } from '../../../core/http/requests/toyServerApi';
 
 interface Props {
   icon: React.ReactNode;
@@ -27,7 +28,9 @@ const WifiOffIcon = () => (
 export default function WifiStatusCard({ icon, ssid, macAddress }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const wifiOn = ssid !== ''; // Estado solo lectura
+  const wifiOn = ssid !== '';
+
+  const [disconnectToyWifi, { isLoading }] = useDisconnectToyWifiMutation();
 
   const handleToggle = () => {
     if (wifiOn) {
@@ -40,35 +43,12 @@ export default function WifiStatusCard({ icon, ssid, macAddress }: Props) {
   const handleDisconnect = async () => {
     setShowConfirm(false);
 
-    // <-- Aquí agregamos los console.log para debug
-    console.log('🚀 Enviando petición a:', `http://feelink-api.runasp.net/api/Toys/${encodeURIComponent(macAddress)}/commands/disconnect-wifi`);
-    console.log('🆔 macAddress:', macAddress);
-
     try {
-      const response = await fetch(
-        `http://feelink-api.runasp.net/api/Toys/${encodeURIComponent(macAddress)}/commands/disconnect-wifi`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            cmd: 'disconnectFromWifi',
-            data: { macAddress },
-          }),
-        }
-      );
-
-      console.log('📡 Código de estado:', response.status);
-
-      if (response.ok) {
-        setShowInfo(true);
-      } else {
-        Alert.alert('Error', 'No se pudo desconectar el peluche.');
-      }
+      await disconnectToyWifi(macAddress).unwrap();
+      setShowInfo(true);
     } catch (error) {
-      console.error('Error de red al desconectar:', error);
-      Alert.alert('Error de red', 'No se pudo conectar al servidor.');
+      console.error('❌ Error al desconectar WiFi:', error);
+      Alert.alert('Error', 'No se pudo desconectar el peluche del Wi-Fi.');
     }
   };
 
@@ -90,6 +70,7 @@ export default function WifiStatusCard({ icon, ssid, macAddress }: Props) {
         <TouchableOpacity
           style={[styles.toggleContainer, wifiOn && styles.connectedToggle]}
           onPress={handleToggle}
+          disabled={isLoading}
         >
           <View style={[styles.toggleCircle, wifiOn && styles.circleActive]} />
         </TouchableOpacity>
@@ -98,14 +79,14 @@ export default function WifiStatusCard({ icon, ssid, macAddress }: Props) {
 
       <ConfirmModal
         visible={showConfirm}
-        message="¿Estás seguro que quieres apagar el peluche?"
+        message="¿Deseas desconectar el peluche del Wi-Fi?"
         onConfirm={handleDisconnect}
         onCancel={() => setShowConfirm(false)}
       />
 
       <InfoModal
         visible={showInfo}
-        message="Peluche apagado correctamente"
+        message="El peluche se ha desconectado correctamente del Wi-Fi."
         onClose={() => setShowInfo(false)}
       />
     </View>

@@ -1,5 +1,5 @@
 // src/presentation/screens/ProfileScreen.tsx
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,35 +8,29 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Colors from "../../shared/components/constants/colors";
 import HeaderProfile from "../../shared/components/profile/HeaderProfile";
-import {
-  PacienteGraficas,
-  EstadoEmocional,
-} from "../../core/types/common/PatientChart";
-import { Modal } from "react-native";
+import { PacienteGraficas } from "../../core/types/common/PatientChart";
 
 import {
   useGetPatientByIdQuery,
   useGetToyByPatientIdQuery,
   useGetPatientActivitySummaryQuery,
 } from "../../core/http/requests/patientServerApi";
-import { useGetToyReadingsSummaryQuery } from "../../core/http/requests/toyServerApi";
-import RealTimeCharts from '../../shared/components/charts/RealTimeCharts';
-import { useSensorSocket } from '../../shared/hooks/useSensorSocket';
+
 import ToyHistoryComponent from "../../shared/components/profile/ToyHistoryComponent";
+import RealTimeCharts from "../../shared/components/charts/RealTimeCharts";
+import { useSensorSocket } from "../../shared/hooks/useSensorSocket";
 
 type Toy = {
   id: string;
   name: string;
   macAddress: string;
-  // otros campos si aplica
 };
-
-
 
 type RootStackParamList = {
   Profile: { patientId: string };
@@ -44,26 +38,26 @@ type RootStackParamList = {
     data: PacienteGraficas;
     chartType: "stress" | "emotions";
   };
-  DetallesPeluche: { toy: Toy };
-
+  DetallesPeluche: { patientId: string; macAddress: string };
 };
 
 type ProfileScreenRouteProp = RouteProp<RootStackParamList, "Profile">;
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
-export default function ProfileScreen() {
+const RealTimeChartsWrapper = () => {
   const socketData = useSensorSocket();
+  return <RealTimeCharts socketData={socketData} />;
+};
+
+export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<ProfileScreenRouteProp>();
-const [isModalVisible, setIsModalVisible] = useState(false);
   const { patientId } = route.params;
-
-  const [selectedMonthIndex, setSelectedMonthIndex] = useState(
-    new Date().getMonth()
-  );
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth());
   const currentYear = new Date().getFullYear();
 
-  const {
+ const {
     data: patientData,
     isLoading: isPatientLoading,
     error: patientError,
@@ -75,9 +69,6 @@ const [isModalVisible, setIsModalVisible] = useState(false);
     error: toyError,
   } = useGetToyByPatientIdQuery(patientId);
 
-  const toyMacAddress = toyData?.macAddress;
-  const patientTag = toyData?.name || "Sin Peluche";
-
   const {
     data: patientActivitySummary,
     isLoading: isActivitySummaryLoading,
@@ -86,6 +77,8 @@ const [isModalVisible, setIsModalVisible] = useState(false);
     { month: selectedMonthIndex + 1, dummy: false },
     { skip: !patientId }
   );
+
+  const patientTag = toyData?.name || "Sin Peluche";
 
   const { fromDate, toDate } = useMemo(() => {
     const monthStart = new Date(currentYear, selectedMonthIndex, 1);
@@ -96,17 +89,6 @@ const [isModalVisible, setIsModalVisible] = useState(false);
       toDate: monthEnd.toISOString().split("T")[0],
     };
   }, [selectedMonthIndex, currentYear]);
-
-  const safeMacAddress = toyMacAddress ?? "";
-
-  // const {
-  //   data: toyReadingsSummary,
-  //   isLoading: isToyReadingsLoading,
-  //   error: toyReadingsError,
-  // } = useGetToyReadingsSummaryQuery(
-  //   { macAddress: safeMacAddress, from: fromDate, to: toDate, dummy: false },
-  //   { skip: !toyMacAddress }
-  // );
 
   const patientInfo = useMemo(() => {
     if (!patientData) {
@@ -122,7 +104,7 @@ const [isModalVisible, setIsModalVisible] = useState(false);
       };
     }
 
-    const calculatedAge = `${patientData.age || 0} Años`;
+   const calculatedAge = `${patientData.age || 0} Años`;
     const calculatedBMI =
       patientData.height && patientData.weight
         ? (
@@ -131,7 +113,7 @@ const [isModalVisible, setIsModalVisible] = useState(false);
           ).toFixed(1)
         : 0;
 
-    return {
+     return {
       id: patientData.id,
       name: `${patientData.name || ""} ${patientData.lastName || ""}`,
       age: calculatedAge,
@@ -143,14 +125,9 @@ const [isModalVisible, setIsModalVisible] = useState(false);
     };
   }, [patientData, patientTag]);
 
-  const isLoading =
-    isPatientLoading ||
-    isToyLoading ||
-        isActivitySummaryLoading;
-    // isActivitySummaryLoading ||
-    // isToyReadingsLoading;
+  const isLoading = isPatientLoading || isToyLoading || isActivitySummaryLoading;
 
-  const getErrorStatus = (error: any, label: string) => {
+   const getErrorStatus = (error: any, label: string) => {
     if (!error || typeof error !== "object") return null;
     if ("status" in error) {
       if (error.status === 404) return `${label}: recurso no encontrado (404)`;
@@ -163,38 +140,28 @@ const [isModalVisible, setIsModalVisible] = useState(false);
     getErrorStatus(patientError, "Paciente") ||
     getErrorStatus(toyError, "Juguete") ||
     getErrorStatus(activitySummaryError, "Resumen actividad") ||
-    // getErrorStatus(toyReadingsError, "Lecturas juguete") ||
     "Error desconocido";
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={styles.loadingText}>
-          Cargando perfil y actividad del paciente...
-        </Text>
+        <Text style={styles.loadingText}>Cargando perfil y actividad del paciente...</Text>
       </View>
     );
   }
 
 const isToyNotFound = toyError && "status" in toyError && toyError.status === 404;
+  const hasCriticalError = patientError || activitySummaryError || (toyError && !isToyNotFound);
 
-const hasCriticalError =
-  patientError ||
-  activitySummaryError ||
-  // toyReadingsError ||
-  (toyError && !isToyNotFound); // ⚠️ Ignora 404
-
-if (hasCriticalError) {
-  return (
-    <View style={styles.errorContainer}>
-      <Text style={styles.errorText}>
-        Error al cargar el perfil o la actividad:
-      </Text>
-      <Text style={styles.errorText}>{errorMessage}</Text>
-    </View>
-  );
-}
+  if (hasCriticalError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Error al cargar el perfil o la actividad:</Text>
+        <Text style={styles.errorText}>{errorMessage}</Text>
+      </View>
+    );
+  }
 
 
   if (!patientData) {
@@ -206,112 +173,96 @@ if (hasCriticalError) {
   }
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.container}>
-        <HeaderProfile />
+      <HeaderProfile />
 
-        <View style={styles.avatarContainer}>
-          <Image
-            source={require("../../shared/assets/img/perfil.png")}
-            style={styles.avatar}
-          />
-          <TouchableOpacity
-  style={[styles.tagButton, !toyData && styles.disabledButton]}
-  onPress={() => {
-    if (toyData) {
-      navigation.navigate("DetallesPeluche", { toy: toyData });
-    }
-  }}
-  disabled={!toyData}
->
-  <Text style={[styles.tagText, !toyData && styles.disabledText]}>
-    {toyData ? toyData.name : "Sin peluche asignado"}
-  </Text>
-</TouchableOpacity>
-
-
-        </View>
-
-        
-
-
-        {/* Información personal */}
-        <View style={styles.infoContainer}>
-          <Text style={styles.name}>{patientInfo.name}</Text>
-          <Text style={styles.subText}>{patientInfo.age}</Text>
-        </View>
-
-        {/* Datos físicos con divisores */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <Text style={styles.statValueWithUnit}>
-              {patientInfo.height}
-              <Text style={styles.statUnit}>cm</Text>
-            </Text>
-            <Text style={styles.statLabel}>Altura</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.statBox}>
-            <Text style={styles.statValueWithUnit}>
-              {patientInfo.weight}
-              <Text style={styles.statUnit}>kg</Text>
-            </Text>
-            <Text style={styles.statLabel}>Peso</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.statBox}>
-            <Text style={styles.statValue}>{patientInfo.bmi}</Text>
-            <Text style={styles.statUnit}>IMC</Text>
-          </View>
-        </View>
-
-        {/* BOTONES CON NAVEGACIÓN */}
-        <View style={styles.buttonGroup}>
-     <TouchableOpacity
-  style={styles.stressButton}
-  onPress={() => setIsModalVisible(true)}
->
-  <Text style={styles.stressText}>Gráficas en tiempo real</Text>
-</TouchableOpacity>
-        </View>
-
-    {/* AQUI SE INTEGRARA el componente ToyHistoryScreen.tsx*/}
-{toyData && toyData.macAddress ? (
-          <ToyHistoryComponent macAddress={toyData.macAddress} patientId={patientId} />
-        ) : (
-          <View >
-            <Text>
-              No hay un peluche asignado a este paciente para mostrar el historial de lecturas.
-            </Text>
-          </View>
-        )}
-
-
+      <View style={styles.avatarContainer}>
+        <Image source={require("../../shared/assets/img/perfil.png")} style={styles.avatar} />
+        <TouchableOpacity
+          style={[styles.tagButton, !toyData && styles.disabledButton]}
+          onPress={() => {
+            if (toyData) {
+              navigation.navigate("DetallesPeluche", {
+                patientId,
+                macAddress: toyData.macAddress,
+              });
+            }
+          }}
+          disabled={!toyData}
+        >
+          <Text style={[styles.tagText, !toyData && styles.disabledText]}>
+            {toyData ? toyData.name : "Sin peluche asignado"}
+          </Text>
+        </TouchableOpacity>
       </View>
-<Modal
-  visible={isModalVisible}
-  animationType="slide"
-  presentationStyle="pageSheet"
-  onRequestClose={() => setIsModalVisible(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalHeader}>
-      <Text style={styles.modalTitle}>Gráficas en Tiempo Real</Text>
-      <TouchableOpacity
-        style={styles.closeButton}
-        onPress={() => setIsModalVisible(false)}
+
+      <View style={styles.infoContainer}>
+        <Text style={styles.name}>{patientInfo.name}</Text>
+        <Text style={styles.subText}>{patientInfo.age}</Text>
+      </View>
+
+      <View style={styles.statsContainer}>
+        <View style={styles.statBox}>
+          <Text style={styles.statValueWithUnit}>
+            {patientInfo.height}
+            <Text style={styles.statUnit}>cm</Text>
+          </Text>
+          <Text style={styles.statLabel}>Altura</Text>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.statBox}>
+          <Text style={styles.statValueWithUnit}>
+            {patientInfo.weight}
+            <Text style={styles.statUnit}>kg</Text>
+          </Text>
+          <Text style={styles.statLabel}>Peso</Text>
+        </View>
+        <View style={styles.divider} />
+        <View style={styles.statBox}>
+          <Text style={styles.statValue}>{patientInfo.bmi}</Text>
+          <Text style={styles.statUnit}>IMC</Text>
+        </View>
+      </View>
+
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          style={styles.stressButton}
+          onPress={() => setIsModalVisible(true)}
+        >
+          <Text style={styles.stressText}>Gráficas en tiempo real</Text>
+        </TouchableOpacity>
+      </View>
+
+      {toyData && toyData.macAddress ? (
+        <ToyHistoryComponent macAddress={toyData.macAddress} patientId={patientId} />
+      ) : (
+        <View>
+          <Text>
+            No hay un peluche asignado a este paciente para mostrar el historial de lecturas.
+          </Text>
+        </View>
+      )}
+
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setIsModalVisible(false)}
       >
-        <Text style={styles.closeButtonText}>✕</Text>
-      </TouchableOpacity>
-    </View>
-    <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
-      <RealTimeCharts socketData={socketData} />
-    </ScrollView>
-  </View>
-</Modal>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Gráficas en Tiempo Real</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setIsModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+            {isModalVisible && <RealTimeChartsWrapper />}
+          </ScrollView>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
