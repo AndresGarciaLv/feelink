@@ -21,6 +21,14 @@ interface Props {
 }
 
 const RealTimeCharts: React.FC<Props> = ({ socketData }) => {
+
+  if (!socketData?.sensorData) {
+    return (
+      <View style={{ padding: 16 }}>
+        <Text style={{ textAlign: 'center', color: 'gray' }}>Cargando datos del peluche...</Text>
+      </View>
+    );
+  }
   const { pressurePercent, accelX, accelY, accelZ, gyroX, gyroY } =
     socketData.sensorData;
 
