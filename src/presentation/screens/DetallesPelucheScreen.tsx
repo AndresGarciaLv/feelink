@@ -62,11 +62,11 @@ const wsData = macAddress ? useToyWebSocket('esp32', macAddress) : null;
   <>
     <PressureProgressBar pressure={wsData.pressure} />
 
-    <WifiStatusCard
+ {/*    <WifiStatusCard
       icon={<WifiIcon size={24} color="black" />}
       ssid={wsData.ssid}
       macAddress={macAddress}
-    />
+    /> */}
 
     <PelucheConnectionCard ssid={wsData.ssid} battery={wsData.battery} />
   </>
