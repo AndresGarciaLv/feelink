@@ -1,6 +1,4 @@
-// /src/screens/DetallesPelucheScreen.tsx
-
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   ScrollView,
@@ -15,7 +13,6 @@ import { RootStackParamList } from '../../core/types/common/navigation';
 
 // Componentes
 import PelucheHeader from '../../shared/components/peluche/PelucheHeader';
-import ConnectionToggleCard from '../../shared/components/peluche/ConnectionToggleCard';
 import WifiStatusCard from '../../shared/components/peluche/WifiStatusCard';
 import PelucheConnectionCard from '../../shared/components/peluche/PelucheConnectionCard';
 import MessageCarousel from '../../shared/components/peluche/MessageCarousel';
@@ -28,6 +25,9 @@ import BluetoothIcon from '../../shared/components/peluche/BluetootIcon';
 import PelucheIcon from '../../shared/components/peluche/PelucheIcon';
 import WifiIcon from '../../shared/components/peluche/WifiIcon';
 
+// Hooks
+import { useWebSocketSensor } from '../../shared/hooks/useWebSocketSensor';
+
 // Estilos
 import { styles as pelucheStyles } from '../../shared/components/peluche/styles/PelucheStyles';
 
@@ -38,9 +38,11 @@ export default function DetallesPelucheScreen() {
   const route = useRoute<DetallesPelucheRouteProp>();
   const { patientId } = route.params;
 
-  const [wifiConnected, setWifiConnected] = useState(false);
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
+
+  // ✅ Datos en tiempo real desde WebSocket
+  const { ssid, battery } = useWebSocketSensor('esp32', 'F8:B3:B7:30:34:80');
 
   return (
     <SafeAreaView style={pelucheStyles.container}>
@@ -60,21 +62,18 @@ export default function DetallesPelucheScreen() {
 
         {/* Cards de información */}
         <View style={pelucheStyles.cardsContainer}>
-          {/* Progress bar con datos en tiempo real */}
+          {/* Presión en tiempo real */}
           <PressureProgressBar identifier="F8:B3:B7:30:34:80" />
 
+          {/* 🟢 Conexión Wi-Fi con botón toggle funcional */}
           <WifiStatusCard
             icon={<WifiIcon size={24} color="black" />}
-            connected={wifiConnected}
-            ssid="HAPPY"
-            onToggle={() => setWifiConnected(!wifiConnected)}
+            ssid={ssid}
+            macAddress="F8:B3:B7:30:34:80"
           />
 
-          <PelucheConnectionCard
-            connected={wifiConnected}
-            name="Peluchin"
-            batteryLevel={80}
-          />
+          {/* Estado de batería y red */}
+          <PelucheConnectionCard ssid={ssid} battery={battery} />
         </View>
 
         {/* Carrusel de mensajes */}
@@ -89,7 +88,7 @@ export default function DetallesPelucheScreen() {
         />
       </ScrollView>
 
-      {/* TabBar fijo al fondo */}
+      {/* TabBar al fondo */}
       <View style={[pelucheStyles.tabBarWrapper, { bottom: insets.bottom || 12 }]}>
         <TabBar />
       </View>

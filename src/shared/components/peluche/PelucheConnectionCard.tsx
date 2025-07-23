@@ -11,13 +11,6 @@ import PelucheIconN from './PelucheIconN';
 
 const { width } = Dimensions.get('window');
 
-interface Props {
-  connected: boolean;
-  name?: string;
-  batteryLevel?: number;
-  batteryPosition?: number;
-}
-
 const BatteryIcon = ({ size = 24, color = '#fff' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path fill={color} fillOpacity={0.3} d="M17 5.33C17 4.6 16.4 4 15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33V9h10z" />
@@ -25,12 +18,14 @@ const BatteryIcon = ({ size = 24, color = '#fff' }) => (
   </Svg>
 );
 
-export default function PelucheConnectionCard({
-  connected,
-  name = 'Peluchin',
-  batteryLevel = 80,
-  batteryPosition = 10,
-}: Props) {
+interface Props {
+  ssid: string;
+  battery: number;
+}
+
+export default function PelucheConnectionCard({ ssid, battery }: Props) {
+  const connected = ssid !== '';
+
   return (
     <View style={[styles.card, !connected && styles.disconnectedCard]}>
       {!connected ? (
@@ -45,13 +40,13 @@ export default function PelucheConnectionCard({
           <View style={styles.leftSection}>
             <PelucheIcon size={40} />
             <View style={styles.textContainer}>
-              <Text style={styles.name} numberOfLines={1}>{name}</Text>
+              <Text style={styles.name} numberOfLines={1}>{ssid}</Text>
               <Text style={styles.status}>Conectado</Text>
             </View>
           </View>
-          <View style={[styles.rightSection, { right: `${batteryPosition}%` }]}>
+          <View style={[styles.rightSection, { right: `${10}%` }]}>
             <BatteryIcon size={24} color="#fff" />
-            <Text style={styles.batteryText}>{batteryLevel}%</Text>
+            <Text style={styles.batteryText}>{battery}%</Text>
           </View>
         </>
       )}
@@ -128,5 +123,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     includeFontPadding: false,
   },
-  
 });
